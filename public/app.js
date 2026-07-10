@@ -1442,14 +1442,59 @@ const PhenologyManager = {
  * GeoAI Workflow Manager
  * =======================================================*/
 const GeoAIWorkflowManager = {
+    _wired: false,
+
     init() {
+        this.setupControls();
+        PatchAnalysisManager.setupControls();
         const loc = MapManager.getCurrentLocation();
         this.updateLocation(loc.lat, loc.lng);
+    },
+
+    setupControls() {
+        if (this._wired) return;
+        this._wired = true;
+
+        const runBtn = document.getElementById('workflow-run');
+        if (runBtn) runBtn.addEventListener('click', () => this.run());
+
+        const centerBtn = document.getElementById('workflow-use-center');
+        if (centerBtn) centerBtn.addEventListener('click', () => {
+            if (!AppState.map || typeof AppState.map.getCenter !== 'function') return;
+            const center = AppState.map.getCenter();
+            MapManager.setMarker(center.lat, center.lng);
+            this.updateLocation(center.lat, center.lng);
+            PatchAnalysisManager.updateLocation(center.lat, center.lng);
+        });
     },
 
     updateLocation(lat, lng) {
         const el = document.getElementById('workflow-coords');
         if (el) el.textContent = `${lat.toFixed(4)}, ${lng.toFixed(4)}`;
+    },
+
+    async run() {
+        this._syncPatchControls();
+        this._setRunningState();
+        await PatchAnalysisManager.run();
+    },
+
+    _syncPatchControls() {
+        const pairs = [
+            ['workflow-radius', 'patch-radius'],
+            ['workflow-product', 'patch-product'],
+            ['workflow-years', 'patch-years']
+        ];
+        for (const [sourceId, targetId] of pairs) {
+            const source = document.getElementById(sourceId);
+            const target = document.getElementById(targetId);
+            if (source && target) target.value = source.value;
+        }
+    },
+
+    _setRunningState() {
+        const status = document.getElementById('workflow-status');
+        if (status) status.textContent = 'Running full GeoAI workflow...';
     }
 };
 
@@ -1482,8 +1527,11 @@ const PatchAnalysisManager = {
     },
 
     updateLocation(lat, lng) {
-        const el = document.getElementById('patch-coords');
-        if (el) el.textContent = `${lat.toFixed(4)}, ${lng.toFixed(4)}`;
+        const text = `${lat.toFixed(4)}, ${lng.toFixed(4)}`;
+        for (const id of ['patch-coords', 'workflow-coords']) {
+            const el = document.getElementById(id);
+            if (el) el.textContent = text;
+        }
     },
 
     async run() {
@@ -1739,14 +1787,19 @@ const PatchAnalysisManager = {
     },
 
     _plot(series, patchStats, interpretation) {
-        const el = document.getElementById('patch-chart');
-        if (!el) return;
+        const chartIds = ['patch-chart', 'workflow-chart'];
         if (!series.length) {
-            el.innerHTML = '<div class="note" style="padding:12px;">Vegetation time series is unavailable from the remote sensing source. Phenology and climate interpretation still completed from POWER daily data.</div>';
+            for (const id of chartIds) {
+                const el = document.getElementById(id);
+                if (el) el.innerHTML = '<div class="note" style="padding:12px;">Vegetation time series is unavailable from the remote sensing source. Phenology and climate interpretation still completed from POWER daily data.</div>';
+            }
             return;
         }
         if (!window.Plotly) {
-            el.innerHTML = '<div class="note" style="padding:12px;">Plotly is unavailable.</div>';
+            for (const id of chartIds) {
+                const el = document.getElementById(id);
+                if (el) el.innerHTML = '<div class="note" style="padding:12px;">Plotly is unavailable.</div>';
+            }
             return;
         }
 
@@ -1780,7 +1833,7 @@ const PatchAnalysisManager = {
             });
         }
 
-        Plotly.newPlot(el, traces, {
+        const layout = {
             paper_bgcolor: '#334155',
             plot_bgcolor: '#334155',
             margin: { l: 44, r: 18, t: 28, b: 40 },
@@ -1789,7 +1842,12 @@ const PatchAnalysisManager = {
             yaxis: { title: 'Index value', range: [-0.1, 1], color: '#cbd5e1', gridcolor: '#475569' },
             font: { color: '#cbd5e1' },
             legend: { orientation: 'h', y: -0.2 }
-        }, { displayModeBar: false, responsive: true });
+        };
+
+        for (const id of chartIds) {
+            const el = document.getElementById(id);
+            if (el) Plotly.newPlot(el, traces, layout, { displayModeBar: false, responsive: true });
+        }
     },
 
     _setOutputs({ health, risk, bloom, summary }) {
@@ -1797,7 +1855,11 @@ const PatchAnalysisManager = {
             'patch-health': health,
             'patch-risk': risk,
             'patch-bloom': bloom,
-            'patch-summary': summary
+            'patch-summary': summary,
+            'workflow-health': health,
+            'workflow-risk': risk,
+            'workflow-bloom': bloom,
+            'workflow-summary': summary
         };
         for (const [id, value] of Object.entries(map)) {
             const el = document.getElementById(id);
@@ -1806,8 +1868,10 @@ const PatchAnalysisManager = {
     },
 
     _setStatus(text) {
-        const el = document.getElementById('patch-status');
-        if (el) el.textContent = text;
+        for (const id of ['patch-status', 'workflow-status']) {
+            const el = document.getElementById(id);
+            if (el) el.textContent = text;
+        }
     },
 
     _clamp(value, min, max) {

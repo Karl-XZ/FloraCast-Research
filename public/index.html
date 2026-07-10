@@ -581,6 +581,52 @@
 <div><span>Climate driver</span><strong>POWER Daily</strong></div>
 <div><span>Deployment</span><strong>ModelScope Space ready</strong></div>
 </div>
+<div class="workflow-runner">
+<div class="workflow-runner-head">
+<div>
+<h4>Run GeoAI Workflow</h4>
+<p>Use the current map marker and radius to execute the full chain: spatial patch → remote-sensing metrics → POWER phenology → health/risk/bloom interpretation.</p>
+</div>
+</div>
+<div class="workflow-controls">
+<div class="control-group">
+<label>Patch radius (km)</label>
+<input id="workflow-radius" max="200" min="1" step="1" type="number" value="25"/>
+</div>
+<div class="control-group">
+<label>Vegetation product</label>
+<select id="workflow-product">
+<option value="MOD13Q1">MOD13Q1 · MODIS Terra · 16-day (250m)</option>
+<option value="VNP13A1">VNP13A1 · VIIRS SNPP · 16-day (500m)</option>
+</select>
+</div>
+<div class="control-group">
+<label>History length (years)</label>
+<input id="workflow-years" max="5" min="1" step="1" type="number" value="2"/>
+</div>
+</div>
+<div class="button-group">
+<button class="btn btn-primary" id="workflow-run">Run Full Workflow</button>
+<button class="btn" id="workflow-use-center">Use Current Map Center</button>
+</div>
+<div class="note" id="workflow-status">Ready. Select a map point or use the current map center, then run the workflow.</div>
+<div class="patch-kpi-grid workflow-kpis">
+<div class="patch-kpi">
+<span>Vegetation health</span>
+<strong id="workflow-health">—</strong>
+</div>
+<div class="patch-kpi">
+<span>Phenology risk</span>
+<strong id="workflow-risk">—</strong>
+</div>
+<div class="patch-kpi">
+<span>Bloom window</span>
+<strong id="workflow-bloom">—</strong>
+</div>
+</div>
+<div class="patch-summary" id="workflow-summary">Run the workflow to generate evidence-backed patch interpretation.</div>
+<div class="chart-container patch-chart" id="workflow-chart"></div>
+</div>
 </div>
 </div>
 <!-- Patch analysis panel -->

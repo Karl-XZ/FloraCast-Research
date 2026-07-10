@@ -370,7 +370,7 @@ const MapManager = {
             zoom: 9,
             zoomControl: true
         });
-        L.tileLayer(CONFIG.AMAP_VECTOR, { attribution: '© 高德地图' }).addTo(AppState.map);
+        L.tileLayer(CONFIG.AMAP_VECTOR, { attribution: '© Amap' }).addTo(AppState.map);
     },
 
     async createMapB() {
@@ -2422,11 +2422,11 @@ Using the local data above, address the user's question with concrete, location-
 
 /* =========================================================
  * ForecastManager — NDVI/EVI 30-day prediction (in-app)
- * 依赖：MapManager, VegetationManager, Utils；Plotly（画图），tf.js（可选）
+ * Dependencies: MapManager, VegetationManager, Utils, Plotly for charts, and optional tf.js.
  * =======================================================*/
 const ForecastManager = {
   init() {
-    // 只做一次事件绑定
+    // Bind UI events once.
     if (this._bound) return;
     this._bound = true;
 
@@ -2448,28 +2448,28 @@ const ForecastManager = {
     if (statsEl) statsEl.textContent = 'Fetching VI history…';
 
     try {
-      // 1) 历史 VI （按产品；用 RST dates/subset）
+      // 1) Historical VI by product using remote-sensing dates/subsets.
       const viSeries = await this._fetchVISeries(product, target, lat, lng, years);
       if (!viSeries.length) { if (statsEl) statsEl.textContent = 'No VI history here.'; return; }
 
-      // 2) 同期 POWER 天气（按 VI 日期±8天聚合）
+      // 2) Matching POWER weather aggregated around each VI date.
       if (statsEl) statsEl.textContent = 'Fetching weather…';
       const wxByDate = await this._fetchWeatherByDate(viSeries, lat, lng);
 
-      // 3) 组数据集（滞后特征+季节项+天气）
+      // 3) Build dataset with lag, seasonal, and weather features.
       if (statsEl) statsEl.textContent = 'Building dataset…';
       const ds = this._buildDataset(viSeries, wxByDate);
       if (ds.x.length < 24) { if (statsEl) statsEl.textContent = 'Not enough samples to train.'; return; }
 
-      // 4) 训练（优先 tf.js 小 MLP；否则线性回归兜底）
+      // 4) Train a small tf.js MLP, falling back to linear regression.
       if (statsEl) statsEl.textContent = (window.tf ? 'Training TF.js model…' : 'Training linear baseline…');
       const model = await this._trainModel(ds, { epochs, lr });
 
-      // 5) 预测未来30天（逐日步进，天气用近30天统计近似）
+      // 5) Forecast the next 30 days with recent-weather approximation.
       if (statsEl) statsEl.textContent = 'Forecasting next 30 days…';
       const fc = this._forecastNext30Days(viSeries, wxByDate, model);
 
-      // 6) 画图
+      // 6) Plot forecast.
       this._plot(viSeries, fc, target);
       if (statsEl) statsEl.textContent = `Done. Samples: ${ds.x.length}, RMSE (train): ${model.rmse?.toFixed?.(4) ?? '—'}`;
     } catch (err) {
@@ -2486,7 +2486,7 @@ const ForecastManager = {
     if (!window.Plotly && chartEl) chartEl.innerHTML = '';
   },
 
-  // ---------- 数据获取 ----------
+  // ---------- Data fetching ----------
 
   async _fetchSubsetSafe(product, lat, lng, startDate, endDate) {
     // Robust subset fetch: retry + simple in-memory cache
@@ -2515,7 +2515,7 @@ const ForecastManager = {
     const all = (datesJson?.dates || []);
     if (!all.length) return [];
 
-    const entries = all.slice(-Math.ceil((365/16) * years)); // ~16天合成
+    const entries = all.slice(-Math.ceil((365/16) * years)); // ~16-day composites
     const series = [];
 
     // Limited concurrency to avoid slow sequential requests and transient API hiccups
@@ -2601,7 +2601,7 @@ const ForecastManager = {
     return wx;
   },
 
-  // ---------- 数据集与特征 ----------
+  // ---------- Dataset and features ----------
 
   _buildDataset(viSeries, wxByDate) {
     const x=[], y=[];
@@ -2634,12 +2634,12 @@ const ForecastManager = {
     return { x, y };
   },
 
-  // ---------- 训练 ----------
+  // ---------- Training ----------
 
   async _trainModel(ds, { epochs, lr }) {
     const X = ds.x, Y = ds.y;
 
-    // 标准化
+    // Standardization
     const mu=[], sig=[]; const cols = X[0].length;
     for (let j=0;j<cols;j++){
       const col = X.map(r=>r[j]);
@@ -2654,7 +2654,7 @@ const ForecastManager = {
     const yN = Y.map(v => (v - yMu)/ySig);
 
     if (window.tf) {
-      // tf.js 小 MLP
+      // Small tf.js MLP
       const model = tf.sequential();
       model.add(tf.layers.dense({ units: 32, activation: 'relu', inputShape:[cols] }));
       model.add(tf.layers.dense({ units: 16, activation: 'relu' }));
@@ -2678,7 +2678,7 @@ const ForecastManager = {
       };
       return { type:'tf', infer, rmse };
     } else {
-      // 线性回归
+      // Linear regression
       const XT = this._transpose(xN);
       const XTX = this._matMul(XT, xN);
       const XTy = this._matVec(XT, yN);
@@ -2738,7 +2738,7 @@ const ForecastManager = {
     return out;
   },
 
-  // ---------- 绘图 ----------
+  // ---------- Plotting ----------
 
   _plot(hist, fc, label) {
     const el = document.getElementById('fc-chart');
@@ -2765,7 +2765,7 @@ const ForecastManager = {
     }, { displayModeBar: false, responsive: true });
   },
 
-  // ---------- 小工具 ----------
+  // ---------- Utilities ----------
 
   _toISO(modisDate) {
     if (modisDate == null) return null;
@@ -2834,7 +2834,7 @@ const ForecastManager = {
   }
 };
 
-// 挂到全局，供 UIManager 调用
+// Expose globally for UIManager.
 window.ForecastManager = ForecastManager;
 
 

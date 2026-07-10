@@ -8,6 +8,7 @@
 const CONFIG = {
     // Default location: Qingdao, China (AP-GARSS 2026 venue city).
     INIT: { lat: 36.0671, lng: 120.3826 },
+    INIT_ZOOM: 1.0,
     YEAR: new Date().getUTCFullYear(),
 
     // Domestic base map for China-friendly deployment.
@@ -367,7 +368,7 @@ const MapManager = {
     createMapA() {
         AppState.map = L.map('map', {
             center: [CONFIG.INIT.lat, CONFIG.INIT.lng],
-            zoom: 9,
+            zoom: CONFIG.INIT_ZOOM,
             zoomControl: true
         });
         L.tileLayer(CONFIG.AMAP_VECTOR, { attribution: '© Amap' }).addTo(AppState.map);

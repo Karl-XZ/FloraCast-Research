@@ -25,7 +25,8 @@ export const WEATHER_VARIABLES = [
 function finite(val, fallback = null) {
   if (val == null || val === '') return fallback;
   const num = Number(val);
-  return Number.isFinite(num) ? num : fallback;
+  if (!Number.isFinite(num) || num <= -900) return fallback;
+  return num;
 }
 
 function getCacheKey(lat, lng, startYear, endYear) {

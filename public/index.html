@@ -47,17 +47,17 @@
 <!-- Historical Weather Search & Agent Panel -->
 <div class="panel" id="weather-search-panel">
 <div class="panel-header">
-<h3>🌤️ 历史气象搜索与科研 Agent</h3>
+<h3>历史气象搜索与科研 Agent</h3>
 <button aria-label="Close panel" class="panel-close" type="button">×</button>
 </div>
 <div class="panel-content">
   <!-- Mode Switch Tabs -->
   <div class="ws-tabs">
     <button type="button" class="ws-tab-btn active" id="ws-tab-search-btn" onclick="WeatherSearchManager.switchMode('search')">
-      🔍 自然语言历史气象检索
+      自然语言历史气象检索
     </button>
     <button type="button" class="ws-tab-btn" id="ws-tab-agent-btn" onclick="WeatherSearchManager.switchMode('agent')">
-      🤖 Climate Research Agent 模式
+      Climate Research Agent 模式
     </button>
   </div>
 
@@ -92,7 +92,7 @@
       <div class="control-group">
         <label>操作</label>
         <button type="button" class="btn primary" id="ws-search-btn" style="width: 100%; height: 38px; display: flex; align-items: center; justify-content: center; gap: 6px;" onclick="WeatherSearchManager.executeSearch()">
-          <span>🚀 检索历史事件</span>
+          <span>检索历史事件</span>
         </button>
       </div>
     </div>
@@ -106,7 +106,7 @@
     <!-- DeepSeek Parsed Card -->
     <div id="ws-parsed-card" class="ws-parsed-box" style="display: none;">
       <div class="ws-card-title">
-        <span>🤖 DeepSeek 结构化条件解析</span>
+        <span>DeepSeek 结构化条件解析</span>
         <span class="ws-badge" id="ws-parsed-loc-badge">青岛市</span>
       </div>
       <div class="ws-parsed-grid">
@@ -133,8 +133,8 @@
     <!-- Plotly Time Series Container -->
     <div id="ws-chart-wrapper" class="ws-chart-section" style="display: none;">
       <div class="ws-section-header">
-        <h4 id="ws-chart-title">📈 逐日多要素时序曲线</h4>
-        <button type="button" class="ws-mini-btn" onclick="WeatherSearchManager.closeChart()">✕ 收起</button>
+        <h4 id="ws-chart-title">逐日多要素时序曲线</h4>
+        <button type="button" class="ws-mini-btn" onclick="WeatherSearchManager.closeChart()"> 收起</button>
       </div>
       <div id="ws-plotly-div" style="width: 100%; height: 260px;"></div>
     </div>
@@ -142,8 +142,8 @@
     <!-- Vegetation Impact Container -->
     <div id="ws-veg-wrapper" class="ws-chart-section" style="display: none;">
       <div class="ws-section-header">
-        <h4 id="ws-veg-title">🌿 事件前后 MODIS/VIIRS 植被绿度响应</h4>
-        <button type="button" class="ws-mini-btn" onclick="WeatherSearchManager.closeVeg()">✕ 收起</button>
+        <h4 id="ws-veg-title">事件前后 MODIS/VIIRS 植被绿度响应</h4>
+        <button type="button" class="ws-mini-btn" onclick="WeatherSearchManager.closeVeg()"> 收起</button>
       </div>
       <div id="ws-veg-metrics" class="ws-veg-metrics-row"></div>
       <div id="ws-veg-plotly" style="width: 100%; height: 220px;"></div>
@@ -152,7 +152,7 @@
     <!-- Ranked Event Cards Container -->
     <div id="ws-results-container" style="display: none;">
       <div style="margin: 16px 0 8px 0; font-size: 13px; color: #94a3b8; display: flex; justify-content: space-between; align-items: center;">
-        <span style="font-weight: 600; color: #e2e8f0;">🏆 相似历史事件排序 (Top-K)</span>
+        <span style="font-weight: 600; color: #e2e8f0;">相似历史事件排序 (Top-K)</span>
         <span id="ws-results-count" style="font-size: 11px; color: #64748b;">--</span>
       </div>
       <div id="ws-events-list" class="ws-events-list"></div>
@@ -180,7 +180,7 @@
 
     <div style="margin-top: 12px;">
       <button type="button" class="btn primary" id="ws-run-agent-btn" style="width: 100%; height: 40px; display: flex; align-items: center; justify-content: center; gap: 8px; font-weight: 600;" onclick="WeatherSearchManager.executeAgent()">
-        <span>⚡ 启动 Climate Agent 深度推演</span>
+        <span>启动 Climate Agent 深度推演</span>
       </button>
     </div>
 
@@ -203,7 +203,7 @@
     <!-- Thinking Stream Box -->
     <div id="ws-agent-thinking-wrapper" class="ws-thinking-section" style="display: none;">
       <div class="ws-thinking-header">
-        <span>🧠 Agent 实时推演与工具调用流</span>
+        <span>Agent 实时推演与工具调用流</span>
         <span class="ws-pulse-dot"></span>
       </div>
       <pre id="ws-agent-thinking-log" class="ws-thinking-pre">正在调度气象与遥感工具链...</pre>
@@ -211,7 +211,7 @@
 
     <!-- Comparison Matrix Table -->
     <div id="ws-agent-matrix-wrapper" class="ws-matrix-section" style="display: none;">
-      <h4 style="font-size: 13px; color: #93c5fd; margin-bottom: 8px;">📊 多事件极端气象与植被损耗横向矩阵</h4>
+      <h4 style="font-size: 13px; color: #93c5fd; margin-bottom: 8px;"> 多事件极端气象与植被损耗横向矩阵</h4>
       <div style="overflow-x: auto;">
         <table class="ws-matrix-table" id="ws-agent-matrix-table">
           <thead>
@@ -234,8 +234,8 @@
     <!-- Agent Final Report -->
     <div id="ws-agent-report-wrapper" class="ws-report-section" style="display: none;">
       <div class="ws-report-header">
-        <h4>📑 DeepSeek 气象归因与生态响应学术报告</h4>
-        <button type="button" class="ws-mini-btn" onclick="WeatherSearchManager.copyReport()">📋 复制全文</button>
+        <h4>DeepSeek 气象归因与生态响应学术报告</h4>
+        <button type="button" class="ws-mini-btn" onclick="WeatherSearchManager.copyReport()">复制全文</button>
       </div>
       <div id="ws-agent-report-content" class="ws-report-body markdown-body"></div>
     </div>
@@ -254,7 +254,7 @@
 <li><a data-panel="layers" href="#">Layers · 图层与底图</a></li>
 <li><a data-panel="visualml" href="#">Visual Geo-ML (机器学习可视化)</a></li>
 <li><a data-panel="research" href="#">Research Agent (科研智能体协作)</a></li>
-<li><a data-panel="weather-search" href="#" style="color: #38bdf8; font-weight: 600;"><span style="margin-right: 6px;">🌤️</span>Historical Weather Search & Agent (气象搜索与Agent)</a></li>
+<li><a data-panel="weather-search" href="#">Weather Search (历史气象搜索与Agent)</a></li>
 <li><a data-panel="photos" href="#">Flower Photos</a></li>
 <li><a data-panel="plantid" href="#">Plant ID (Conservation)</a></li>
 <li><a data-panel="vegetation" href="#">Vegetation Index</a></li>

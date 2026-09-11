@@ -3030,6 +3030,87 @@ const WeatherSearchManager = {
         }
     },
 
+    
+    syncMapAndLayer(lat, lng, event) {
+        if (!lat || !lng) return;
+
+        // 1. Move camera / view to target region
+        if (typeof MapManager?.setMarker === 'function') {
+            MapManager.setMarker(lat, lng);
+        }
+        if (typeof MapManager?.flyTo === 'function') {
+            MapManager.flyTo(lat, lng, 8);
+        } else if (AppState?.map && typeof AppState.map.setView === 'function') {
+            AppState.map.setView([lat, lng], 8);
+        }
+
+        // 2. Derive event date ISO (YYYY-MM-DD)
+        const rawDate = String(event?.startDate || '');
+        let year = event?.year || 2024;
+        let dateISO = '';
+        if (rawDate.length === 8) {
+            dateISO = `${rawDate.slice(0, 4)}-${rawDate.slice(4, 6)}-${rawDate.slice(6, 8)}`;
+            year = parseInt(rawDate.slice(0, 4), 10);
+        } else if (rawDate.includes('-')) {
+            dateISO = rawDate;
+            year = parseInt(rawDate.slice(0, 4), 10);
+        }
+
+        if (!dateISO) return;
+
+        // 3. Synchronize global date state across all panels
+        AppState.currentEventDate = dateISO;
+        AppState.currentEventYear = year;
+
+        const weatherDate = document.getElementById('weather-date');
+        if (weatherDate) weatherDate.value = dateISO;
+
+        const viYear = document.getElementById('vi-year');
+        if (viYear) viYear.value = year;
+
+        const phenoYear = document.getElementById('phenology-year');
+        if (phenoYear) phenoYear.value = year;
+
+        // 4. Synchronize NASA Daily Satellite Layer in LayerManager
+        const layerSelect = document.getElementById('main-layer');
+        const yearInput = document.getElementById('layer-year');
+        const dateSlider = document.getElementById('layer-date');
+        const dateLabel = document.getElementById('layer-date-label');
+        const opacitySlider = document.getElementById('layer-opacity');
+
+        if (layerSelect) {
+            layerSelect.value = 'MODIS_Terra_CorrectedReflectance_TrueColor|jpg|1';
+        }
+        if (yearInput) {
+            yearInput.value = year;
+        }
+        if (opacitySlider) {
+            opacitySlider.value = 0.85;
+        }
+
+        if (typeof Utils?.genDates === 'function') {
+            const allDates = Utils.genDates(year, 1);
+            const dateIndex = allDates.indexOf(dateISO);
+            if (dateSlider && allDates.length > 0) {
+                dateSlider.max = allDates.length - 1;
+                dateSlider.value = dateIndex !== -1 ? dateIndex : 0;
+            }
+        }
+        if (dateLabel) {
+            dateLabel.textContent = dateISO;
+        }
+
+        // Trigger LayerManager update on Map A
+        if (typeof LayerManager?.updateLayer === 'function') {
+            LayerManager.updateLayer('A');
+        }
+
+        // Refresh heatmap if enabled
+        if (typeof LayerManager?.refreshHeatmap === 'function') {
+            LayerManager.refreshHeatmap('A');
+        }
+    },
+
     renderSearchResults(data) {
         const parsedCard = document.getElementById('ws-parsed-card');
         const pLocBadge = document.getElementById('ws-parsed-loc-badge');
@@ -3103,21 +3184,16 @@ const WeatherSearchManager = {
                     <span>Z(辐射): ${z.sol > 0 ? '+' : ''}${z.sol?.toFixed(2) ?? '0'}σ</span>
                 </div>
                 <div class="ws-actions-row">
-                    <button type="button" class="ws-card-btn ws-btn-loc" data-idx="${idx}">🗺️ 定位区域</button>
-                    <button type="button" class="ws-card-btn ws-btn-chart" data-idx="${idx}">📈 逐日曲线</button>
-                    <button type="button" class="ws-card-btn ws-btn-veg" data-idx="${idx}">🌿 植被响应</button>
+                    <button type="button" class="ws-card-btn ws-btn-loc" data-idx="${idx}">定位区域与卫星底图</button>
+                    <button type="button" class="ws-card-btn ws-btn-chart" data-idx="${idx}">逐日要素曲线</button>
+                    <button type="button" class="ws-card-btn ws-btn-veg" data-idx="${idx}">植被绿度响应</button>
                 </div>
             `;
 
             // Bind actions
             card.querySelector('.ws-btn-loc')?.addEventListener('click', () => {
-                const locObj = criteria.location;
-                if (locObj?.lat && locObj?.lng && typeof MapManager?.setMarker === 'function') {
-                    MapManager.setMarker(locObj.lat, locObj.lng);
-                    if (typeof MapManager.flyTo === 'function') {
-                        MapManager.flyTo(locObj.lat, locObj.lng, 10);
-                    }
-                }
+                const locObj = criteria.location || { lat: 36.0671, lng: 120.3826 };
+                WeatherSearchManager.syncMapAndLayer(locObj.lat, locObj.lng, ev);
             });
 
             card.querySelector('.ws-btn-chart')?.addEventListener('click', () => {
@@ -3147,70 +3223,89 @@ const WeatherSearchManager = {
         wrapper.style.display = 'block';
         setTimeout(() => wrapper.scrollIntoView({ behavior: 'smooth', block: 'nearest' }), 100);
         if (chartTitle) {
-            chartTitle.textContent = `📈 逐日气象要素曲线 (${event.startDate} ~ ${event.endDate})`;
+            chartTitle.textContent = `逐日气象要素曲线 (${event.startDate} ~ ${event.endDate})`;
         }
 
-        const dates = (event.series || []).map(r => `${r.date.slice(4,6)}-${r.date.slice(6,8)}`);
-        const t2m = (event.series || []).map(r => r.t2m);
-        const tmax = (event.series || []).map(r => r.t2m_max);
-        const precip = (event.series || []).map(r => r.prectotcorr);
-        const sol = (event.series || []).map(r => r.allsky_sfc_sw_dwn);
+        const rawSeries = event.series || [];
+        // Format explicit category strings to avoid Plotly epoch/date auto-parsing glitches
+        const xDates = rawSeries.map(r => {
+            const d = String(r.date);
+            return `${d.slice(0, 4)}-${d.slice(4, 6)}-${d.slice(6, 8)}`;
+        });
+        const xTicks = rawSeries.map(r => {
+            const d = String(r.date);
+            return `${d.slice(4, 6)}/${d.slice(6, 8)}`;
+        });
+
+        const t2m = rawSeries.map(r => (r.t2m != null && r.t2m > -900) ? Number(r.t2m.toFixed(2)) : null);
+        const tmax = rawSeries.map(r => (r.t2m_max != null && r.t2m_max > -900) ? Number(r.t2m_max.toFixed(2)) : null);
+        const precip = rawSeries.map(r => (r.prectotcorr != null && r.prectotcorr >= 0) ? Number(r.prectotcorr.toFixed(2)) : 0);
+        const sol = rawSeries.map(r => (r.allsky_sfc_sw_dwn != null && r.allsky_sfc_sw_dwn >= 0) ? Number(r.allsky_sfc_sw_dwn.toFixed(2)) : null);
 
         const traces = [
             {
                 name: '日均温(°C)',
-                x: dates,
+                x: xDates,
                 y: t2m,
                 type: 'scatter',
                 mode: 'lines+markers',
                 line: { color: '#38bdf8', width: 2.5 },
-                marker: { size: 5, color: '#38bdf8' }
+                marker: { size: 5, color: '#38bdf8' },
+                yaxis: 'y'
             },
             {
                 name: '最高温(°C)',
-                x: dates,
+                x: xDates,
                 y: tmax,
                 type: 'scatter',
                 mode: 'lines',
-                line: { color: '#f43f5e', width: 2, dash: 'dot' }
+                line: { color: '#f43f5e', width: 2, dash: 'dot' },
+                yaxis: 'y'
             },
             {
-                name: '降水量(mm)',
-                x: dates,
-                y: precip,
-                type: 'bar',
-                yaxis: 'y2',
-                marker: { color: 'rgba(52, 211, 153, 0.6)' }
-            },
-            {
-                name: '短波辐射(MJ)',
-                x: dates,
+                name: '短波辐射(MJ/m²)',
+                x: xDates,
                 y: sol,
                 type: 'scatter',
                 mode: 'lines',
-                yaxis: 'y3',
-                line: { color: '#f59e0b', width: 1.5 }
+                line: { color: '#fbbf24', width: 1.8 },
+                yaxis: 'y'
+            },
+            {
+                name: '降水量(mm)',
+                x: xDates,
+                y: precip,
+                type: 'bar',
+                yaxis: 'y2',
+                marker: { color: 'rgba(52, 211, 153, 0.65)' }
             }
         ];
 
         const layout = {
             paper_bgcolor: 'transparent',
-            plot_bgcolor: 'rgba(15, 23, 42, 0.4)',
+            plot_bgcolor: 'rgba(15, 23, 42, 0.5)',
             font: { color: '#94a3b8', size: 10 },
-            margin: { l: 40, r: 40, t: 30, b: 35 },
+            margin: { l: 45, r: 45, t: 25, b: 35 },
             legend: { orientation: 'h', y: 1.18, x: 0, font: { size: 10 } },
-            xaxis: { showgrid: true, gridcolor: 'rgba(255,255,255,0.06)' },
+            xaxis: {
+                type: 'category',
+                tickvals: xDates,
+                ticktext: xTicks,
+                showgrid: true,
+                gridcolor: 'rgba(255,255,255,0.06)',
+                tickfont: { color: '#94a3b8', size: 9 }
+            },
             yaxis: {
-                title: '温度 (°C)',
+                title: '温度 (°C) / 辐射 (MJ)',
                 titlefont: { color: '#38bdf8', size: 10 },
-                tickfont: { color: '#38bdf8' },
+                tickfont: { color: '#38bdf8', size: 9 },
                 showgrid: true,
                 gridcolor: 'rgba(255,255,255,0.06)'
             },
             yaxis2: {
                 title: '降水 (mm)',
                 titlefont: { color: '#34d399', size: 10 },
-                tickfont: { color: '#34d399' },
+                tickfont: { color: '#34d399', size: 9 },
                 overlaying: 'y',
                 side: 'right',
                 showgrid: false
@@ -3221,7 +3316,6 @@ const WeatherSearchManager = {
             Plotly.newPlot(plotlyDiv, traces, layout, { responsive: true, displayModeBar: false });
         }
     },
-
     closeChart() {
         const wrapper = document.getElementById('ws-chart-wrapper');
         if (wrapper) wrapper.style.display = 'none';
@@ -4709,7 +4803,7 @@ const ResearchAgentManager = {
             const userMsg = isConnError
                 ? '连接后台服务失败 (5174)。若服务意外关闭，请双击项目根目录 start_server.bat 重新启动，或刷新重试。'
                 : `启动失败: ${err.message}`;
-            if (statusEl) statusEl.innerHTML = `<span style="color:#f87171;">⚠️ ${userMsg}</span>`;
+            if (statusEl) statusEl.innerHTML = `<span style="color:#f87171;">️ ${userMsg}</span>`;
             if (runBtn) runBtn.disabled = false;
         }
     },

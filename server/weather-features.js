@@ -13,11 +13,34 @@ export function extractSlidingWindowEvents(rows, baseline, options = {}) {
 
   for (let i = 0; i <= rows.length - windowDays; i += stepDays) {
     const chunk = rows.slice(i, i + windowDays);
+    if (chunk.length < windowDays) continue;
+
     const startRow = chunk[0];
     const endRow = chunk[chunk.length - 1];
     const yr = startRow.year;
 
     if (yr < minYear || yr > maxYear) continue;
+
+    // 数据完整度与连续性严格校验：排除包含空值、无效值(-999)或非连续日期的滑动窗口
+    let hasMissing = false;
+    for (let k = 0; k < chunk.length; k++) {
+      const r = chunk[k];
+      if (r.t2m == null || r.t2m <= -900 || isNaN(r.t2m)) { hasMissing = true; break; }
+      if (r.t2m_max == null || r.t2m_max <= -900 || isNaN(r.t2m_max)) { hasMissing = true; break; }
+      if (r.t2m_min == null || r.t2m_min <= -900 || isNaN(r.t2m_min)) { hasMissing = true; break; }
+      if (r.prectotcorr == null || r.prectotcorr < 0 || isNaN(r.prectotcorr)) { hasMissing = true; break; }
+      if (r.allsky_sfc_sw_dwn == null || r.allsky_sfc_sw_dwn <= 0 || r.allsky_sfc_sw_dwn <= -900 || isNaN(r.allsky_sfc_sw_dwn)) { hasMissing = true; break; }
+    }
+    if (hasMissing) continue;
+
+    // 校验日期连续性
+    let continuous = true;
+    for (let k = 0; k < chunk.length - 1; k++) {
+      const d1 = new Date(Date.UTC(parseInt(chunk[k].date.slice(0,4)), parseInt(chunk[k].date.slice(4,6))-1, parseInt(chunk[k].date.slice(6,8))));
+      const d2 = new Date(Date.UTC(parseInt(chunk[k+1].date.slice(0,4)), parseInt(chunk[k+1].date.slice(4,6))-1, parseInt(chunk[k+1].date.slice(6,8))));
+      if (Math.round((d2 - d1) / 86400000) !== 1) { continuous = false; break; }
+    }
+    if (!continuous) continue;
 
     const midDoy = chunk[Math.floor(chunk.length / 2)].doy;
     const midMonth = parseInt(chunk[Math.floor(chunk.length / 2)].date.slice(4, 6), 10);

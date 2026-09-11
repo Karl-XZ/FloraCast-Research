@@ -652,7 +652,7 @@ app.post('/api/weather/agent/run', async (req, res) => {
 
 app.get('/api/weather/vegetation-diff', async (req, res) => {
   try {
-    const { lat, lon, startDate, endDate } = req.query;
+    const { lat, lon, startDate, endDate, zT2m, zPrecip, zSol, meanT, maxT, totalPrecip, cdd } = req.query;
     if (!startDate || !endDate) {
       return res.status(400).json({ error: 'startDate and endDate required (YYYY-MM-DD)' });
     }
@@ -663,26 +663,87 @@ app.get('/api/weather/vegetation-diff', async (req, res) => {
     const eDate = new Date(endDate.length === 8 ? `${endDate.slice(0,4)}-${endDate.slice(4,6)}-${endDate.slice(6,8)}` : endDate);
     const durationDays = Math.max(1, Math.round((eDate - sDate) / 86400000) + 1);
 
+    const zT = parseFloat(zT2m) || 0;
+    const zP = parseFloat(zPrecip) || 0;
+    const zS = parseFloat(zSol) || 0;
+    const cDry = parseFloat(cdd) || 0;
+    const totP = parseFloat(totalPrecip) || 0;
+
+    // Biophysical response modeling
+    let targetDelta = 0;
+    let impactSeverity = '常态平稳 (Stable)';
+
+    // Case 1: High Temp + High Rain (雨热同期 / 水热旺盛生长)
+    if (zT > 0 && (zP > 0.2 || (totP > 35 && cDry <= 4))) {
+      const heatFactor = Math.min(0.04, Math.max(0.01, zT * 0.02));
+      const rainFactor = Math.min(0.05, Math.max(0.015, (zP > 0 ? zP : (totP / 60)) * 0.025));
+      targetDelta = parseFloat((0.035 + heatFactor + rainFactor).toFixed(3));
+      impactSeverity = targetDelta >= 0.06 ? '水热旺盛生长 (Vigorous Growth)' : '雨热良性促进 (Favorable Hydrothermal)';
+    }
+    // Case 2: High Temp + Drought (高温干旱 / 伏旱缺水胁迫)
+    else if (zT > 0.4 && (zP < -0.3 || cDry >= 7 || totP < 10)) {
+      const heatStress = Math.min(2, Math.max(0.5, zT));
+      const dryStress = Math.min(2.5, Math.max(0.5, cDry / 5 + (zP < 0 ? Math.abs(zP) * 0.5 : 0)));
+      targetDelta = -parseFloat((Math.min(0.18, 0.04 + heatStress * 0.025 + dryStress * 0.03)).toFixed(3));
+      impactSeverity = targetDelta <= -0.09 ? '严重干旱萎蔫 (Severe Drought)' : '中度水分胁迫 (Moderate Drought)';
+    }
+    // Case 3: Cold / Frost (低温冷害 / 寒潮冻害)
+    else if (zT < -1.0) {
+      const coldStress = Math.abs(zT);
+      targetDelta = -parseFloat((Math.min(0.14, 0.03 + coldStress * 0.035)).toFixed(3));
+      impactSeverity = targetDelta <= -0.08 ? '严重低温冻害 (Severe Frost)' : '低温冷害受挫 (Cold Stress)';
+    }
+    // Case 4: Excessive Deluge + Overcast (持续暴雨渍涝 / 寡照抑制)
+    else if (zP > 2.0 && (zS < -0.8 || totP > 150)) {
+      targetDelta = -parseFloat((Math.min(0.08, 0.025 + (zP - 1.5) * 0.02)).toFixed(3));
+      impactSeverity = '短时水渍寡照 (Waterlogging Stress)';
+    }
+    // Case 5: Moderate Rain
+    else if (zP > 0.5) {
+      targetDelta = parseFloat((Math.min(0.06, 0.02 + zP * 0.02)).toFixed(3));
+      impactSeverity = '降水适度增润 (Moisture Surplus)';
+    }
+    // Case 6: Moderate Drought
+    else if (zP < -0.5 || cDry >= 5) {
+      targetDelta = -parseFloat((Math.min(0.06, 0.02 + Math.abs(zP) * 0.02)).toFixed(3));
+      impactSeverity = '轻度干旱受抑 (Mild Drought)';
+    }
+    else {
+      targetDelta = 0.008;
+      impactSeverity = '常态平稳波动 (Stable Baseline)';
+    }
+
     const preDays = 20;
     const postDays = 20;
     const timeline = [];
-    const baseNdvi = 0.58 + 0.12 * Math.sin((sDate.getMonth() / 12) * Math.PI * 2);
+    const month = sDate.getMonth();
+    // Climatological seasonal baseline
+    const baseNdvi = 0.55 + 0.12 * Math.sin(((month - 3) / 12) * Math.PI * 2);
 
     for (let d = -preDays; d <= durationDays + postDays; d++) {
       const curDate = new Date(sDate.getTime() + d * 86400000);
       const dateStr = curDate.toISOString().slice(0, 10);
       let phase = 'pre';
-      let ndviVal = baseNdvi + (Math.random() * 0.03 - 0.015);
+      let ndviVal = baseNdvi + (Math.random() * 0.016 - 0.008);
 
       if (d >= 0 && d < durationDays) {
         phase = 'during';
-        const progress = d / durationDays;
-        ndviVal = baseNdvi - (0.13 * Math.sin(progress * Math.PI)) + (Math.random() * 0.02 - 0.01);
+        const progress = (d + 0.5) / durationDays;
+        const curveShape = Math.sin(progress * Math.PI);
+        ndviVal = baseNdvi + (targetDelta * curveShape) + (Math.random() * 0.014 - 0.007);
       } else if (d >= durationDays) {
         phase = 'post';
         const recov = (d - durationDays) / postDays;
-        ndviVal = (baseNdvi - 0.13) + (0.13 * Math.min(1, recov * 1.1)) + (Math.random() * 0.025 - 0.01);
+        if (targetDelta >= 0) {
+          // Positive greening persists and gradually normalizes
+          ndviVal = baseNdvi + (targetDelta * Math.max(0, 1 - recov * 0.6)) + (Math.random() * 0.014 - 0.007);
+        } else {
+          // Negative stress gradually recovers
+          ndviVal = (baseNdvi + targetDelta) + (Math.abs(targetDelta) * Math.min(1, recov * 1.1)) + (Math.random() * 0.014 - 0.007);
+        }
       }
+
+      ndviVal = Math.max(0.08, Math.min(0.92, ndviVal));
 
       timeline.push({
         date: dateStr,
@@ -700,14 +761,14 @@ app.get('/api/weather/vegetation-diff', async (req, res) => {
 
     return res.json({
       location: { lat: latitude, lon: longitude },
-      startDate,
-      endDate,
+      startDate: startDate.length === 8 ? `${startDate.slice(0,4)}-${startDate.slice(4,6)}-${startDate.slice(6,8)}` : startDate,
+      endDate: endDate.length === 8 ? `${endDate.slice(0,4)}-${endDate.slice(4,6)}-${endDate.slice(6,8)}` : endDate,
       durationDays,
       preAvg: parseFloat(preAvg.toFixed(3)),
       duringAvg: parseFloat(durAvg.toFixed(3)),
       postAvg: parseFloat(postAvg.toFixed(3)),
       deltaNdvi,
-      impactSeverity: deltaNdvi < -0.08 ? '严重萎蔫(Severe)' : deltaNdvi < -0.04 ? '中度衰退(Moderate)' : '轻微受挫(Mild)',
+      impactSeverity,
       timeline
     });
   } catch (err) {

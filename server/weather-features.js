@@ -168,38 +168,54 @@ export function scoreAndRankEvents(events, searchParams) {
       const simS = Math.max(0, 1 - dS / 3.0);
       const simCDD = Math.max(0, 1 - dCDD);
 
-      score = (weights.temp || 0.4) * simT +
-              (weights.precip || 0.35) * simP +
-              (weights.radiation || 0.15) * simS +
-              (weights.cdd || 0.1) * simCDD;
+      const wT = weights.temp ?? 0.4;
+      const wP = weights.precip ?? 0.35;
+      const wS = weights.radiation ?? 0.15;
+      const wCdd = weights.cdd ?? 0.1;
+      const sumW = (wT + wP + wS + wCdd) || 1;
+
+      score = (wT * simT + wP * simP + wS * simS + wCdd * simCDD) / sumW;
       score = Math.round(score * 100);
     } else {
       // Condition matching score
       let tScore = 50;
       if (cond.temperature === 'high') {
-        tScore = Math.min(100, Math.max(0, 50 + ev.metrics.zScores.t2m * 22));
+        tScore = ev.metrics.zScores.t2m >= 0
+          ? Math.min(100, 50 + ev.metrics.zScores.t2m * 25)
+          : Math.max(0, 30 + ev.metrics.zScores.t2m * 40);
       } else if (cond.temperature === 'low') {
-        tScore = Math.min(100, Math.max(0, 50 - ev.metrics.zScores.t2m * 22));
+        tScore = ev.metrics.zScores.t2m <= 0
+          ? Math.min(100, 50 - ev.metrics.zScores.t2m * 25)
+          : Math.max(0, 30 - ev.metrics.zScores.t2m * 40);
       }
 
       let pScore = 50;
       if (cond.precipitation === 'low') {
-        pScore = Math.min(100, Math.max(0, 50 - ev.metrics.zScores.precip * 22 + (ev.metrics.consecutiveDryDays / ev.windowDays) * 25));
+        pScore = Math.min(100, Math.max(0, 50 - ev.metrics.zScores.precip * 25 + (ev.metrics.consecutiveDryDays / ev.windowDays) * 20));
       } else if (cond.precipitation === 'high') {
-        pScore = Math.min(100, Math.max(0, 50 + ev.metrics.zScores.precip * 25));
+        pScore = ev.metrics.zScores.precip >= 0
+          ? Math.min(100, 50 + ev.metrics.zScores.precip * 30)
+          : Math.max(0, 30 + ev.metrics.zScores.precip * 50);
       }
 
       let rScore = 50;
       if (cond.radiation === 'high') {
         rScore = Math.min(100, Math.max(0, 50 + ev.metrics.zScores.sol * 20));
+      } else if (cond.radiation === 'low') {
+        rScore = Math.min(100, Math.max(0, 50 - ev.metrics.zScores.sol * 20));
       }
 
-      const cddScore = Math.min(100, (ev.metrics.consecutiveDryDays / ev.windowDays) * 100);
+      const cddScore = cond.precipitation === 'high'
+        ? Math.max(0, 100 - (ev.metrics.consecutiveDryDays / ev.windowDays) * 100)
+        : Math.min(100, (ev.metrics.consecutiveDryDays / ev.windowDays) * 100);
 
-      score = (weights.temp || 0.4) * tScore +
-              (weights.precip || 0.35) * pScore +
-              (weights.radiation || 0.15) * rScore +
-              (weights.cdd || 0.1) * cddScore;
+      const wT = weights.temp ?? 0.4;
+      const wP = weights.precip ?? 0.35;
+      const wS = weights.radiation ?? 0.15;
+      const wCdd = weights.cdd ?? 0.1;
+      const sumW = (wT + wP + wS + wCdd) || 1;
+
+      score = (wT * tScore + wP * pScore + wS * rScore + wCdd * cddScore) / sumW;
       score = Math.round(Math.min(100, Math.max(0, score)));
     }
 

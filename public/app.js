@@ -3394,36 +3394,73 @@ const WeatherSearchManager = {
         if (metricsRow) metricsRow.innerHTML = '<span style="color:#38bdf8;">正在调取 MODIS 植被指数反演差值...</span>';
 
         try {
-            const resp = await fetch(`/api/weather/vegetation-diff?lat=${location.lat}&lon=${location.lng}&startDate=${event.startDate}&endDate=${event.endDate}`);
+            const m = event.metrics || {};
+            const z = m.zScores || {};
+            const params = new URLSearchParams({
+                lat: location.lat,
+                lon: location.lng,
+                startDate: event.startDate,
+                endDate: event.endDate,
+                zT2m: z.t2m ?? 0,
+                zPrecip: z.precip ?? 0,
+                zSol: z.sol ?? 0,
+                meanT: m.meanT ?? 20,
+                maxT: m.maxT ?? 25,
+                totalPrecip: m.totalPrecip ?? 0,
+                cdd: m.consecutiveDryDays ?? 0
+            });
+
+            const resp = await fetch(`/api/weather/vegetation-diff?${params.toString()}`);
             if (!resp.ok) throw new Error('植被差值反演失败');
             const data = await resp.json();
+
+            const isPositive = (data.deltaNdvi ?? 0) >= 0;
+            const deltaSign = isPositive ? '+' : '';
+            const deltaColor = isPositive ? '#10b981' : '#ef4444';
+            const durColor = (data.duringAvg ?? 0) >= (data.preAvg ?? 0) ? '#34d399' : '#f87171';
+            const badgeBg = isPositive ? 'rgba(16,185,129,0.2)' : 'rgba(239,68,68,0.2)';
+            const badgeColor = isPositive ? '#6ee7b7' : '#fca5a5';
 
             if (metricsRow) {
                 metricsRow.innerHTML = `
                     <div>事件前基准: <b style="color:#e2e8f0;">${data.preAvg}</b></div>
-                    <div>事件期均值: <b style="color:#f87171;">${data.duringAvg}</b></div>
-                    <div>ΔNDVI: <b style="color:${data.deltaNdvi < 0 ? '#ef4444' : '#10b981'};">${data.deltaNdvi}</b></div>
-                    <div>影响判定: <span class="ws-veg-badge" style="background:rgba(239,68,68,0.2); color:#fca5a5;">${data.impactSeverity}</span></div>
+                    <div>事件期均值: <b style="color:${durColor};">${data.duringAvg}</b></div>
+                    <div>ΔNDVI: <b style="color:${deltaColor};">${deltaSign}${data.deltaNdvi}</b></div>
+                    <div>影响判定: <span class="ws-veg-badge" style="background:${badgeBg}; color:${badgeColor}; font-weight:600; padding:2px 8px; border-radius:4px;">${data.impactSeverity}</span></div>
                 `;
             }
 
-            const xDates = (data.timeline || []).map(t => t.date.slice(5));
+            const allDates = (data.timeline || []).map(t => t.date);
+            const allTicks = (data.timeline || []).map(t => `${t.date.slice(5, 7)}/${t.date.slice(8, 10)}`);
             const yNdvi = (data.timeline || []).map(t => t.ndvi);
             const yBase = (data.timeline || []).map(t => t.baselineNdvi);
+
+            // Select 7-8 evenly spaced ticks for category labels to prevent overcrowding
+            const tickStep = Math.max(1, Math.floor(allDates.length / 8));
+            const tickvals = [];
+            const ticktext = [];
+            allDates.forEach((d, idx) => {
+                if (idx % tickStep === 0 || idx === allDates.length - 1) {
+                    tickvals.push(d);
+                    ticktext.push(allTicks[idx]);
+                }
+            });
+
+            const primaryColor = isPositive ? '#10b981' : '#f43f5e';
 
             const traces = [
                 {
                     name: '逐日 NDVI 动态',
-                    x: xDates,
+                    x: allDates,
                     y: yNdvi,
                     type: 'scatter',
                     mode: 'lines+markers',
-                    line: { color: '#10b981', width: 2.5 },
-                    marker: { size: 4 }
+                    line: { color: primaryColor, width: 2.5 },
+                    marker: { size: 4, color: primaryColor }
                 },
                 {
                     name: '气候态常年基线',
-                    x: xDates,
+                    x: allDates,
                     y: yBase,
                     type: 'scatter',
                     mode: 'lines',
@@ -3437,8 +3474,20 @@ const WeatherSearchManager = {
                 font: { color: '#94a3b8', size: 10 },
                 margin: { l: 40, r: 20, t: 25, b: 35 },
                 legend: { orientation: 'h', y: 1.2, x: 0, font: { size: 10 } },
-                xaxis: { showgrid: true, gridcolor: 'rgba(255,255,255,0.06)' },
-                yaxis: { title: 'MODIS NDVI', showgrid: true, gridcolor: 'rgba(255,255,255,0.06)' }
+                xaxis: {
+                    type: 'category',
+                    tickvals: tickvals,
+                    ticktext: ticktext,
+                    showgrid: true,
+                    gridcolor: 'rgba(255,255,255,0.06)',
+                    tickfont: { color: '#94a3b8', size: 9 }
+                },
+                yaxis: {
+                    title: 'MODIS NDVI',
+                    showgrid: true,
+                    gridcolor: 'rgba(255,255,255,0.06)',
+                    tickfont: { color: '#94a3b8', size: 9 }
+                }
             };
 
             if (window.Plotly && plotlyDiv) {
@@ -3548,14 +3597,19 @@ const WeatherSearchManager = {
                 matrixTbody.innerHTML = '';
                 data.vegetationImpacts.forEach(row => {
                     const tr = document.createElement('tr');
+                    const isPos = (row.deltaNDVI ?? 0) >= 0;
+                    const deltaColor = isPos ? '#10b981' : '#ef4444';
+                    const badgeBg = isPos ? 'rgba(16,185,129,0.2)' : 'rgba(239,68,68,0.2)';
+                    const badgeColor = isPos ? '#6ee7b7' : '#fca5a5';
+                    const sign = isPos ? '+' : '';
                     tr.innerHTML = `
                         <td><b style="color:#38bdf8;">${row.year}年</b></td>
                         <td style="font-size:10px; color:#cbd5e1;">${row.dates || row.period || '--'}</td>
                         <td>${row.meanTemp ?? row.meanT ?? '--'}°C</td>
                         <td><span style="color:#f87171; font-weight:600;">${row.maxTemp ?? row.maxT ?? '--'}°C</span></td>
                         <td><span style="color:#fbbf24;">${row.consecutiveDryDays ?? row.cdd ?? 0}天</span></td>
-                        <td><span style="color:#ef4444; font-weight:600;">${row.deltaNDVI}</span></td>
-                        <td><span style="background:rgba(239,68,68,0.2); color:#fca5a5; padding:2px 6px; border-radius:3px; font-weight:600;">-${row.lossPercentage}%</span></td>
+                        <td><span style="color:${deltaColor}; font-weight:600;">${sign}${row.deltaNDVI}</span></td>
+                        <td><span style="background:${badgeBg}; color:${badgeColor}; padding:2px 6px; border-radius:3px; font-weight:600;">${sign}${row.lossPercentage}%</span></td>
                         <td>${row.recoveryDays}天</td>
                     `;
                     matrixTbody.appendChild(tr);

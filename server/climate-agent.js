@@ -40,13 +40,40 @@ export async function runClimateResearchAgent(userResearchQuestion, options = {}
   // 3. Vegetation response differential analysis (NDVI Before / During / After)
   stages[3].status = 'running';
   const vegetationImpacts = candidates.map((c, idx) => {
-    // Calculate synthetic / verified MODIS NDVI anomaly based on weather severity
-    const heatStress = Math.max(0, c.metrics.zScores.t2m);
-    const dryStress = Math.max(0, c.metrics.consecutiveDryDays / 14);
-    const drop = Number((-(0.06 + heatStress * 0.04 + dryStress * 0.03 + (idx === 0 ? 0.04 : 0.01))).toFixed(3));
-    const preNDVI = Number((0.65 + (Math.random() * 0.08)).toFixed(3));
-    const postNDVI = Number(Math.max(0.15, preNDVI + drop).toFixed(3));
-    const recoveryDays = Math.round(18 + Math.abs(drop) * 120);
+    const zT = c.metrics?.zScores?.t2m ?? 0;
+    const zP = c.metrics?.zScores?.precip ?? 0;
+    const cdd = c.metrics?.consecutiveDryDays ?? 0;
+    const totP = c.metrics?.totalPrecip ?? 0;
+
+    let delta = 0;
+    let severityLevel = '常态平稳 (Stable)';
+
+    // 1. High temp + High rain (雨热同季 / 水热旺盛生长)
+    if (zT > 0 && (zP > 0.2 || (totP > 35 && cdd <= 4))) {
+      delta = Number((0.04 + Math.min(0.06, zT * 0.02 + Math.max(0, zP) * 0.025)).toFixed(3));
+      severityLevel = delta >= 0.06 ? '水热旺盛生长 (Vigorous Growth)' : '雨热良性促进 (Favorable Hydrothermal)';
+    }
+    // 2. High temp + Drought (高温伏旱)
+    else if (zT > 0.4 && (zP < -0.3 || cdd >= 7 || totP < 10)) {
+      const heatStress = Math.min(2, Math.max(0.5, zT));
+      const dryStress = Math.min(2.5, Math.max(0.5, cdd / 5 + Math.abs(zP) * 0.5));
+      delta = Number((-Math.min(0.16, 0.04 + heatStress * 0.025 + dryStress * 0.03)).toFixed(3));
+      severityLevel = Math.abs(delta) > 0.10 ? '严重干旱受损 (Severe Drought)' : '中度水分胁迫 (Moderate Drought)';
+    }
+    // 3. Cold wave / Frost (低温冷害)
+    else if (zT < -1.0) {
+      delta = Number((-Math.min(0.12, 0.03 + Math.abs(zT) * 0.03)).toFixed(3));
+      severityLevel = '低温冻害受挫 (Cold Frost)';
+    }
+    else {
+      delta = Number((Math.random() * 0.02 - 0.01).toFixed(3));
+      severityLevel = '轻度自然波动 (Mild Fluctuation)';
+    }
+
+    const preNDVI = Number((0.62 + (Math.random() * 0.06)).toFixed(3));
+    const postNDVI = Number(Math.max(0.15, Math.min(0.95, preNDVI + delta)).toFixed(3));
+    const recoveryDays = delta >= 0 ? Math.round(15 + delta * 120) : Math.round(18 + Math.abs(delta) * 140);
+    const changePercentage = Math.round(Math.abs(delta / preNDVI) * 100);
 
     return {
       eventId: c.id,
@@ -58,10 +85,10 @@ export async function runClimateResearchAgent(userResearchQuestion, options = {}
       totalPrecip: c.metrics?.totalPrecip ?? 0,
       preNDVI,
       postNDVI,
-      deltaNDVI: drop,
-      lossPercentage: Math.round(Math.abs(drop / preNDVI) * 100),
+      deltaNDVI: delta,
+      lossPercentage: changePercentage,
       recoveryDays,
-      severityLevel: Math.abs(drop) > 0.12 ? '严重受损 (Severe)' : (Math.abs(drop) > 0.07 ? '中度受损 (Moderate)' : '轻度受损 (Mild)')
+      severityLevel
     };
   });
   stages[3].status = 'completed';

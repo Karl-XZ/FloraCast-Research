@@ -35,6 +35,84 @@
 
   function clamp(v, a, b) { return Math.max(a, Math.min(b, v)); }
 
+  const CoordTransform = {
+    PI: 3.1415926535897932384626,
+    X_PI: (3.14159265358979324 * 3000.0) / 180.0,
+    A: 6378245.0,
+    EE: 0.00669342162296594323,
+
+    outOfChina(lng, lat) {
+      return (lng < 72.004 || lng > 137.8347 || lat < 0.8293 || lat > 55.8271);
+    },
+
+    transformLat(x, y) {
+      let ret = -100.0 + 2.0 * x + 3.0 * y + 0.2 * y * y + 0.1 * x * y + 0.2 * Math.sqrt(Math.abs(x));
+      ret += (20.0 * Math.sin(6.0 * x * this.PI) + 20.0 * Math.sin(2.0 * x * this.PI)) * 2.0 / 3.0;
+      ret += (20.0 * Math.sin(y * this.PI) + 40.0 * Math.sin(y / 3.0 * this.PI)) * 2.0 / 3.0;
+      ret += (160.0 * Math.sin(y / 12.0 * this.PI) + 320 * Math.sin(y * this.PI / 30.0)) * 2.0 / 3.0;
+      return ret;
+    },
+
+    transformLng(x, y) {
+      let ret = 300.0 + x + 2.0 * y + 0.1 * x * x + 0.1 * x * y + 0.1 * Math.sqrt(Math.abs(x));
+      ret += (20.0 * Math.sin(6.0 * x * this.PI) + 20.0 * Math.sin(2.0 * x * this.PI)) * 2.0 / 3.0;
+      ret += (20.0 * Math.sin(x * this.PI) + 40.0 * Math.sin(x / 3.0 * this.PI)) * 2.0 / 3.0;
+      ret += (150.0 * Math.sin(x / 12.0 * this.PI) + 300.0 * Math.sin(x / 30.0 * this.PI)) * 2.0 / 3.0;
+      return ret;
+    },
+
+    wgs84ToGcj02(lng, lat) {
+      if (this.outOfChina(lng, lat)) return [lng, lat];
+      let dlat = this.transformLat(lng - 105.0, lat - 35.0);
+      let dlng = this.transformLng(lng - 105.0, lat - 35.0);
+      const radlat = (lat / 180.0) * this.PI;
+      let magic = Math.sin(radlat);
+      magic = 1 - this.EE * magic * magic;
+      const sqrtmagic = Math.sqrt(magic);
+      dlat = (dlat * 180.0) / (((this.A * (1 - this.EE)) / (magic * sqrtmagic)) * this.PI);
+      dlng = (dlng * 180.0) / ((this.A / sqrtmagic) * Math.cos(radlat) * this.PI);
+      return [lng + dlng, lat + dlat];
+    },
+
+    gcj02ToBd09(lng, lat) {
+      const z = Math.sqrt(lng * lng + lat * lat) + 0.00002 * Math.sin(lat * this.X_PI);
+      const theta = Math.atan2(lat, lng) + 0.000003 * Math.cos(lng * this.X_PI);
+      return [z * Math.cos(theta) + 0.0065, z * Math.sin(theta) + 0.006];
+    },
+
+    bd09ToGcj02(bd_lng, bd_lat) {
+      const x = bd_lng - 0.0065;
+      const y = bd_lat - 0.006;
+      const z = Math.sqrt(x * x + y * y) - 0.00002 * Math.sin(y * this.X_PI);
+      const theta = Math.atan2(y, x) - 0.000003 * Math.cos(x * this.X_PI);
+      return [z * Math.cos(theta), z * Math.sin(theta)];
+    },
+
+    gcj02ToWgs84(lng, lat) {
+      if (this.outOfChina(lng, lat)) return [lng, lat];
+      let dlat = this.transformLat(lng - 105.0, lat - 35.0);
+      let dlng = this.transformLng(lng - 105.0, lat - 35.0);
+      const radlat = (lat / 180.0) * this.PI;
+      let magic = Math.sin(radlat);
+      magic = 1 - this.EE * magic * magic;
+      const sqrtmagic = Math.sqrt(magic);
+      dlat = (dlat * 180.0) / (((this.A * (1 - this.EE)) / (magic * sqrtmagic)) * this.PI);
+      dlng = (dlng * 180.0) / ((this.A / sqrtmagic) * Math.cos(radlat) * this.PI);
+      return [lng * 2 - (lng + dlng), lat * 2 - (lat + dlat)];
+    },
+
+    wgs84ToBd09(lng, lat) {
+      const gcj = this.wgs84ToGcj02(lng, lat);
+      return this.gcj02ToBd09(gcj[0], gcj[1]);
+    },
+
+    bd09ToWgs84(lng, lat) {
+      const gcj = this.bd09ToGcj02(lng, lat);
+      return this.gcj02ToWgs84(gcj[0], gcj[1]);
+    }
+  };
+  window.CoordTransform = CoordTransform;
+
   function toDegreesLatLng(cartographic) {
     return {
       lat: C.Math.toDegrees(cartographic.latitude),
@@ -51,17 +129,15 @@
   }
 
   function zoomFromHeight(heightMeters) {
-    // Rough mapping: smaller height -> larger zoom. Not exact, but good enough for UI sync.
-    // At zoom=0, world in 256px ~ 2*pi*R meters. We map camera height to zoom heuristically.
-    const approxZoom = Math.log2((2 * Math.PI * EARTH_RADIUS) / clamp(heightMeters, 1, 1e9)) - 8;
-    return clamp(Math.round(approxZoom), 0, 20);
+    const h = clamp(heightMeters, 100, 2.5e7);
+    const z = 1 + Math.log2(2.2e7 / h);
+    return clamp(Math.round(z), 0, 20);
   }
 
   function heightFromZoom(zoom) {
-    // Invert the above heuristic.
     const z = clamp(zoom, 0, 20);
-    const height = (2 * Math.PI * EARTH_RADIUS) / Math.pow(2, z + 8);
-    return clamp(height, 120, 2.5e7);
+    const height = 2.2e7 / Math.pow(2, z - 1);
+    return clamp(height, 150, 2.5e7);
   }
 
   function normalizeXYZUrl(url) {
@@ -87,13 +163,34 @@
     return host;
   }
 
-  function createPopupEl(html) {
-    const el = document.createElement('div');
-    el.className = 'cesium-compat-popup';
-    el.style.pointerEvents = 'auto';
-    el.innerHTML = html;
-    return el;
-  }
+  // Map Tile Loader Helper
+  const MapTileLoader = {
+    _el: null,
+    _textEl: null,
+    _hideTimer: null,
+
+    init() {
+      this._el = document.getElementById('map-tile-loader');
+      this._textEl = document.getElementById('map-tile-loader-text');
+    },
+
+    show(text = '底图资源加载中...') {
+      if (!this._el) this.init();
+      if (this._hideTimer) { clearTimeout(this._hideTimer); this._hideTimer = null; }
+      if (this._textEl && text) this._textEl.textContent = text;
+      if (this._el) this._el.classList.add('active');
+    },
+
+    hide(delay = 400) {
+      if (!this._el) this.init();
+      if (this._hideTimer) clearTimeout(this._hideTimer);
+      this._hideTimer = setTimeout(() => {
+        if (this._el) this._el.classList.remove('active');
+        this._hideTimer = null;
+      }, delay);
+    }
+  };
+  window.MapTileLoader = MapTileLoader;
 
   class CesiumMap {
     constructor(containerId, options = {}) {
@@ -144,10 +241,22 @@
       // when the camera is low.
       try { viewer.scene.globe.depthTestAgainstTerrain = false; } catch (_) {}
 
-      // Atmosphere visuals (can be toggled to taste)
-      try { viewer.scene.globe.showGroundAtmosphere = true; } catch (_) {}
+      // Atmosphere visuals & base styling
+      // Disable ground atmosphere haze when lighting is off to keep high-contrast crisp tiles without white fog
+      try { viewer.scene.globe.showGroundAtmosphere = false; } catch (_) {}
       try { viewer.scene.skyAtmosphere.show = true; } catch (_) {}
-// Default split position (used only when any layer has splitDirection != NONE)
+
+      // Never use default bright blue baseColor! Set to deep space/earth tone.
+      try { viewer.scene.globe.baseColor = C.Color.fromCssColorString('#0b1227'); } catch (_) {}
+
+      // Clamp camera orbital zoom so the globe stays nicely framed (8,500 km altitude)
+      // and cannot shrink into an empty space void dot.
+      try {
+        viewer.scene.screenSpaceCameraController.maximumZoomDistance = 8.5e6;
+        viewer.scene.screenSpaceCameraController.minimumZoomDistance = 150;
+      } catch (_) {}
+
+      // Default split position (used only when any layer has splitDirection != NONE)
       try { viewer.scene.splitPosition = 0.5; } catch (_) {}
 
       // Remove any default layers if present
@@ -162,6 +271,26 @@
           try { scene.requestRender(); } catch (_) {}
         });
       } catch (_) {}
+
+      // Automatically re-render as tiles stream in from network and display loading indicator
+      try {
+        viewer.scene.globe.tileLoadProgressEvent.addEventListener((queueLength) => {
+          try { viewer.scene.requestRender(); } catch (_) {}
+          if (typeof queueLength === 'number') {
+            if (queueLength > 0) {
+              MapTileLoader.show(`底图资源加载中 (${queueLength})...`);
+            } else {
+              MapTileLoader.hide(450);
+            }
+          }
+        });
+      } catch (_) {}
+
+      for (const delay of [100, 300, 600, 1200, 2000, 3500]) {
+        setTimeout(() => {
+          try { viewer.scene.requestRender(); } catch (_) {}
+        }, delay);
+      }
 
       // Default split position for compare mode (0..1). Safe to set even if unused.
       try { viewer.scene.splitPosition = 0.5; } catch (_) {}
@@ -261,10 +390,42 @@
       const dest = C.Cartesian3.fromDegrees(lng, lat, height);
       const duration = opts.animate === false ? 0 : 0.8;
 
+      if (duration === 0) {
+        this._viewer.camera.setView({
+          destination: dest,
+          orientation: {
+            heading: 0,
+            pitch: -C.Math.PI_OVER_TWO,
+            roll: 0
+          }
+        });
+      } else {
+        this._viewer.camera.flyTo({
+          destination: dest,
+          orientation: {
+            heading: 0,
+            pitch: -C.Math.PI_OVER_TWO,
+            roll: 0
+          },
+          duration
+        });
+      }
+      this._viewer.scene.requestRender();
+    }
+
+    flyTo(lat, lng, zoom, duration = 1.2) {
+      const height = heightFromZoom(zoom ?? this.getZoom());
+      const dest = C.Cartesian3.fromDegrees(lng, lat, height);
       this._viewer.camera.flyTo({
         destination: dest,
+        orientation: {
+          heading: 0,
+          pitch: -C.Math.PI_OVER_TWO,
+          roll: 0
+        },
         duration
       });
+      this._viewer.scene.requestRender();
     }
 
     // --- Compare (imagery split) helpers ---
@@ -303,6 +464,11 @@
       if (!layer) return;
       if (layer.__type === 'imagery') {
         try { this._viewer.imageryLayers.remove(layer._imageryLayer, true); } catch (_) {}
+        if (layer._baseLayer) {
+          try { this._viewer.imageryLayers.remove(layer._baseLayer, true); } catch (_) {}
+          layer._baseLayer = null;
+        }
+        if (this._baseUrl === layer._url) this._baseUrl = null;
       } else if (layer.__type === 'datasource') {
         try { this._viewer.dataSources.remove(layer._dataSource, true); } catch (_) {}
       } else if (layer.__type === 'entity') {
@@ -383,6 +549,7 @@
     getCenter() { return this._base.getCenter(); }
     getZoom() { return this._base.getZoom(); }
     setView(center, zoom, opts = {}) { return this._base.setView(center, zoom, opts); }
+    flyTo(lat, lng, zoom, duration) { return this._base.flyTo(lat, lng, zoom, duration); }
 
     setSplitDirection(direction) {
       const d = String(direction || '').toLowerCase();
@@ -402,6 +569,11 @@
       if (!layer) return;
       if (layer.__type === 'imagery') {
         try { this._viewer.imageryLayers.remove(layer._imageryLayer, true); } catch (_) {}
+        if (layer._baseLayer) {
+          try { this._viewer.imageryLayers.remove(layer._baseLayer, true); } catch (_) {}
+          layer._baseLayer = null;
+        }
+        if (this._baseUrl === layer._url) this._baseUrl = null;
       } else if (layer.__type === 'datasource') {
         try { this._viewer.dataSources.remove(layer._dataSource, true); } catch (_) {}
       } else if (layer.__type === 'entity') {
@@ -477,6 +649,105 @@
 
     setOpacity(opacity) {
       if (this._imageryLayer) this._imageryLayer.alpha = clamp(opacity, 0, 1);
+      return this;
+    }
+  }
+
+  class CesiumBaiduTileLayer {
+    constructor(type = 'vec', options = {}) {
+      this.__type = 'imagery';
+      this._baiduType = type;
+      this._opts = options || {};
+      this._imageryLayer = null;
+      this._baseLayer = null;
+      this._provider = null;
+      this._added = false;
+      this._events = { tileerror: [] };
+    }
+
+    on(evt, fn) {
+      if (!evt || typeof fn !== 'function') return this;
+      const k = String(evt).toLowerCase();
+      if (!this._events[k]) this._events[k] = [];
+      this._events[k].push(fn);
+      return this;
+    }
+
+    addTo(map) {
+      if (this._added) return this;
+
+      const isSat = (this._baiduType === 'sat' || this._baiduType === 'img');
+
+      // 1. Add global base provider underneath Baidu to guarantee complete global coverage at all zoom levels
+      const BaseProviderCls = window.AMapImageryProvider || (window.Cesium && window.Cesium.AMapImageryProvider);
+      if (typeof BaseProviderCls === 'function') {
+        try {
+          const baseProvider = new BaseProviderCls({
+            style: isSat ? 'img' : 'elec',
+            crs: 'WGS84'
+          });
+          this._baseLayer = map._v.imageryLayers.addImageryProvider(baseProvider);
+          if (this._baseLayer) {
+            try {
+              this._baseLayer.splitDirection = map._splitDirection ?? SplitDir.NONE;
+            } catch (_) {}
+          }
+        } catch (e) {
+          console.warn('[CesiumBaiduTileLayer] Base provider init fallback:', e);
+        }
+      }
+
+      // 2. Add Baidu domestic imagery provider on top
+      const ProviderCls = window.BaiduImageryProvider || (window.Cesium && window.Cesium.BaiduImageryProvider);
+
+      let provider = null;
+      if (typeof ProviderCls === 'function') {
+        try {
+          provider = new ProviderCls({
+            style: isSat ? 'img' : 'vec',
+            crs: 'WGS84'
+          });
+        } catch (e) {
+          console.warn('[CesiumBaiduTileLayer] BaiduImageryProvider init failed:', e);
+        }
+      }
+
+      if (!provider) {
+        // High-reliability direct tile fallback
+        const url = isSat
+          ? 'http://shangetu{s}.map.bdimg.com/it/u=x={bx};y={by};z={z};v=009;type=sate&fm=46'
+          : 'http://online{s}.map.bdimg.com/tile/?qt=tile&x={bx}&y={by}&z={z}&styles=sl&v=020';
+        provider = new C.UrlTemplateImageryProvider({
+          url: url,
+          subdomains: ['0', '1', '2', '3'],
+          customTags: {
+            bx: (p, x, y, level) => x - Math.pow(2, level - 1),
+            by: (p, x, y, level) => Math.pow(2, level - 1) - 1 - y
+          },
+          credit: this._opts.attribution || '© 百度地图 (Baidu Map)',
+          maximumLevel: this._opts.maxZoom ?? 18,
+          tileWidth: 256,
+          tileHeight: 256
+        });
+      }
+
+      this._provider = provider;
+      const layer = map._v.imageryLayers.addImageryProvider(provider);
+      layer.alpha = (typeof this._opts.opacity === 'number') ? this._opts.opacity : 1.0;
+      try {
+        layer.splitDirection = map._splitDirection ?? SplitDir.NONE;
+      } catch (_) {}
+
+      this._imageryLayer = layer;
+      map._layers.add(this);
+      this._added = true;
+      map._v.scene.requestRender();
+      return this;
+    }
+
+    setOpacity(opacity) {
+      if (this._imageryLayer) this._imageryLayer.alpha = clamp(opacity, 0, 1);
+      if (this._baseLayer) this._baseLayer.alpha = clamp(opacity, 0, 1);
       return this;
     }
   }
@@ -807,7 +1078,8 @@
   function marker(latlng, options) { return new CesiumMarker(latlng, options); }
   function heatLayer(points, options) { return new CesiumHeatLayer(points, options); }
   function markerClusterGroup(options) { return new CesiumMarkerClusterGroup(options); }
+  function baiduTileLayer(type, options) { return new CesiumBaiduTileLayer(type, options); }
   function icon(opts) { return opts || {}; }
 
-  window.L = { map, tileLayer, marker, heatLayer, markerClusterGroup, icon };
+  window.L = { map, tileLayer, baiduTileLayer, marker, heatLayer, markerClusterGroup, icon, coordTransform: CoordTransform };
 })();

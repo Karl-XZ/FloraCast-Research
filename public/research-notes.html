@@ -1,0 +1,12 @@
+<!doctype html>
+<html lang="zh-CN">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>研究说明 · FloraCast Research</title><link rel="stylesheet" href="research.css"><link rel="stylesheet" href="research-notes.css"></head>
+<body>
+<header class="topbar"><a class="brand" href="research.html"><span class="brand-mark">F</span><span>FLORACAST <small>RESEARCH / 花序科研</small></span></a><a class="quiet notes-back" id="notes-back" href="research.html">返回研究</a></header>
+<main class="notes-main"><p class="eyebrow">RESEARCH NOTES</p><h1>研究说明</h1><nav class="notes-index" aria-label="说明目录"><a href="#scope">适用范围</a><a href="#data">数据说明</a><a href="#validation">验证与复现</a><a href="#run-notes">当前运行</a></nav>
+<section id="scope"><h2>适用范围</h2><ul><li>地表返青日期来自遥感植被指数，不代表单株或物种开花日期。</li><li>季节协议适用于北半球单一生长季。南半球、常绿植被与多熟种植需要单独协议。</li><li>气候统计为描述性结果，不支持因果结论。</li><li>圆形 AOI 均值可能掩盖研究区内部空间差异。</li></ul></section>
+<section id="data"><h2>数据说明</h2><ul><li>实时数据来自 NASA POWER、ORNL TESViS MOD13Q1 与 OpenAlex。</li><li>MODIS 仅保留 pixel reliability 等于 0 的像元，再计算圆形 AOI 均值。</li><li>上游服务失败时记录失败状态，不使用固定测试数据补齐实时结果。</li><li>固定测试数据只用于功能与复现测试，不构成实证结果。</li></ul></section>
+<section id="validation"><h2>验证与复现</h2><ul><li>方法差异与观测日期括区不是统计置信区间。</li><li>拟合 RMSE 是样本内拟合残差，不是独立地面误差。</li><li>外部验证只在导入独立地面观测后计算。</li><li>冻结复算比较输入与输出哈希。实时数据源后续修订不会改变已冻结输入。</li></ul></section>
+<section id="run-notes"><h2>当前运行</h2><div id="notes-content" class="notes-content">未指定运行</div></section>
+</main><script type="module" src="research-notes.js"></script>
+</body></html>

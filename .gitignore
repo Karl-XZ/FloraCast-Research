@@ -5,3 +5,10 @@ server/node_modules/
 npm-debug.log*
 dist/
 .DS_Store
+.research-data/
+server/logs/
+
+.weather-cache/
+*.log
+scratch_*
+*.tgz

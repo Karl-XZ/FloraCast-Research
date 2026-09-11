@@ -749,7 +749,26 @@ const LayerManager = {
         const year = parseInt(yearInput.value) || CONFIG.YEAR;
         const dates = Utils.genDates(year, 1);
         const index = parseInt(dateSlider.value);
-        if (dates[index]) dateLabel.textContent = dates[index];
+        if (dates[index]) {
+            const dateISO = dates[index];
+            dateLabel.textContent = dateISO;
+
+            // Sync WMS overlay input and refresh if active
+            const wmsTimeInput = document.getElementById(side === 'B' ? 'wms-b-time' : 'wms-a-time');
+            if (wmsTimeInput) {
+                wmsTimeInput.value = dateISO;
+            }
+            const activeWmsKey = side === 'B' ? 'wmsB' : 'wmsA';
+            if (AppState[activeWmsKey] && typeof window.Overlays?.addWMS === 'function') {
+                this._wmsDebounce = this._wmsDebounce || {};
+                clearTimeout(this._wmsDebounce[side]);
+                this._wmsDebounce[side] = setTimeout(() => {
+                    if (AppState[activeWmsKey]) {
+                        window.Overlays.addWMS(side);
+                    }
+                }, 250);
+            }
+        }
     },
 
     updateLayer(side = 'A') {
@@ -792,6 +811,22 @@ const LayerManager = {
             }).addTo(map);
 
             AppState[targetLayerKey] = overlay;
+
+            // Sync WMS overlay input and refresh if active
+            const wmsTimeInput = document.getElementById(side === 'B' ? 'wms-b-time' : 'wms-a-time');
+            if (wmsTimeInput) {
+                wmsTimeInput.value = dateISO;
+            }
+            const activeWmsKey = side === 'B' ? 'wmsB' : 'wmsA';
+            if (AppState[activeWmsKey] && typeof window.Overlays?.addWMS === 'function') {
+                this._wmsDebounce = this._wmsDebounce || {};
+                clearTimeout(this._wmsDebounce[side]);
+                this._wmsDebounce[side] = setTimeout(() => {
+                    if (AppState[activeWmsKey]) {
+                        window.Overlays.addWMS(side);
+                    }
+                }, 250);
+            }
         }
     },
 
@@ -2412,13 +2447,13 @@ Using the local data above, address the user's question with concrete, location-
   }
   async function addWMS(side = 'A') {
     const map = getMap(side);
-    if (!map) return alert(`Map ${side} is not active.`);
+    if (!map) return console.warn(`[Overlays] Map ${side} is not active.`);
 
     const projSel   = $(side === 'B' ? 'wms-b-proj'   : 'wms-a-proj');
     const fmtSel    = $(side === 'B' ? 'wms-b-format' : 'wms-a-format');
     const layerSel  = $(side === 'B' ? 'wms-b-layer'  : 'wms-a-layer');
     const timeInput = $(side === 'B' ? 'wms-b-time'   : 'wms-a-time');
-    if (!projSel || !fmtSel || !layerSel) return alert('WMS controls not found.');
+    if (!projSel || !fmtSel || !layerSel) return console.warn('[Overlays] WMS controls not found.');
 
     const srs    = (projSel.value || '3857') === '4326' ? '4326' : '3857';
     const base   = CONFIG.GIBS_WMS_BASE(srs);
@@ -2429,8 +2464,14 @@ Using the local data above, address the user's question with concrete, location-
     removeOverlay(side, 'wms');
 
     if (!time) {
-      time = await getLastWMSTime(base, layer) ||
-             await fallbackRecentDate(base, layer, srs, format);
+      const dateLabel = $(side === 'B' ? 'layer-date-label-b' : 'layer-date-label');
+      if (dateLabel?.textContent && /^\d{4}-\d{2}-\d{2}$/.test(dateLabel.textContent.trim())) {
+        time = dateLabel.textContent.trim();
+        if (timeInput) timeInput.value = time;
+      } else {
+        time = await getLastWMSTime(base, layer) ||
+               await fallbackRecentDate(base, layer, srs, format);
+      }
     }
 
     const params = { layers: layer, format, transparent: true };
@@ -2450,19 +2491,31 @@ Using the local data above, address the user's question with concrete, location-
     $('opg-a-add')    ?.addEventListener('click', () => addOPG('A'));
     $('opg-a-remove') ?.addEventListener('click', () => removeOverlay('A', 'opg'));
     $('opg-a-copy')   ?.addEventListener('click', () => copyOPG('A'));
+    $('opg-a-var')    ?.addEventListener('change', () => { if (AppState.opgA) addOPG('A'); });
+    $('opg-a-step')   ?.addEventListener('change', () => { if (AppState.opgA) addOPG('A'); });
+
     // Map A — WMS
     $('wms-a-add')    ?.addEventListener('click', () => addWMS('A'));
     $('wms-a-remove') ?.addEventListener('click', () => removeOverlay('A', 'wms'));
     $('wms-a-copy')   ?.addEventListener('click', () => copyWMS('A'));
+    $('wms-a-layer')  ?.addEventListener('change', () => { if (AppState.wmsA) addWMS('A'); });
+    $('wms-a-proj')   ?.addEventListener('change', () => { if (AppState.wmsA) addWMS('A'); });
+    $('wms-a-time')   ?.addEventListener('change', () => { if (AppState.wmsA) addWMS('A'); });
 
     // Map B — OPG
     $('opg-b-add')    ?.addEventListener('click', () => addOPG('B'));
     $('opg-b-remove') ?.addEventListener('click', () => removeOverlay('B', 'opg'));
     $('opg-b-copy')   ?.addEventListener('click', () => copyOPG('B'));
+    $('opg-b-var')    ?.addEventListener('change', () => { if (AppState.opgB) addOPG('B'); });
+    $('opg-b-step')   ?.addEventListener('change', () => { if (AppState.opgB) addOPG('B'); });
+
     // Map B — WMS
     $('wms-b-add')    ?.addEventListener('click', () => addWMS('B'));
     $('wms-b-remove') ?.addEventListener('click', () => removeOverlay('B', 'wms'));
     $('wms-b-copy')   ?.addEventListener('click', () => copyWMS('B'));
+    $('wms-b-layer')  ?.addEventListener('change', () => { if (AppState.wmsB) addWMS('B'); });
+    $('wms-b-proj')   ?.addEventListener('change', () => { if (AppState.wmsB) addWMS('B'); });
+    $('wms-b-time')   ?.addEventListener('change', () => { if (AppState.wmsB) addWMS('B'); });
 
     console.log('[Overlays] handlers wired. maps:', !!getMap('A'), !!getMap('B'));
   }
@@ -3103,6 +3156,15 @@ const WeatherSearchManager = {
         // Trigger LayerManager update on Map A
         if (typeof LayerManager?.updateLayer === 'function') {
             LayerManager.updateLayer('A');
+        }
+
+        // 5. Synchronize NASA GIBS WMS Overlay if active or prefill date
+        const wmsTimeA = document.getElementById('wms-a-time');
+        if (wmsTimeA) {
+            wmsTimeA.value = dateISO;
+        }
+        if (AppState?.wmsA && typeof window.Overlays?.addWMS === 'function') {
+            window.Overlays.addWMS('A');
         }
 
         // Refresh heatmap if enabled

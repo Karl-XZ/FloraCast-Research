@@ -1388,3 +1388,19 @@ hr{
   color: #94a3b8;
   border-radius: 0 4px 4px 0;
 }
+
+/* Cesium credit / watermark / logo removal */
+.cesium-viewer-bottomContainer,
+.cesium-widget-credits,
+.cesium-credit-logoContainer,
+.cesium-credit-textContainer,
+.cesium-credit-expand-link {
+  display: none !important;
+  visibility: hidden !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
+  height: 0 !important;
+  width: 0 !important;
+  overflow: hidden !important;
+}
+

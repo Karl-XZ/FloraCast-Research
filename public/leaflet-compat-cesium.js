@@ -228,8 +228,19 @@
         requestRenderMode: true,
         maximumRenderTimeChange: Infinity,
         terrainProvider: new C.EllipsoidTerrainProvider(),
-        imageryProvider: false
+        imageryProvider: false,
+        creditContainer: document.createElement('div')
       });
+
+      // Remove / hide Cesium ion logo and attribution bar
+      try {
+        if (viewer.bottomContainer) {
+          viewer.bottomContainer.style.display = 'none';
+        }
+        if (viewer._cesiumWidget && viewer._cesiumWidget._creditContainer) {
+          viewer._cesiumWidget._creditContainer.style.display = 'none';
+        }
+      } catch (_) {}
 
       // Lighting / atmosphere
       // If you want a uniform brightness (no night-side shading), keep lighting OFF.

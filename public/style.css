@@ -233,6 +233,52 @@ header{
 }
 .menu-close:hover{ border-color: rgba(96,165,250,0.35); }
 
+/* Language Switcher in Menu */
+.menu-lang-switch {
+  padding: 2px 14px 10px 14px;
+  border-bottom: 1px solid rgba(148, 163, 184, 0.12);
+  margin-bottom: 8px;
+}
+.lang-toggle-btn {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 7px 12px;
+  border-radius: 10px;
+  background: rgba(15, 23, 42, 0.55);
+  border: 1px solid rgba(148, 163, 184, 0.25);
+  color: #e2e8f0;
+  font-size: 12px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+.lang-toggle-btn:hover {
+  background: rgba(30, 41, 59, 0.75);
+  border-color: rgba(96, 165, 250, 0.5);
+  box-shadow: 0 0 12px rgba(56, 189, 248, 0.15);
+}
+.lang-status {
+  font-weight: 500;
+  color: #cbd5e1;
+  letter-spacing: 0.02em;
+}
+.lang-pill {
+  padding: 2px 8px;
+  border-radius: 6px;
+  background: rgba(56, 189, 248, 0.15);
+  color: #38bdf8;
+  font-size: 11px;
+  font-weight: 600;
+  border: 1px solid rgba(56, 189, 248, 0.3);
+  transition: all 0.2s ease;
+}
+.lang-toggle-btn:hover .lang-pill {
+  background: rgba(56, 189, 248, 0.25);
+  color: #7dd3fc;
+  border-color: rgba(56, 189, 248, 0.5);
+}
+
 .menu-list{
   list-style:none;
   margin:0;

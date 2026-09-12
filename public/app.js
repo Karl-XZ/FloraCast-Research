@@ -164,6 +164,9 @@ const UIManager = {
     _panelDelegatesBound: false,
 
     init() {
+        if (window.I18n) {
+            window.I18n.init();
+        }
         this.setupMenuToggle();
         this.setupPanelControls();
         this.setupOverlay();
@@ -174,9 +177,18 @@ const UIManager = {
         const menuToggle = document.getElementById('menu-toggle');
         const mainMenu = document.getElementById('main-menu');
         const menuClose = document.getElementById('menu-close');
+        const langToggleBtn = document.getElementById('lang-toggle-btn');
 
         menuToggle.addEventListener('click', () => this.toggleMenu());
         menuClose.addEventListener('click', () => this.closeMenu());
+
+        if (langToggleBtn && window.I18n) {
+            langToggleBtn.addEventListener('click', (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                window.I18n.toggle();
+            });
+        }
 
         // Panel links
         const menuLinks = document.querySelectorAll('.menu-list a');
@@ -395,16 +407,10 @@ const MapManager = {
             AppState.baseLayerA = null;
         }
 
-        const nameMap = {
-            'baidu_vec': '百度矢量地图',
-            'baidu_sat': '百度卫星影像',
-            'amap': '高德矢量地图',
-            'tianditu_sat': '天地图卫星',
-            'osm': 'OpenStreetMap'
-        };
-        const displayName = nameMap[providerKey] || '底图';
+        const displayName = (window.I18n ? window.I18n.t(`provider.${providerKey}`) : null) || providerKey;
+        const loadMsg = window.I18n ? window.I18n.t('loader.loading_base', `Loading ${displayName} tiles...`, { name: displayName }) : `Loading ${displayName} tiles...`;
         if (window.MapTileLoader) {
-            window.MapTileLoader.show(`正在加载${displayName}资源...`);
+            window.MapTileLoader.show(loadMsg);
         }
 
         AppState.baseLayerKey = providerKey;
@@ -2282,7 +2288,7 @@ Using the local data above, address the user's question with concrete, location-
         let html = '';
         if (reasoning) {
           html += `<div class="deep-thinking-box" style="margin-bottom:12px;">
-            <div class="thinking-header"><span class="pulse-icon"></span><strong>DeepSeek 深度思考推理</strong></div>
+            <div class="thinking-header"><span class="pulse-icon"></span><strong>DeepSeek Reasoning Stream</strong></div>
             <div class="thinking-content">${reasoning}</div>
           </div>`;
         }
@@ -3046,7 +3052,7 @@ const WeatherSearchManager = {
 
         const query = queryInput?.value?.trim();
         if (!query) {
-            alert('请输入历史气象查询语句');
+            alert(window.I18n ? window.I18n.t('ws.alert_empty_query') : 'Please enter a historical weather query');
             return;
         }
 
@@ -3057,7 +3063,7 @@ const WeatherSearchManager = {
 
         if (searchBtn) searchBtn.disabled = true;
         if (statusDiv) statusDiv.style.display = 'flex';
-        if (statusText) statusText.textContent = 'DeepSeek 正在解析自然语言条件并比对 40 年滑动窗口...';
+        if (statusText) statusText.textContent = window.I18n ? window.I18n.t('ws.searching_text') : 'DeepSeek is parsing query conditions and scanning 40-year sliding windows...';
 
         try {
             const resp = await fetch('/api/weather/search', {
@@ -3068,7 +3074,7 @@ const WeatherSearchManager = {
 
             if (!resp.ok) {
                 const errJson = await resp.json().catch(() => ({}));
-                throw new Error(errJson.error || '检索失败');
+                throw new Error(errJson.error || (window.I18n ? window.I18n.t('ws.alert_search_error') : 'Search failed'));
             }
 
             const data = await resp.json();
@@ -3076,7 +3082,7 @@ const WeatherSearchManager = {
             this.renderSearchResults(data);
         } catch (err) {
             console.error('[WeatherSearch] Search failed:', err);
-            alert('检索出错: ' + err.message);
+            alert((window.I18n ? window.I18n.t('ws.alert_search_error') : 'Search error: ') + err.message);
         } finally {
             if (searchBtn) searchBtn.disabled = false;
             if (statusDiv) statusDiv.style.display = 'none';
@@ -3184,21 +3190,26 @@ const WeatherSearchManager = {
 
         const criteria = data.parsedCriteria || {};
         if (parsedCard) parsedCard.style.display = 'block';
-        if (pLocBadge) pLocBadge.textContent = criteria.location?.name || '研究区';
-        if (pLoc) pLoc.textContent = `${criteria.location?.name || '目标区域'} (${Number(criteria.location?.lat || 0).toFixed(2)}, ${Number(criteria.location?.lng || 0).toFixed(2)})`;
+        if (pLocBadge) pLocBadge.textContent = criteria.location?.name || (window.I18n ? window.I18n.t('ws.location_default') : 'Study Area');
+        if (pLoc) pLoc.textContent = `${criteria.location?.name || (window.I18n ? window.I18n.t('ws.target_area_default') : 'Target Area')} (${Number(criteria.location?.lat || 0).toFixed(2)}, ${Number(criteria.location?.lng || 0).toFixed(2)})`;
         
-        const seasonsMap = { spring: '春季', summer: '夏季', autumn: '秋季', winter: '冬季' };
-        const seasonsStr = (criteria.search_range?.seasons || []).map(s => seasonsMap[s] || s).join('、') || '全部季节';
+        const seasonsMap = {
+            spring: window.I18n ? window.I18n.t('ws.season_spring') : 'Spring',
+            summer: window.I18n ? window.I18n.t('ws.season_summer') : 'Summer',
+            autumn: window.I18n ? window.I18n.t('ws.season_autumn') : 'Autumn',
+            winter: window.I18n ? window.I18n.t('ws.season_winter') : 'Winter'
+        };
+        const seasonsStr = (criteria.search_range?.seasons || []).map(s => seasonsMap[s] || s).join(', ') || (window.I18n?.currentLang === 'zh' ? '全部季节' : 'All Seasons');
         if (pRange) pRange.textContent = `${criteria.search_range?.start_year || 1985} - ${criteria.search_range?.end_year || 2024} (${seasonsStr})`;
-        if (pWindow) pWindow.textContent = `持续 ${criteria.window_days || 14} 天滑动窗口 (共比对 ${data.totalCandidateWindows || 0} 个窗口)`;
+        if (pWindow) pWindow.textContent = window.I18n ? window.I18n.t('ws.window_desc', '', { days: criteria.window_days || 14, total: data.totalCandidateWindows || 0 }) : `Continuous ${criteria.window_days || 14}-day sliding window (${data.totalCandidateWindows || 0} candidate windows scanned)`;
 
         const cond = criteria.conditions || {};
         const condParts = [];
-        if (cond.temperature) condParts.push(`气温:${cond.temperature.toUpperCase()}`);
-        if (cond.precipitation) condParts.push(`降水:${cond.precipitation.toUpperCase()}`);
-        if (cond.radiation) condParts.push(`辐射:${cond.radiation.toUpperCase()}`);
-        if (pConditions) pConditions.textContent = condParts.join(' | ') || '综合平衡约束';
-        if (pSummary) pSummary.textContent = criteria.semantic_summary || '成功结构化解析查询意图并完成滑动时空序列相似性评分。';
+        if (cond.temperature) condParts.push(`${window.I18n ? window.I18n.t('ws.cond_temp') : 'Temp:'}${cond.temperature.toUpperCase()}`);
+        if (cond.precipitation) condParts.push(`${window.I18n ? window.I18n.t('ws.cond_precip') : 'Precip:'}${cond.precipitation.toUpperCase()}`);
+        if (cond.radiation) condParts.push(`${window.I18n ? window.I18n.t('ws.cond_rad') : 'Rad:'}${cond.radiation.toUpperCase()}`);
+        if (pConditions) pConditions.textContent = condParts.join(' | ') || (window.I18n ? window.I18n.t('ws.cond_balanced') : 'Balanced constraints');
+        if (pSummary) pSummary.textContent = criteria.semantic_summary || (window.I18n ? window.I18n.t('ws.summary_default') : 'Parsed query intent successfully.');
 
         // Render ranked events
         const resultsContainer = document.getElementById('ws-results-container');
@@ -3206,7 +3217,7 @@ const WeatherSearchManager = {
         const eventsList = document.getElementById('ws-events-list');
 
         if (resultsContainer) resultsContainer.style.display = 'block';
-        if (resultsCount) resultsCount.textContent = `共检索到 ${data.rankedEvents?.length || 0} 个契合事件`;
+        if (resultsCount) resultsCount.textContent = window.I18n ? window.I18n.t('ws.results_count', '', { count: data.rankedEvents?.length || 0 }) : `Found ${data.rankedEvents?.length || 0} matching events`;
         if (!eventsList) return;
 
         eventsList.innerHTML = '';
@@ -3216,39 +3227,43 @@ const WeatherSearchManager = {
             const m = ev.metrics || {};
             const z = m.zScores || {};
 
+            const toWord = window.I18n?.currentLang === 'zh' ? ' 至 ' : ' to ';
+            const yearSuffix = window.I18n?.currentLang === 'zh' ? '年 · ' : ' · ';
+            const daysWord = window.I18n ? window.I18n.t('ws.days') : 'days';
+
             const card = document.createElement('div');
             card.className = 'ws-event-card';
             card.innerHTML = `
                 <div class="ws-card-top">
                     <span class="ws-rank-badge ${rankClass}">Top #${rank}</span>
                     <div class="ws-score-meter">
-                        <span>相似度 ${ev.similarityScore}%</span>
+                        <span>${window.I18n ? window.I18n.t('ws.similarity') : 'Similarity'} ${ev.similarityScore}%</span>
                         <div class="ws-score-bar-bg">
                             <div class="ws-score-bar-fill" style="width: ${ev.similarityScore}%;"></div>
                         </div>
                     </div>
                 </div>
                 <div class="ws-date-row">
-                    <span>${ev.startDate.slice(0,4)}-${ev.startDate.slice(4,6)}-${ev.startDate.slice(6,8)} 至 ${ev.endDate.slice(0,4)}-${ev.endDate.slice(4,6)}-${ev.endDate.slice(6,8)}</span>
-                    <span class="ws-date-season">${ev.year}年 · ${ev.season === 'summer' ? '夏季' : ev.season === 'spring' ? '春季' : ev.season === 'autumn' ? '秋季' : '冬季'} · ${ev.windowDays}天</span>
+                    <span>${ev.startDate.slice(0,4)}-${ev.startDate.slice(4,6)}-${ev.startDate.slice(6,8)}${toWord}${ev.endDate.slice(0,4)}-${ev.endDate.slice(4,6)}-${ev.endDate.slice(6,8)}</span>
+                    <span class="ws-date-season">${ev.year}${yearSuffix}${seasonsMap[ev.season] || ev.season} · ${ev.windowDays} ${daysWord}</span>
                 </div>
                 <div class="ws-metrics-chips">
-                    <div class="ws-metric-chip"><span class="m-lbl">日均气温:</span><span class="m-val">${m.meanT?.toFixed(1) ?? '--'}°C</span></div>
-                    <div class="ws-metric-chip"><span class="m-lbl">最高气温:</span><span class="m-val" style="color:#f87171;">${m.maxT?.toFixed(1) ?? '--'}°C</span></div>
-                    <div class="ws-metric-chip"><span class="m-lbl">降水总量:</span><span class="m-val" style="color:#60a5fa;">${m.totalPrecip?.toFixed(1) ?? '--'}mm</span></div>
-                    <div class="ws-metric-chip"><span class="m-lbl">连旱天数:</span><span class="m-val" style="color:#fbbf24;">${m.consecutiveDryDays ?? 0}天</span></div>
-                    <div class="ws-metric-chip"><span class="m-lbl">太阳辐射:</span><span class="m-val">${m.meanSol?.toFixed(1) ?? '--'}MJ</span></div>
-                    <div class="ws-metric-chip"><span class="m-lbl">温升速率:</span><span class="m-val">${m.tSlope > 0 ? '+' : ''}${m.tSlope?.toFixed(2) ?? '--'}°C/d</span></div>
+                    <div class="ws-metric-chip"><span class="m-lbl">${window.I18n ? window.I18n.t('ws.metric_mean_t') : 'Mean Temp'}:</span><span class="m-val">${m.meanT?.toFixed(1) ?? '--'}°C</span></div>
+                    <div class="ws-metric-chip"><span class="m-lbl">${window.I18n ? window.I18n.t('ws.metric_max_t') : 'Max Temp'}:</span><span class="m-val" style="color:#f87171;">${m.maxT?.toFixed(1) ?? '--'}°C</span></div>
+                    <div class="ws-metric-chip"><span class="m-lbl">${window.I18n ? window.I18n.t('ws.metric_total_precip') : 'Total Precip'}:</span><span class="m-val" style="color:#60a5fa;">${m.totalPrecip?.toFixed(1) ?? '--'}mm</span></div>
+                    <div class="ws-metric-chip"><span class="m-lbl">${window.I18n ? window.I18n.t('ws.metric_dry_days') : 'Dry Days'}:</span><span class="m-val" style="color:#fbbf24;">${m.consecutiveDryDays ?? 0} ${daysWord}</span></div>
+                    <div class="ws-metric-chip"><span class="m-lbl">${window.I18n ? window.I18n.t('ws.metric_solar_rad') : 'Solar Rad'}:</span><span class="m-val">${m.meanSol?.toFixed(1) ?? '--'}MJ</span></div>
+                    <div class="ws-metric-chip"><span class="m-lbl">${window.I18n ? window.I18n.t('ws.metric_temp_slope') : 'Temp Slope'}:</span><span class="m-val">${m.tSlope > 0 ? '+' : ''}${m.tSlope?.toFixed(2) ?? '--'}°C/d</span></div>
                 </div>
                 <div class="ws-z-scores-row">
-                    <span>Z(气温): ${z.t2m > 0 ? '+' : ''}${z.t2m?.toFixed(2) ?? '0'}σ</span>
-                    <span>Z(降水): ${z.precip > 0 ? '+' : ''}${z.precip?.toFixed(2) ?? '0'}σ</span>
-                    <span>Z(辐射): ${z.sol > 0 ? '+' : ''}${z.sol?.toFixed(2) ?? '0'}σ</span>
+                    <span>${window.I18n ? window.I18n.t('ws.z_temp') : 'Z(Temp)'}: ${z.t2m > 0 ? '+' : ''}${z.t2m?.toFixed(2) ?? '0'}σ</span>
+                    <span>${window.I18n ? window.I18n.t('ws.z_precip') : 'Z(Precip)'}: ${z.precip > 0 ? '+' : ''}${z.precip?.toFixed(2) ?? '0'}σ</span>
+                    <span>${window.I18n ? window.I18n.t('ws.z_radiation') : 'Z(Radiation)'}: ${z.sol > 0 ? '+' : ''}${z.sol?.toFixed(2) ?? '0'}σ</span>
                 </div>
                 <div class="ws-actions-row">
-                    <button type="button" class="ws-card-btn ws-btn-loc" data-idx="${idx}">定位区域与卫星底图</button>
-                    <button type="button" class="ws-card-btn ws-btn-chart" data-idx="${idx}">逐日要素曲线</button>
-                    <button type="button" class="ws-card-btn ws-btn-veg" data-idx="${idx}">植被绿度响应</button>
+                    <button type="button" class="ws-card-btn ws-btn-loc" data-idx="${idx}">${window.I18n ? window.I18n.t('ws.btn_locate') : 'Locate Area & Satellite Base'}</button>
+                    <button type="button" class="ws-card-btn ws-btn-chart" data-idx="${idx}">${window.I18n ? window.I18n.t('ws.btn_chart') : 'Daily Factor Curves'}</button>
+                    <button type="button" class="ws-card-btn ws-btn-veg" data-idx="${idx}">${window.I18n ? window.I18n.t('ws.btn_veg') : 'Vegetation Response'}</button>
                 </div>
             `;
 
@@ -3285,7 +3300,7 @@ const WeatherSearchManager = {
         wrapper.style.display = 'block';
         setTimeout(() => wrapper.scrollIntoView({ behavior: 'smooth', block: 'nearest' }), 100);
         if (chartTitle) {
-            chartTitle.textContent = `逐日气象要素曲线 (${event.startDate} ~ ${event.endDate})`;
+            chartTitle.textContent = window.I18n ? window.I18n.t('ws.chart_title_dates', '', { start: event.startDate, end: event.endDate }) : `Daily Meteorological Factors (${event.startDate} ~ ${event.endDate})`;
         }
 
         const rawSeries = event.series || [];
@@ -3306,7 +3321,7 @@ const WeatherSearchManager = {
 
         const traces = [
             {
-                name: '日均温(°C)',
+                name: window.I18n ? window.I18n.t('ws.chart_t2m') : 'Daily Mean Temp (°C)',
                 x: xDates,
                 y: t2m,
                 type: 'scatter',
@@ -3316,7 +3331,7 @@ const WeatherSearchManager = {
                 yaxis: 'y'
             },
             {
-                name: '最高温(°C)',
+                name: window.I18n ? window.I18n.t('ws.chart_tmax') : 'Daily Max Temp (°C)',
                 x: xDates,
                 y: tmax,
                 type: 'scatter',
@@ -3325,7 +3340,7 @@ const WeatherSearchManager = {
                 yaxis: 'y'
             },
             {
-                name: '短波辐射(MJ/m²)',
+                name: window.I18n ? window.I18n.t('ws.chart_sol') : 'Shortwave Rad (MJ/m²)',
                 x: xDates,
                 y: sol,
                 type: 'scatter',
@@ -3334,7 +3349,7 @@ const WeatherSearchManager = {
                 yaxis: 'y'
             },
             {
-                name: '降水量(mm)',
+                name: window.I18n ? window.I18n.t('ws.chart_precip') : 'Precipitation (mm)',
                 x: xDates,
                 y: precip,
                 type: 'bar',
@@ -3358,14 +3373,14 @@ const WeatherSearchManager = {
                 tickfont: { color: '#94a3b8', size: 9 }
             },
             yaxis: {
-                title: '温度 (°C) / 辐射 (MJ)',
+                title: window.I18n ? window.I18n.t('ws.chart_y1_title') : 'Temp (°C) / Rad (MJ)',
                 titlefont: { color: '#38bdf8', size: 10 },
                 tickfont: { color: '#38bdf8', size: 9 },
                 showgrid: true,
                 gridcolor: 'rgba(255,255,255,0.06)'
             },
             yaxis2: {
-                title: '降水 (mm)',
+                title: window.I18n ? window.I18n.t('ws.chart_y2_title') : 'Precipitation (mm)',
                 titlefont: { color: '#34d399', size: 10 },
                 tickfont: { color: '#34d399', size: 9 },
                 overlaying: 'y',
@@ -3391,7 +3406,7 @@ const WeatherSearchManager = {
 
         wrapper.style.display = 'block';
         setTimeout(() => wrapper.scrollIntoView({ behavior: 'smooth', block: 'nearest' }), 100);
-        if (metricsRow) metricsRow.innerHTML = '<span style="color:#38bdf8;">正在调取 MODIS 植被指数反演差值...</span>';
+        if (metricsRow) metricsRow.innerHTML = `<span style="color:#38bdf8;">${window.I18n ? window.I18n.t('ws.veg_loading') : 'Retrieving MODIS vegetation index inversion...'}</span>`;
 
         try {
             const m = event.metrics || {};
@@ -3411,7 +3426,7 @@ const WeatherSearchManager = {
             });
 
             const resp = await fetch(`/api/weather/vegetation-diff?${params.toString()}`);
-            if (!resp.ok) throw new Error('植被差值反演失败');
+            if (!resp.ok) throw new Error(window.I18n ? window.I18n.t('ws.veg_error') : 'Vegetation inversion failed');
             const data = await resp.json();
 
             const isPositive = (data.deltaNdvi ?? 0) >= 0;
@@ -3421,12 +3436,30 @@ const WeatherSearchManager = {
             const badgeBg = isPositive ? 'rgba(16,185,129,0.2)' : 'rgba(239,68,68,0.2)';
             const badgeColor = isPositive ? '#6ee7b7' : '#fca5a5';
 
+            const sevKeyMap = {
+                '水热旺盛生长 (Vigorous Growth)': 'ws.sev_vigorous',
+                'Vigorous Growth': 'ws.sev_vigorous',
+                '雨热良性促进 (Favorable Hydrothermal)': 'ws.sev_favorable',
+                'Favorable Hydrothermal': 'ws.sev_favorable',
+                '严重干旱萎蔫 (Severe Drought)': 'ws.sev_severe_drought',
+                'Severe Drought': 'ws.sev_severe_drought',
+                '中度水分胁迫 (Moderate Drought)': 'ws.sev_mod_drought',
+                'Moderate Drought': 'ws.sev_mod_drought',
+                '低温冻害受挫 (Cold Frost)': 'ws.sev_frost',
+                'Frost Stress': 'ws.sev_frost',
+                '短时水渍寡照 (Waterlogging Stress)': 'ws.sev_waterlog',
+                'Waterlogging Stress': 'ws.sev_waterlog',
+                '常态平稳波动 (Stable Baseline)': 'ws.sev_stable',
+                'Stable Baseline': 'ws.sev_stable'
+            };
+            const localizedSev = (window.I18n && sevKeyMap[data.impactSeverity]) ? window.I18n.t(sevKeyMap[data.impactSeverity]) : (data.impactSeverity || '--');
+
             if (metricsRow) {
                 metricsRow.innerHTML = `
-                    <div>事件前基准: <b style="color:#e2e8f0;">${data.preAvg}</b></div>
-                    <div>事件期均值: <b style="color:${durColor};">${data.duringAvg}</b></div>
-                    <div>ΔNDVI: <b style="color:${deltaColor};">${deltaSign}${data.deltaNdvi}</b></div>
-                    <div>影响判定: <span class="ws-veg-badge" style="background:${badgeBg}; color:${badgeColor}; font-weight:600; padding:2px 8px; border-radius:4px;">${data.impactSeverity}</span></div>
+                    <div>${window.I18n ? window.I18n.t('ws.veg_pre_avg') : 'Pre-event Baseline'}: <b style="color:#e2e8f0;">${data.preAvg}</b></div>
+                    <div>${window.I18n ? window.I18n.t('ws.veg_dur_avg') : 'Event Period Mean'}: <b style="color:${durColor};">${data.duringAvg}</b></div>
+                    <div>${window.I18n ? window.I18n.t('ws.veg_delta') : 'ΔNDVI'}: <b style="color:${deltaColor};">${deltaSign}${data.deltaNdvi}</b></div>
+                    <div>${window.I18n ? window.I18n.t('ws.veg_impact') : 'Impact Assessment'}: <span class="ws-veg-badge" style="background:${badgeBg}; color:${badgeColor}; font-weight:600; padding:2px 8px; border-radius:4px;">${localizedSev}</span></div>
                 `;
             }
 
@@ -3450,7 +3483,7 @@ const WeatherSearchManager = {
 
             const traces = [
                 {
-                    name: '逐日 NDVI 动态',
+                    name: window.I18n ? window.I18n.t('ws.veg_trace_daily') : 'Daily NDVI Dynamics',
                     x: allDates,
                     y: yNdvi,
                     type: 'scatter',
@@ -3459,7 +3492,7 @@ const WeatherSearchManager = {
                     marker: { size: 4, color: primaryColor }
                 },
                 {
-                    name: '气候态常年基线',
+                    name: window.I18n ? window.I18n.t('ws.veg_trace_baseline') : 'Climatological Baseline',
                     x: allDates,
                     y: yBase,
                     type: 'scatter',
@@ -3495,7 +3528,7 @@ const WeatherSearchManager = {
             }
         } catch (e) {
             console.error('[VegetationDiff] error:', e);
-            if (metricsRow) metricsRow.innerHTML = `<span style="color:#f87171;">反演失败: ${e.message}</span>`;
+            if (metricsRow) metricsRow.innerHTML = `<span style="color:#f87171;">${window.I18n ? window.I18n.t("ws.veg_error") : "Failed: "}${e.message}</span>`;
         }
     },
 
@@ -3517,7 +3550,7 @@ const WeatherSearchManager = {
 
         const question = questionInput?.value?.trim();
         if (!question) {
-            alert('请输入科研课题或假设');
+            alert(window.I18n ? window.I18n.t('ws.agent_alert_empty') : 'Please enter a research question or hypothesis');
             return;
         }
 
@@ -3528,7 +3561,7 @@ const WeatherSearchManager = {
         if (runBtn) runBtn.disabled = true;
         if (stepperBox) stepperBox.style.display = 'block';
         if (thinkingWrapper) thinkingWrapper.style.display = 'block';
-        if (thinkingLog) thinkingLog.textContent = '[Climate Agent] 正在初始化多步骤自主科研规划...\n';
+        if (thinkingLog) thinkingLog.textContent = window.I18n ? window.I18n.t('ws.agent_init_plan') : '[Climate Agent] Initializing multi-step autonomous research plan...\n';
 
         // Stage updater helper
         const setStep = (stepId, status) => {
@@ -3540,31 +3573,31 @@ const WeatherSearchManager = {
         };
 
         setStep('plan', 'active');
-        if (thinkingLog) thinkingLog.textContent += '• [Stage 1: 任务规划] 解析时空约束、相似度向量空间与植被反演链路\n';
+        if (thinkingLog) thinkingLog.textContent += window.I18n ? window.I18n.t('ws.agent_stage1_log') : '• [Stage 1: Planning] Parse spatiotemporal constraints, similarity space & vegetation inversion chain\n';
 
         // Stagger visual progress
         const t1 = setTimeout(() => {
             setStep('plan', 'done');
             setStep('search', 'active');
-            if (thinkingLog) thinkingLog.textContent += '• [Stage 2: 气象检索] 调用 NASA POWER 40年序列，执行多维滑动窗口检索与Z-score初筛\n';
+            if (thinkingLog) thinkingLog.textContent += window.I18n ? window.I18n.t('ws.agent_stage2_log') : '• [Stage 2: Weather Search] Query 40-year NASA POWER series, sliding window & Z-score\n';
         }, 1200);
 
         const t2 = setTimeout(() => {
             setStep('search', 'done');
             setStep('compare', 'active');
-            if (thinkingLog) thinkingLog.textContent += '• [Stage 3: 时序比对] 完成极值温差、热量累积与连续干旱天数(CDD)时序归因\n';
+            if (thinkingLog) thinkingLog.textContent += window.I18n ? window.I18n.t('ws.agent_stage3_log') : '• [Stage 3: Temporal Compare] Attribute temperature extremes, heat accumulation & CDD\n';
         }, 3000);
 
         const t3 = setTimeout(() => {
             setStep('compare', 'done');
             setStep('vegetation', 'active');
-            if (thinkingLog) thinkingLog.textContent += '• [Stage 4: 植被响应] 反演候选事件前后各15天 MODIS NDVI 差值与受损比例\n';
+            if (thinkingLog) thinkingLog.textContent += window.I18n ? window.I18n.t('ws.agent_stage4_log') : '• [Stage 4: Vegetation] Invert ±15-day MODIS NDVI anomaly & damage proportion for candidate events\n';
         }, 5500);
 
         const t4 = setTimeout(() => {
             setStep('vegetation', 'done');
             setStep('report', 'active');
-            if (thinkingLog) thinkingLog.textContent += '• [Stage 5: 科研综合] 调用 DeepSeek 进行逻辑综合与学术论述生成...\n';
+            if (thinkingLog) thinkingLog.textContent += window.I18n ? window.I18n.t('ws.agent_stage5_log') : '• [Stage 5: Synthesis] Call DeepSeek for academic reasoning synthesis & report generation...\n';
         }, 8000);
 
         try {
@@ -3578,7 +3611,7 @@ const WeatherSearchManager = {
 
             if (!resp.ok) {
                 const errJson = await resp.json().catch(() => ({}));
-                throw new Error(errJson.error || 'Agent 运行失败');
+                throw new Error(errJson.error || 'Agent execution failed');
             }
 
             const data = await resp.json();
@@ -3588,13 +3621,15 @@ const WeatherSearchManager = {
             ['plan', 'search', 'compare', 'vegetation', 'report'].forEach(s => setStep(s, 'done'));
 
             if (thinkingLog) {
-                thinkingLog.textContent = data.thinkingStream || '任务推演完成。';
+                thinkingLog.textContent = data.thinkingStream || (window.I18n ? window.I18n.t('ws.agent_done_stream') : 'Inference workflow completed.');
             }
 
             // Populate comparison matrix
             if (matrixWrapper && matrixTbody && data.vegetationImpacts) {
                 matrixWrapper.style.display = 'block';
                 matrixTbody.innerHTML = '';
+                const yearSuffix = window.I18n?.currentLang === 'zh' ? '年' : '';
+                const daysSuffix = window.I18n ? window.I18n.t('ws.days') : 'days';
                 data.vegetationImpacts.forEach(row => {
                     const tr = document.createElement('tr');
                     const isPos = (row.deltaNDVI ?? 0) >= 0;
@@ -3603,14 +3638,14 @@ const WeatherSearchManager = {
                     const badgeColor = isPos ? '#6ee7b7' : '#fca5a5';
                     const sign = isPos ? '+' : '';
                     tr.innerHTML = `
-                        <td><b style="color:#38bdf8;">${row.year}年</b></td>
+                        <td><b style="color:#38bdf8;">${row.year}${yearSuffix}</b></td>
                         <td style="font-size:10px; color:#cbd5e1;">${row.dates || row.period || '--'}</td>
                         <td>${row.meanTemp ?? row.meanT ?? '--'}°C</td>
                         <td><span style="color:#f87171; font-weight:600;">${row.maxTemp ?? row.maxT ?? '--'}°C</span></td>
-                        <td><span style="color:#fbbf24;">${row.consecutiveDryDays ?? row.cdd ?? 0}天</span></td>
+                        <td><span style="color:#fbbf24;">${row.consecutiveDryDays ?? row.cdd ?? 0} ${daysSuffix}</span></td>
                         <td><span style="color:${deltaColor}; font-weight:600;">${sign}${row.deltaNDVI}</span></td>
                         <td><span style="background:${badgeBg}; color:${badgeColor}; padding:2px 6px; border-radius:3px; font-weight:600;">${sign}${row.lossPercentage}%</span></td>
-                        <td>${row.recoveryDays}天</td>
+                        <td>${row.recoveryDays} ${daysSuffix}</td>
                     `;
                     matrixTbody.appendChild(tr);
                 });
@@ -3619,7 +3654,7 @@ const WeatherSearchManager = {
             // Render academic report
             if (reportWrapper && reportContent) {
                 reportWrapper.style.display = 'block';
-                const markdown = data.report || '学术报告撰写完成。';
+                const markdown = data.report || (window.I18n ? window.I18n.t('ws.agent_report_done') : 'Academic research report generated.');
                 if (window.marked) {
                     reportContent.innerHTML = marked.parse(markdown);
                 } else {
@@ -3629,8 +3664,8 @@ const WeatherSearchManager = {
 
         } catch (err) {
             console.error('[ClimateAgent] failed:', err);
-            alert('Agent 推演失败: ' + err.message);
-            if (thinkingLog) thinkingLog.textContent += `\n[错误] ${err.message}`;
+            alert((window.I18n ? window.I18n.t('ws.agent_error_prefix') : 'Agent inference failed: ') + err.message);
+            if (thinkingLog) thinkingLog.textContent += `\n[Error] ${err.message}`;
         } finally {
             if (runBtn) runBtn.disabled = false;
         }
@@ -3640,9 +3675,9 @@ const WeatherSearchManager = {
         const text = this._lastAgentData?.report;
         if (text) {
             navigator.clipboard.writeText(text).then(() => {
-                alert('学术报告已复制到剪贴板！');
+                alert(window.I18n ? window.I18n.t('ws.agent_copied') : 'Report copied to clipboard!');
             }).catch(() => {
-                alert('复制失败，请手动复制。');
+                alert(window.I18n ? window.I18n.t('ws.agent_copy_fail') : 'Failed to copy, please copy manually.');
             });
         }
     }
@@ -4266,7 +4301,7 @@ const VisualMLManager = {
             kSlider.addEventListener('input', () => {
                 const val = kSlider.value;
                 const model = modelSel ? modelSel.value : 'knn';
-                kLabel.textContent = model === 'knn' ? `K = ${val}` : `高斯核 γ = ${(0.1 * val).toFixed(1)}`;
+                const kernelPrefix = window.I18n ? window.I18n.t('vml.kernel_label') : 'Gaussian RBF γ = '; kLabel.textContent = model === 'knn' ? `K = ${val}` : `${kernelPrefix}${(0.1 * val).toFixed(1)}`;
             });
         }
 
@@ -4274,7 +4309,7 @@ const VisualMLManager = {
             modelSel.addEventListener('change', () => {
                 const model = modelSel.value;
                 const val = kSlider.value;
-                kLabel.textContent = model === 'knn' ? `K = ${val}` : `高斯核 γ = ${(0.1 * val).toFixed(1)}`;
+                const kernelPrefix = window.I18n ? window.I18n.t('vml.kernel_label') : 'Gaussian RBF γ = '; kLabel.textContent = model === 'knn' ? `K = ${val}` : `${kernelPrefix}${(0.1 * val).toFixed(1)}`;
             });
         }
 
@@ -4299,7 +4334,7 @@ const VisualMLManager = {
 
     runSpatialML() {
         const statusEl = document.getElementById('vml-status');
-        if (statusEl) statusEl.innerHTML = '<span class="pulse-icon"></span> 正在计算空间机器学习决策面与特征投影...';
+        if (statusEl) statusEl.innerHTML = '<span class="pulse-icon"></span> ' + (window.I18n ? window.I18n.t('vml.status_computing') : 'Computing spatial ML decision surface & feature projections...');
 
         const center = MapManager.getCurrentLocation() || CONFIG.INIT;
         const centerLat = center.lat;
@@ -4318,16 +4353,16 @@ const VisualMLManager = {
 
         // 1. Synthesize 24 realistic ground reference points with 2 features
         const classes = taskMode === 'synthetic' ? [
-            { id: 0, name: '流形类别 A (螺旋主支)', color: '#ef4444' },
-            { id: 1, name: '流形类别 B (螺旋副支)', color: '#3b82f6' }
+            { id: 0, name: window.I18n ? window.I18n.t('vml.manifold_a') : 'Manifold Class A (Primary Spiral)', color: '#ef4444' },
+            { id: 1, name: window.I18n ? window.I18n.t('vml.manifold_b') : 'Manifold Class B (Secondary Spiral)', color: '#3b82f6' }
         ] : taskMode === 'species' ? [
-            { id: 0, name: '迎春/山桃 (早春耐寒群落)', color: '#ec4899' },
-            { id: 1, name: '连翘/樱花 (仲春喜温群落)', color: '#8b5cf6' },
-            { id: 2, name: '刺槐/栾树 (夏秋深根群落)', color: '#06b6d4' }
+            { id: 0, name: window.I18n ? window.I18n.t('vml.species_a') : 'Winter Jasmine / Wild Peach (Early Spring Cold-Hardy)', color: '#ec4899' },
+            { id: 1, name: window.I18n ? window.I18n.t('vml.species_b') : 'Forsythia / Cherry Blossom (Mid Spring Mesic)', color: '#8b5cf6' },
+            { id: 2, name: window.I18n ? window.I18n.t('vml.species_c') : 'Black Locust / Goldenrain Tree (Summer Deep-Rooted)', color: '#06b6d4' }
         ] : [
-            { id: 0, name: '高温湿润适生带 (喜暖湿)', color: '#10b981' },
-            { id: 1, name: '寒温干旱耐受带 (耐寒干)', color: '#3b82f6' },
-            { id: 2, name: '温性过渡生态交错带', color: '#f59e0b' }
+            { id: 0, name: window.I18n ? window.I18n.t('vml.eco_zone_a') : 'Eco-climatic Zone A (Warm & Humid)', color: '#10b981' },
+            { id: 1, name: window.I18n ? window.I18n.t('vml.eco_zone_b') : 'Eco-climatic Zone B (Cold & Dry)', color: '#3b82f6' },
+            { id: 2, name: window.I18n ? window.I18n.t('vml.eco_zone_c') : 'Transitional Ecocline', color: '#f59e0b' }
         ];
 
         const samples = [];
@@ -4451,6 +4486,11 @@ const VisualMLManager = {
             }
 
             // Draw training sample points
+            const latLbl = window.I18n?.currentLang === 'zh' ? '纬度' : 'Lat';
+            const lngLbl = window.I18n?.currentLang === 'zh' ? '经度' : 'Lng';
+            const tLbl = window.I18n?.currentLang === 'zh' ? '气温' : 'Temp';
+            const pLbl = window.I18n?.currentLang === 'zh' ? '降水' : 'Precip';
+
             samples.forEach(s => {
                 const ptEnt = viewer.entities.add({
                     position: Cesium.Cartesian3.fromDegrees(s.lng, s.lat, 80),
@@ -4460,7 +4500,7 @@ const VisualMLManager = {
                         outlineColor: Cesium.Color.WHITE,
                         outlineWidth: 2
                     },
-                    description: `<strong>${s.className}</strong><br>纬度: ${s.lat.toFixed(4)}<br>经度: ${s.lng.toFixed(4)}<br>气温: ${s.f1.toFixed(1)}°C<br>降水: ${s.f2.toFixed(1)}mm`
+                    description: `<strong>${s.className}</strong><br>${latLbl}: ${s.lat.toFixed(4)}<br>${lngLbl}: ${s.lng.toFixed(4)}<br>${tLbl}: ${s.f1.toFixed(1)}°C<br>${pLbl}: ${s.f2.toFixed(1)}mm`
                 });
                 this.drawnEntities.push(ptEnt);
             });
@@ -4472,7 +4512,10 @@ const VisualMLManager = {
         this.renderFeatureSpacePlot(samples, classes, classifyPoint);
 
         if (statusEl) {
-            statusEl.innerHTML = `已在 3D 地球渲染 <strong>${N * N}</strong> 个分类决策面像元与 <strong>${samples.length}</strong> 个参考训练点。算法: <strong>${modelType.toUpperCase()}</strong> (参数: ${kVal})。`;
+            const isZh = window.I18n?.currentLang === 'zh';
+            statusEl.innerHTML = isZh
+                ? `已在 3D 地球渲染 <strong>${N * N}</strong> 个分类决策面像元与 <strong>${samples.length}</strong> 个参考训练点。算法: <strong>${modelType.toUpperCase()}</strong> (参数: ${kVal})。`
+                : `Rendered <strong>${N * N}</strong> decision pixels and <strong>${samples.length}</strong> reference training points on 3D globe. Model: <strong>${modelType.toUpperCase()}</strong> (Param: ${kVal}).`;
         }
     },
 
@@ -4538,7 +4581,7 @@ const VisualMLManager = {
                     color: c.color,
                     line: { color: '#ffffff', width: 1.5 }
                 },
-                hovertemplate: `<b>${c.name}</b><br>气温: %{x:.2f} °C<br>降水: %{y:.2f} mm<extra></extra>`
+                hovertemplate: `<b>${c.name}</b><br>${window.I18n?.currentLang === "zh" ? "气温" : "Temp"}: %{x:.2f} °C<br>${window.I18n?.currentLang === "zh" ? "降水" : "Precip"}: %{y:.2f} mm<extra></extra>`
             });
         });
 
@@ -4546,8 +4589,8 @@ const VisualMLManager = {
             paper_bgcolor: '#1e293b',
             plot_bgcolor: '#0f172a',
             margin: { l: 45, r: 20, t: 30, b: 40 },
-            xaxis: { title: { text: '特征 1: 气温 (°C)', font: { color: '#94a3b8', size: 11 } }, color: '#cbd5e1', gridcolor: '#334155' },
-            yaxis: { title: { text: '特征 2: 降水 (mm)', font: { color: '#94a3b8', size: 11 } }, color: '#cbd5e1', gridcolor: '#334155' },
+            xaxis: { title: { text: window.I18n ? window.I18n.t('vml.feat_temp') : 'Feature 1: Temperature (°C)', font: { color: '#94a3b8', size: 11 } }, color: '#cbd5e1', gridcolor: '#334155' },
+            yaxis: { title: { text: window.I18n ? window.I18n.t('vml.feat_precip') : 'Feature 2: Precipitation (mm)', font: { color: '#94a3b8', size: 11 } }, color: '#cbd5e1', gridcolor: '#334155' },
             legend: { orientation: 'h', y: 1.15, x: 0, font: { color: '#cbd5e1', size: 10 } }
         };
 
@@ -4576,7 +4619,7 @@ const VisualMLManager = {
 
         if (updateStatus) {
             const statusEl = document.getElementById('vml-status');
-            if (statusEl) statusEl.textContent = '已清除地图与特征空间决策面覆盖层。';
+            if (statusEl) statusEl.textContent = window.I18n ? window.I18n.t('vml.cleared_status') : 'Cleared decision surface overlay from map & feature space.';
             const chartEl = document.getElementById('vml-feature-chart');
             if (chartEl && window.Plotly) Plotly.purge(chartEl);
         }
@@ -4606,12 +4649,19 @@ const VisualMLManager = {
         const w = rect.width;
         const h = rect.height;
 
+        const inputLabels = window.I18n?.currentLang === 'zh'
+            ? ['T2M积温', '降水湿度', 'NDVI滞后', 'sin(DOY)', 'cos(DOY)']
+            : ['T2M GDD', 'Precip/Moisture', 'NDVI Lag', 'sin(DOY)', 'cos(DOY)'];
+        const outputLabels = window.I18n?.currentLang === 'zh'
+            ? ['始花DOY', '适生度']
+            : ['Flowering DOY', 'Suitability'];
+
         // Neural network layers: [5, 6, 4, 2]
         const layers = [
-            { count: 5, labels: ['T2M积温', '降水湿度', 'NDVI滞后', 'sin(DOY)', 'cos(DOY)'] },
+            { count: 5, labels: inputLabels },
             { count: 6, labels: ['H1.1', 'H1.2', 'H1.3', 'H1.4', 'H1.5', 'H1.6'] },
             { count: 4, labels: ['H2.1', 'H2.2', 'H2.3', 'H2.4'] },
-            { count: 2, labels: ['始花DOY', '适生度'] }
+            { count: 2, labels: outputLabels }
         ];
 
         this.nnNodes = [];
@@ -4781,11 +4831,11 @@ const VisualMLManager = {
         if (!chartEl || !window.Plotly) return;
 
         const features = [
-            '极端逆温扰动 (Frost Risk)',
-            '季节节律编码 (DOY Harmonic)',
-            '植被指数历史记忆 (NDVI Lag)',
-            '降水与地表湿度 (Precip/Moisture)',
-            '有效积温累积 (GDD / T2M)'
+            window.I18n ? window.I18n.t('vml.sal_frost') : 'Extreme Temp Inversion (Frost Risk)',
+            window.I18n ? window.I18n.t('vml.sal_doy') : 'Seasonal Harmonic (DOY Harmonic)',
+            window.I18n ? window.I18n.t('vml.sal_ndvi') : 'Vegetation Memory (NDVI Lag)',
+            window.I18n ? window.I18n.t('vml.sal_precip') : 'Precip & Moisture',
+            window.I18n ? window.I18n.t('vml.sal_gdd') : 'Effective Growing Degree Days (GDD / T2M)'
         ];
         const importances = [6.8, 14.3, 17.5, 23.2, 38.2];
 
@@ -4812,7 +4862,7 @@ const VisualMLManager = {
             paper_bgcolor: '#1e293b',
             plot_bgcolor: '#0f172a',
             margin: { l: 155, r: 25, t: 25, b: 35 },
-            xaxis: { title: { text: '特征显著性归因贡献率 (%)', font: { color: '#94a3b8', size: 11 } }, color: '#cbd5e1', gridcolor: '#334155' },
+            xaxis: { title: { text: window.I18n ? window.I18n.t('vml.saliency_axis') : 'Feature Saliency Attribution Contribution (%)', font: { color: '#94a3b8', size: 11 } }, color: '#cbd5e1', gridcolor: '#334155' },
             yaxis: { color: '#cbd5e1', font: { size: 11 } }
         };
 
@@ -4845,8 +4895,8 @@ const ResearchAgentManager = {
                 const content = document.getElementById('agent-report-content');
                 if (content) {
                     navigator.clipboard.writeText(content.innerText || content.textContent);
-                    copyBtn.textContent = '已复制！';
-                    setTimeout(() => { copyBtn.textContent = '复制报告'; }, 2000);
+                    copyBtn.textContent = window.I18n ? window.I18n.t('ra.copied') : 'Copied!';
+                    setTimeout(() => { copyBtn.textContent = window.I18n ? window.I18n.t('ra.copy_btn') : 'Copy Report'; }, 2000);
                 }
             });
         }
@@ -4856,7 +4906,7 @@ const ResearchAgentManager = {
         const qInput = document.getElementById('agent-question');
         const question = qInput?.value?.trim();
         if (!question) {
-            alert('请输入研究问题或科学假设。');
+            alert(window.I18n ? window.I18n.t('ra.alert_empty') : 'Please enter a research question or hypothesis.');
             return;
         }
 
@@ -4872,9 +4922,9 @@ const ResearchAgentManager = {
         const reportWrap = document.getElementById('agent-report-wrap');
 
         if (runBtn) runBtn.disabled = true;
-        if (statusEl) statusEl.innerHTML = '<span class="pulse-icon"></span> 正在构建冻结协议并启动 openJiuwen 多智能体调度引擎...';
+        if (statusEl) statusEl.innerHTML = '<span class="pulse-icon"></span> ' + (window.I18n ? window.I18n.t('ra.status_init') : 'Building frozen protocol & launching openJiuwen multi-agent engine...');
         if (thinkingWrap) thinkingWrap.classList.remove('hidden');
-        if (thinkingContent) thinkingContent.innerHTML = '正在与华为 openJiuwen 8 阶段流水线建立会话，准备启动 DeepSeek 思考链路...';
+        if (thinkingContent) thinkingContent.innerHTML = window.I18n ? window.I18n.t('ra.thinking_init') : 'Establishing session with openJiuwen 8-stage pipeline, initializing DeepSeek reasoning...';
         if (reportWrap) reportWrap.classList.add('hidden');
 
         // Reset stepper
@@ -4887,7 +4937,7 @@ const ResearchAgentManager = {
             question,
             period: { startYear, endYear },
             aoi: {
-                name: `区域 (${lat.toFixed(3)}, ${lng.toFixed(3)})`,
+                name: `${window.I18n ? window.I18n.t('ra.region_label') : 'Region'} (${lat.toFixed(3)}, ${lng.toFixed(3)})`,
                 lat, lng,
                 radiusKm: radius
             },
@@ -4909,7 +4959,7 @@ const ResearchAgentManager = {
             const run = await resp.json();
             this.activeRunId = run.id;
 
-            if (statusEl) statusEl.innerHTML = `<span class="pulse-icon"></span> 多智能体推演中 (任务 ID: <code>${run.id}</code>)...`;
+            if (statusEl) statusEl.innerHTML = `<span class="pulse-icon"></span> ${window.I18n ? window.I18n.t('ra.status_running') : 'Multi-agent inference in progress (Task ID: '}<code>${run.id}</code>)...`;
 
             // Start polling
             this.startPolling(run.id);
@@ -4917,8 +4967,8 @@ const ResearchAgentManager = {
             console.error('Failed to start research:', err);
             const isConnError = err.message.includes('Failed to fetch') || err.message.includes('NetworkError');
             const userMsg = isConnError
-                ? '连接后台服务失败 (5174)。若服务意外关闭，请双击项目根目录 start_server.bat 重新启动，或刷新重试。'
-                : `启动失败: ${err.message}`;
+                ? (window.I18n ? window.I18n.t('ra.err_connect') : 'Failed to connect to backend service (5174). If service terminated, run start_server.bat or refresh.')
+                : `${window.I18n ? window.I18n.t('ra.err_start') : 'Launch failed: '}${err.message}`;
             if (statusEl) statusEl.innerHTML = `<span style="color:#f87171;">️ ${userMsg}</span>`;
             if (runBtn) runBtn.disabled = false;
         }
@@ -4928,14 +4978,14 @@ const ResearchAgentManager = {
         if (this.pollTimer) clearInterval(this.pollTimer);
 
         const stageDescriptions = {
-            protocol: '智能体 01: 正在生成结构化科研计划、确立因果 estimand 与审计规则...',
-            literature: '智能体 02: 正在检索 Europe PMC、arXiv 及 CrossRef 相关生态物候学术文献...',
-            data: '智能体 03: 正在同步 NASA POWER 气象与 MODIS 遥感反射率像元序列...',
-            geo: '智能体 04: 正在执行遥感像元云掩膜、地表覆盖过滤与空间质控验证...',
-            statistics: '智能体 05: 正在拟合积温 GDD 响应曲线与 Sen\'s 斜率稳健趋势检验...',
-            evidence: '智能体 06: 正在交叉审查物候与气候观测证据链，拦截过度推断...',
-            reproduce: '智能体 07: 正在计算 SHA-256 输入/输出快照哈希，完成独立复现核验...',
-            report: '智能体 08: 正在调用 DeepSeek 深度思考模型，综合多源证据撰写严谨学术报告...'
+            protocol: window.I18n ? window.I18n.t('ra.p_protocol') : 'Agent 01: Generating structured research protocol, establishing causal estimand and audit rules...',
+            literature: window.I18n ? window.I18n.t('ra.p_literature') : 'Agent 02: Searching Europe PMC, arXiv and CrossRef for related phenological literature...',
+            data: window.I18n ? window.I18n.t('ra.p_data') : 'Agent 03: Synchronizing NASA POWER weather and MODIS surface reflectance series...',
+            geo: window.I18n ? window.I18n.t('ra.p_geo') : 'Agent 04: Performing remote sensing cloud masking, land cover filtering and spatial QC...',
+            statistics: window.I18n ? window.I18n.t('ra.p_statistics') : 'Agent 05: Fitting GDD thermal response curves and Sen\'s slope trend test...',
+            evidence: window.I18n ? window.I18n.t('ra.p_evidence') : 'Agent 06: Cross-auditing phenological and meteorological evidence chains...',
+            reproduce: window.I18n ? window.I18n.t('ra.p_reproduce') : 'Agent 07: Computing SHA-256 hash snapshots for independent reproducibility verification...',
+            report: window.I18n ? window.I18n.t('ra.p_report') : 'Agent 08: Calling DeepSeek reasoning model to synthesize evidence into academic report...'
         };
 
         this.pollTimer = setInterval(async () => {
@@ -4991,7 +5041,7 @@ const ResearchAgentManager = {
         if (activeStage && stageDescriptions[activeStage] && statusEl) {
             statusEl.innerHTML = `<span class="pulse-icon"></span> ${stageDescriptions[activeStage]}`;
             if (thinkingContent) {
-                thinkingContent.innerHTML = `<strong>[当前阶段: ${activeStage.toUpperCase()}]</strong><br>${stageDescriptions[activeStage]}`;
+                thinkingContent.innerHTML = `<strong>[${window.I18n ? window.I18n.t('ra.stage_current') : 'Current Stage: '}${activeStage.toUpperCase()}]</strong><br>${stageDescriptions[activeStage]}`;
             }
         }
     },
@@ -5004,7 +5054,7 @@ const ResearchAgentManager = {
         const thinkingContent = document.getElementById('agent-thinking-content');
 
         if (runBtn) runBtn.disabled = false;
-        if (statusEl) statusEl.innerHTML = `<strong>推演完成！</strong> 8 阶段多智能体学术研究报告已生成 (SHA-256 审计哈希: <code>${(runData.result?.reproduction?.outputHash || '').slice(0, 16)}...</code>)。`;
+        if (statusEl) statusEl.innerHTML = `<strong>${window.I18n ? window.I18n.t('ra.status_done') : 'Inference complete! 8-stage multi-agent research report generated (Audit SHA-256: '}<code>${(runData.result?.reproduction?.outputHash || '').slice(0, 16)}...</code>)。`;
 
         // Mark all steps done
         document.querySelectorAll('#agent-stepper .step').forEach(s => {
@@ -5015,15 +5065,11 @@ const ResearchAgentManager = {
         const reportMd = runData.result?.report || '';
 
         // Extract thinking summary if present
-        const thinkingMatch = reportMd.match(/> \*\*DeepSeek 推理思考摘要：\*\*\n([\s\S]*?)(?=\n\n#|\n\n##|$)/);
+        const thinkingMatch = reportMd.match(/> \*\*DeepSeek (?:推理思考摘要|Reasoning Summary|Thinking Summary)[：:]\*\*\n([\s\S]*?)(?=\n\n#|\n\n##|$)/);
         if (thinkingMatch && thinkingContent) {
             thinkingContent.innerHTML = thinkingMatch[1].replace(/^> /gm, '').replace(/\n/g, '<br>');
         } else if (thinkingContent) {
-            thinkingContent.innerHTML = `已完成全链路 8 阶段推演与严格审计检验。<br>
-- 协议审计: ${runData.result?.evidence?.audit?.status || 'PASS'}<br>
-- 文献检索: ${runData.result?.literature?.records?.length || 0} 篇文献支撑<br>
-- 像元质控: 通过<br>
-- 独立复现性: 经计算输入/输出哈希与幂等性校验一致。`;
+            thinkingContent.innerHTML = window.I18n ? window.I18n.t('ra.audit_summary', '', { status: runData.result?.evidence?.audit?.status || 'PASS', count: runData.result?.literature?.records?.length || 0 }) : `Full 8-stage inference and audit verification completed.<br>- Protocol Audit: ${runData.result?.evidence?.audit?.status || 'PASS'}<br>- Literature: ${runData.result?.literature?.records?.length || 0} citations<br>- Pixel QC: Passed<br>- Reproducibility: Hash snapshot verified.`;
         }
 
         if (reportWrap && reportContent) {
@@ -5040,13 +5086,19 @@ const ResearchAgentManager = {
         const runBtn = document.getElementById('agent-run-btn');
         const statusEl = document.getElementById('agent-status');
         if (runBtn) runBtn.disabled = false;
-        if (statusEl) statusEl.textContent = `推演异常: ${runData.error?.message || '未知错误'}`;
+        if (statusEl) statusEl.textContent = `${window.I18n ? window.I18n.t('ra.status_err') : 'Inference error: '}${runData.error?.message || 'unknown'}`;
     }
 };
 
 /* =========================================================
  * Bootstrap
  * =======================================================*/
+window.addEventListener('floracast:languageChange', () => {
+    if (WeatherSearchManager && WeatherSearchManager._lastSearchData) {
+        WeatherSearchManager.renderSearchResults(WeatherSearchManager._lastSearchData);
+    }
+});
+
 window.addEventListener('DOMContentLoaded', () => {
     // Expose key managers for popup integrations / debugging
     window.UIManager = UIManager;

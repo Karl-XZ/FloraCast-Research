@@ -34,7 +34,7 @@
 <!-- Map Tile Loading Indicator -->
 <div id="map-tile-loader" class="map-tile-loader active" aria-live="polite">
   <span class="tile-loader-spinner"></span>
-  <span class="tile-loader-text" id="map-tile-loader-text">3D地球与底图资源加载中...</span>
+  <span class="tile-loader-text" id="map-tile-loader-text" data-i18n="loader.text">Loading 3D Globe & Map Resources...</span>
 </div>
 <!-- Main map area -->
 <main>
@@ -47,52 +47,52 @@
 <!-- Historical Weather Search & Agent Panel -->
 <div class="panel" id="weather-search-panel">
 <div class="panel-header">
-<h3>历史气象搜索与科研 Agent</h3>
+<h3 data-i18n="ws.header_title">Historical Weather Search & Research Agent</h3>
 <button aria-label="Close panel" class="panel-close" type="button">×</button>
 </div>
 <div class="panel-content">
   <!-- Mode Switch Tabs -->
   <div class="ws-tabs">
-    <button type="button" class="ws-tab-btn active" id="ws-tab-search-btn" onclick="WeatherSearchManager.switchMode('search')">
-      自然语言历史气象检索
+    <button type="button" class="ws-tab-btn active" id="ws-tab-search-btn" data-i18n="ws.tab_search" onclick="WeatherSearchManager.switchMode('search')">
+      Natural Language Weather Search
     </button>
-    <button type="button" class="ws-tab-btn" id="ws-tab-agent-btn" onclick="WeatherSearchManager.switchMode('agent')">
-      Climate Research Agent 模式
+    <button type="button" class="ws-tab-btn" id="ws-tab-agent-btn" data-i18n="ws.tab_agent" onclick="WeatherSearchManager.switchMode('agent')">
+      Climate Research Agent Mode
     </button>
   </div>
 
   <!-- Mode 1: Search Container -->
   <div id="ws-mode-search-container" class="ws-mode-view">
-    <div class="note">
-      基于 40 年 NASA POWER 气象日序列与 7/14/30 天滑动窗口算法，利用 DeepSeek 提取多变量偏好与权重，在气象基准向量库中秒级检索极端相似事件。
+    <div class="note" data-i18n="ws.search_note">
+      Based on 40-year NASA POWER daily meteorological series and 7/14/30-day sliding window algorithms, DeepSeek extracts multi-variable preferences and weights to retrieve extreme analog events in seconds.
     </div>
 
     <div class="control-group">
-      <label>自然语言气象查询</label>
-      <textarea id="ws-query-input" rows="3" placeholder="例如：寻找青岛过去30年夏季持续两周异常高温少雨时期...">寻找青岛过去30年夏季持续两周异常高温少雨时期</textarea>
+      <label data-i18n="ws.query_label">Natural Language Weather Query</label>
+      <textarea id="ws-query-input" rows="3" data-i18n-placeholder="ws.query_placeholder" placeholder="e.g. Find 2-week period in Qingdao over past 30 years with abnormal heat and drought...">Find 2-week period in Qingdao over past 30 years with abnormal heat and drought</textarea>
     </div>
 
     <div class="ws-quick-pills">
-      <span class="ws-pill-label">快速体验:</span>
-      <button type="button" class="ws-pill" onclick="WeatherSearchManager.setQuery('寻找青岛过去30年夏季持续两周异常高温少雨时期')">青岛夏季高温少雨</button>
-      <button type="button" class="ws-pill" onclick="WeatherSearchManager.setQuery('找出与2022年8月川渝极端高温最相似的历史事件')">川渝2022热浪相似</button>
-      <button type="button" class="ws-pill" onclick="WeatherSearchManager.setQuery('成都市过去20年冬季持续两周低温连阴雨时期')">成都冬季连阴雨</button>
-      <button type="button" class="ws-pill" onclick="WeatherSearchManager.setQuery('北京市过去25年春季大风干燥少雨时期')">北京春季干燥大风</button>
+      <span class="ws-pill-label" data-i18n="ws.quick_prompts">Quick Prompts:</span>
+      <button type="button" class="ws-pill" data-i18n="ws.pill_1" onclick="WeatherSearchManager.setQuery('Find 2-week period in Qingdao over past 30 years with abnormal heat and drought')">Qingdao Summer Heatwave & Drought</button>
+      <button type="button" class="ws-pill" data-i18n="ws.pill_2" onclick="WeatherSearchManager.setQuery('Find historical events most similar to the August 2022 Sichuan-Chongqing extreme heatwave')">Sichuan 2022 Heatwave Analog</button>
+      <button type="button" class="ws-pill" data-i18n="ws.pill_3" onclick="WeatherSearchManager.setQuery('Find 2-week persistent cold and rainy period in Chengdu over past 20 years in winter')">Chengdu Winter Persistent Rain</button>
+      <button type="button" class="ws-pill" data-i18n="ws.pill_4" onclick="WeatherSearchManager.setQuery('Find dry and gale period in Beijing during spring over past 25 years')">Beijing Spring Dry & Gale</button>
     </div>
 
     <div class="two" style="margin-top: 10px;">
       <div class="control-group">
-        <label>返回候选事件数 (Top-K)</label>
+        <label data-i18n="ws.topk_label">Return Candidate Events (Top-K)</label>
         <select id="ws-top-k">
-          <option value="4">Top 4 事件</option>
-          <option value="6" selected>Top 6 事件</option>
-          <option value="8">Top 8 事件</option>
+          <option value="4" data-i18n="ws.topk_4">Top 4 Events</option>
+          <option value="6" selected data-i18n="ws.topk_6">Top 6 Events</option>
+          <option value="8" data-i18n="ws.topk_8">Top 8 Events</option>
         </select>
       </div>
       <div class="control-group">
-        <label>操作</label>
+        <label data-i18n="ws.action_label">Action</label>
         <button type="button" class="btn primary" id="ws-search-btn" style="width: 100%; height: 38px; display: flex; align-items: center; justify-content: center; gap: 6px;" onclick="WeatherSearchManager.executeSearch()">
-          <span>检索历史事件</span>
+          <span data-i18n="ws.search_btn">Search Historical Events</span>
         </button>
       </div>
     </div>
@@ -100,30 +100,30 @@
     <!-- Search Progress/Loading -->
     <div id="ws-search-status" class="ws-status-bar" style="display: none;">
       <div class="ws-spinner"></div>
-      <span id="ws-status-text">DeepSeek 正在解析自然语言条件并比对 40 年滑动窗口...</span>
+      <span id="ws-status-text" data-i18n="ws.searching_text">DeepSeek is parsing query conditions and scanning 40-year sliding windows...</span>
     </div>
 
     <!-- DeepSeek Parsed Card -->
     <div id="ws-parsed-card" class="ws-parsed-box" style="display: none;">
       <div class="ws-card-title">
-        <span>DeepSeek 结构化条件解析</span>
-        <span class="ws-badge" id="ws-parsed-loc-badge">青岛市</span>
+        <span data-i18n="ws.parsed_title">DeepSeek Structured Conditions Analysis</span>
+        <span class="ws-badge" id="ws-parsed-loc-badge">Qingdao</span>
       </div>
       <div class="ws-parsed-grid">
         <div class="ws-parsed-item">
-          <span class="lbl">目标区域</span>
+          <span class="lbl" data-i18n="ws.parsed_target">Target Area</span>
           <span class="val" id="ws-p-loc">--</span>
         </div>
         <div class="ws-parsed-item">
-          <span class="lbl">时间跨度</span>
+          <span class="lbl" data-i18n="ws.parsed_timerange">Time Span</span>
           <span class="val" id="ws-p-range">--</span>
         </div>
         <div class="ws-parsed-item">
-          <span class="lbl">事件窗口</span>
+          <span class="lbl" data-i18n="ws.parsed_window">Event Window</span>
           <span class="val" id="ws-p-window">--</span>
         </div>
         <div class="ws-parsed-item">
-          <span class="lbl">约束倾向</span>
+          <span class="lbl" data-i18n="ws.parsed_constraints">Constraints</span>
           <span class="val" id="ws-p-conditions">--</span>
         </div>
       </div>
@@ -133,8 +133,8 @@
     <!-- Plotly Time Series Container -->
     <div id="ws-chart-wrapper" class="ws-chart-section" style="display: none;">
       <div class="ws-section-header">
-        <h4 id="ws-chart-title">逐日多要素时序曲线</h4>
-        <button type="button" class="ws-mini-btn" onclick="WeatherSearchManager.closeChart()"> 收起</button>
+        <h4 id="ws-chart-title" data-i18n="ws.chart_section_title">Daily Multi-Element Time Series</h4>
+        <button type="button" class="ws-mini-btn" data-i18n="ws.collapse" onclick="WeatherSearchManager.closeChart()">Collapse</button>
       </div>
       <div id="ws-plotly-div" style="width: 100%; height: 260px;"></div>
     </div>
@@ -142,8 +142,8 @@
     <!-- Vegetation Impact Container -->
     <div id="ws-veg-wrapper" class="ws-chart-section" style="display: none;">
       <div class="ws-section-header">
-        <h4 id="ws-veg-title">事件前后 MODIS/VIIRS 植被绿度响应</h4>
-        <button type="button" class="ws-mini-btn" onclick="WeatherSearchManager.closeVeg()"> 收起</button>
+        <h4 id="ws-veg-title" data-i18n="ws.veg_section_title">MODIS/VIIRS Vegetation Greenness Response Before & After Event</h4>
+        <button type="button" class="ws-mini-btn" data-i18n="ws.collapse" onclick="WeatherSearchManager.closeVeg()">Collapse</button>
       </div>
       <div id="ws-veg-metrics" class="ws-veg-metrics-row"></div>
       <div id="ws-veg-plotly" style="width: 100%; height: 220px;"></div>
@@ -152,7 +152,7 @@
     <!-- Ranked Event Cards Container -->
     <div id="ws-results-container" style="display: none;">
       <div style="margin: 16px 0 8px 0; font-size: 13px; color: #94a3b8; display: flex; justify-content: space-between; align-items: center;">
-        <span style="font-weight: 600; color: #e2e8f0;">相似历史事件排序 (Top-K)</span>
+        <span style="font-weight: 600; color: #e2e8f0;" data-i18n="ws.results_title">Ranked Historical Events (Top-K)</span>
         <span id="ws-results-count" style="font-size: 11px; color: #64748b;">--</span>
       </div>
       <div id="ws-events-list" class="ws-events-list"></div>
@@ -163,24 +163,24 @@
 
   <!-- Mode 2: Climate Research Agent Container -->
   <div id="ws-mode-agent-container" class="ws-mode-view" style="display: none;">
-    <div class="note">
-      Climate Research Agent 自主执行「多维气象相似检索 → 跨事件多指标比对 → MODIS植被受损反演(ΔNDVI) → DeepSeek 学术报告综合」全流程。
+    <div class="note" data-i18n="ws.agent_note">
+      Climate Research Agent autonomously runs full workflow: Multi-dimensional weather search -> Cross-event indicator comparison -> MODIS vegetation damage analysis (ΔNDVI) -> DeepSeek academic synthesis.
     </div>
 
     <div class="control-group">
-      <label>复杂科研课题 / 科学假设</label>
-      <textarea id="ws-agent-question" rows="3" placeholder="输入复杂的历史气象与生态关联课题...">寻找与2022年川渝极端热浪最相似的历史事件，并判断哪一次对植被影响最大</textarea>
+      <label data-i18n="ws.agent_question_label">Complex Scientific Research Question / Hypothesis</label>
+      <textarea id="ws-agent-question" rows="3" data-i18n-placeholder="ws.agent_question_placeholder" placeholder="Enter complex weather and ecological research question...">Find historical events most similar to the 2022 Sichuan-Chongqing extreme heatwave and evaluate MODIS vegetation resilience</textarea>
     </div>
 
     <div class="ws-quick-pills">
-      <span class="ws-pill-label">推荐课题:</span>
-      <button type="button" class="ws-pill" onclick="WeatherSearchManager.setAgentQuestion('寻找与2022年川渝极端热浪最相似的历史事件，并判断哪一次对植被影响最大')">川渝2022热浪同类事件与植被最大受损归因</button>
-      <button type="button" class="ws-pill" onclick="WeatherSearchManager.setAgentQuestion('对比华北平原过去30年典型夏旱事件对拔节期小麦NDVI的抑制强度')">华北夏旱多事件比对与植被抑制</button>
+      <span class="ws-pill-label" data-i18n="ws.agent_prompts">Recommended Topics:</span>
+      <button type="button" class="ws-pill" data-i18n="ws.agent_pill_1" onclick="WeatherSearchManager.setAgentQuestion('Find historical events most similar to the 2022 Sichuan-Chongqing extreme heatwave and evaluate MODIS vegetation resilience')">Sichuan-Chongqing 2022 Heatwave Analog & NDVI Impact</button>
+      <button type="button" class="ws-pill" data-i18n="ws.agent_pill_2" onclick="WeatherSearchManager.setAgentQuestion('Compare compound summer drought anomalies and vegetation suppression across North China Plain over past 30 years')">North China Plain 30-Year Summer Drought Comparison</button>
     </div>
 
     <div style="margin-top: 12px;">
       <button type="button" class="btn primary" id="ws-run-agent-btn" style="width: 100%; height: 40px; display: flex; align-items: center; justify-content: center; gap: 8px; font-weight: 600;" onclick="WeatherSearchManager.executeAgent()">
-        <span>启动 Climate Agent 深度推演</span>
+        <span data-i18n="ws.agent_run_btn">Run Climate Agent Deep Inference</span>
       </button>
     </div>
 
@@ -188,42 +188,42 @@
     <div id="ws-agent-stepper" class="ws-stepper-box" style="display: none;">
       <div class="ws-stepper-title">Autonomous Execution Pipeline</div>
       <div class="ws-steps-row">
-        <div class="ws-step-node" id="ws-step-plan"><span class="step-num">1</span>任务规划</div>
+        <div class="ws-step-node" id="ws-step-plan"><span class="step-num">1</span><span data-i18n="ws.agent_stage_1">Task Planning</span></div>
         <div class="ws-step-arrow">→</div>
-        <div class="ws-step-node" id="ws-step-search"><span class="step-num">2</span>气象检索</div>
+        <div class="ws-step-node" id="ws-step-search"><span class="step-num">2</span><span data-i18n="ws.agent_stage_2">Weather Search</span></div>
         <div class="ws-step-arrow">→</div>
-        <div class="ws-step-node" id="ws-step-compare"><span class="step-num">3</span>时序比对</div>
+        <div class="ws-step-node" id="ws-step-compare"><span class="step-num">3</span><span data-i18n="ws.agent_stage_3">Temporal Compare</span></div>
         <div class="ws-step-arrow">→</div>
-        <div class="ws-step-node" id="ws-step-vegetation"><span class="step-num">4</span>植被响应</div>
+        <div class="ws-step-node" id="ws-step-vegetation"><span class="step-num">4</span><span data-i18n="ws.agent_stage_4">Vegetation Response</span></div>
         <div class="ws-step-arrow">→</div>
-        <div class="ws-step-node" id="ws-step-report"><span class="step-num">5</span>科研综合</div>
+        <div class="ws-step-node" id="ws-step-report"><span class="step-num">5</span><span data-i18n="ws.agent_stage_5">Academic Synthesis</span></div>
       </div>
     </div>
 
     <!-- Thinking Stream Box -->
     <div id="ws-agent-thinking-wrapper" class="ws-thinking-section" style="display: none;">
       <div class="ws-thinking-header">
-        <span>Agent 实时推演与工具调用流</span>
+        <span data-i18n="ws.agent_thinking_header">Agent Real-time Reasoning & Tool Call Stream</span>
         <span class="ws-pulse-dot"></span>
       </div>
-      <pre id="ws-agent-thinking-log" class="ws-thinking-pre">正在调度气象与遥感工具链...</pre>
+      <pre id="ws-agent-thinking-log" class="ws-thinking-pre" data-i18n="ws.agent_thinking_default">Scheduling meteorological and remote sensing toolchains...</pre>
     </div>
 
     <!-- Comparison Matrix Table -->
     <div id="ws-agent-matrix-wrapper" class="ws-matrix-section" style="display: none;">
-      <h4 style="font-size: 13px; color: #93c5fd; margin-bottom: 8px;"> 多事件极端气象与植被损耗横向矩阵</h4>
+      <h4 style="font-size: 13px; color: #93c5fd; margin-bottom: 8px;" data-i18n="ws.agent_matrix_title">Cross-Event Extreme Meteorology & Vegetation Loss Matrix</h4>
       <div style="overflow-x: auto;">
         <table class="ws-matrix-table" id="ws-agent-matrix-table">
           <thead>
             <tr>
-              <th>事件年份</th>
-              <th>时间窗口</th>
-              <th>平均气温</th>
-              <th>极端最高温</th>
-              <th>连旱天数</th>
-              <th>ΔNDVI</th>
-              <th>植被损失率</th>
-              <th>恢复期</th>
+              <th data-i18n="ws.agent_col_year">Event Year</th>
+              <th data-i18n="ws.agent_col_dates">Time Window</th>
+              <th data-i18n="ws.agent_col_meant">Mean Temp</th>
+              <th data-i18n="ws.agent_col_maxt">Max Temp</th>
+              <th data-i18n="ws.agent_col_cdd">Dry Days</th>
+              <th data-i18n="ws.agent_col_delta">ΔNDVI</th>
+              <th data-i18n="ws.agent_col_loss">Vegetation Change</th>
+              <th data-i18n="ws.agent_col_recov">Recovery Period</th>
             </tr>
           </thead>
           <tbody id="ws-matrix-tbody"></tbody>
@@ -234,8 +234,8 @@
     <!-- Agent Final Report -->
     <div id="ws-agent-report-wrapper" class="ws-report-section" style="display: none;">
       <div class="ws-report-header">
-        <h4>DeepSeek 气象归因与生态响应学术报告</h4>
-        <button type="button" class="ws-mini-btn" onclick="WeatherSearchManager.copyReport()">复制全文</button>
+        <h4 data-i18n="ws.agent_report_title">DeepSeek Meteorological Attribution & Ecological Response Report</h4>
+        <button type="button" class="ws-mini-btn" data-i18n="ws.agent_copy_report" onclick="WeatherSearchManager.copyReport()">Copy Report</button>
       </div>
       <div id="ws-agent-report-content" class="ws-report-body markdown-body"></div>
     </div>
@@ -247,23 +247,30 @@
 <!-- Side menu -->
 <nav class="main-menu" id="main-menu">
 <div class="menu-header">
-<h2>Menu</h2>
+<h2 data-i18n="menu.title">Menu</h2>
 <button aria-label="Close menu" class="menu-close" id="menu-close" type="button">×</button>
 </div>
+<!-- Language Switcher in Menu -->
+<div class="menu-lang-switch">
+  <button type="button" class="lang-toggle-btn" id="lang-toggle-btn" aria-label="Toggle Language">
+    <span class="lang-status" id="lang-status-text">Language: English</span>
+    <span class="lang-pill" id="lang-switch-pill">Switch to 中文</span>
+  </button>
+</div>
 <ul class="menu-list">
-<li><a data-panel="layers" href="#">Layers · 图层与底图</a></li>
-<li><a data-panel="visualml" href="#">Visual Geo-ML (机器学习可视化)</a></li>
-<li><a data-panel="research" href="#">Research Agent (科研智能体协作)</a></li>
-<li><a data-panel="weather-search" href="#">Weather Search (历史气象搜索与Agent)</a></li>
-<li><a data-panel="photos" href="#">Flower Photos</a></li>
-<li><a data-panel="plantid" href="#">Plant ID (Conservation)</a></li>
-<li><a data-panel="vegetation" href="#">Vegetation Index</a></li>
-<li><a data-panel="phenology" href="#">Phenology</a></li>
-<li><a data-panel="weather" href="#">Weather</a></li>
-<li><a data-panel="workflow" href="#">GeoAI Workflow</a></li>
-<li><a data-panel="patch" href="#">Patch Analysis</a></li>
-<li><a data-panel="forecast" href="#">ML Forecast</a></li>
-<li><a data-panel="ai" href="#">AI Assistant</a></li>
+<li><a data-panel="layers" data-i18n="menu.layers" href="#">Layers & Base Maps</a></li>
+<li><a data-panel="visualml" data-i18n="menu.visualml" href="#">Visual Geo-ML</a></li>
+<li><a data-panel="research" data-i18n="menu.research" href="#">Research Multi-Agent</a></li>
+<li><a data-panel="weather-search" data-i18n="menu.weather_search" href="#">Historical Weather Search & Agent</a></li>
+<li><a data-panel="photos" data-i18n="menu.photos" href="#">Flower Photos</a></li>
+<li><a data-panel="plantid" data-i18n="menu.plantid" href="#">Plant ID (Conservation)</a></li>
+<li><a data-panel="vegetation" data-i18n="menu.vegetation" href="#">Vegetation Index</a></li>
+<li><a data-panel="phenology" data-i18n="menu.phenology" href="#">Phenology</a></li>
+<li><a data-panel="weather" data-i18n="menu.weather" href="#">Weather</a></li>
+<li><a data-panel="workflow" data-i18n="menu.workflow" href="#">GeoAI Workflow</a></li>
+<li><a data-panel="patch" data-i18n="menu.patch" href="#">Patch Analysis</a></li>
+<li><a data-panel="forecast" data-i18n="menu.forecast" href="#">ML Forecast</a></li>
+<li><a data-panel="ai" data-i18n="menu.ai" href="#">AI Assistant</a></li>
 </ul>
 </nav>
 <!-- Panels -->
@@ -276,16 +283,16 @@
 <div class="panel-content">
 <!-- Base map selector -->
 <div class="control-group">
-<label>Base Map · 底图提供商</label>
+<label data-i18n="layers.base_map">Base Map Provider</label>
 <select id="base-map-select">
-<option value="amap" selected>高德矢量底图 (Amap Vector - 默认)</option>
-<option value="baidu_vec">百度矢量底图 (Baidu Vector - BD-09)</option>
-<option value="baidu_sat">百度卫星影像 (Baidu Satellite)</option>
-<option value="tianditu_sat">天地图全球卫星 (Tianditu Satellite)</option>
-<option value="osm">OpenStreetMap 矢量地图</option>
+<option value="amap" selected data-i18n="layers.opt_amap">Amap Vector (Default)</option>
+<option value="baidu_vec" data-i18n="layers.opt_baidu_vec">Baidu Vector (BD-09)</option>
+<option value="baidu_sat" data-i18n="layers.opt_baidu_sat">Baidu Satellite</option>
+<option value="tianditu_sat" data-i18n="layers.opt_tianditu_sat">Tianditu Global Satellite</option>
+<option value="osm" data-i18n="layers.opt_osm">OpenStreetMap Vector</option>
 </select>
-<div class="date-label">
-  支持国内高德、百度（BD-09纠偏）与天地图自由切换
+<div class="date-label" data-i18n="layers.base_map_hint">
+  Seamless switching between Amap, Baidu (BD-09 offset-corrected) and Tianditu.
 </div>
 </div>
 <!-- Compare toggle -->
@@ -356,7 +363,7 @@
 </div>
 <div class="two">
 <button class="btn" id="opg-a-copy">Copy Tile URL</button>
-<span class="hint" style="color: #94a3b8; font-size: 11px;">GFS 数值预报 (0h~72h 为未来时效，无历史归档，不随历史日期变动)</span>
+<span class="hint" data-i18n="layers.opg_hint" style="color: #94a3b8; font-size: 11px;">GFS Numerical Forecast (0h~72h forward steps; forecast data does not change with historical date)</span>
 </div>
 </div>
 <!-- Map A · NASA GIBS — WMS overlay -->
@@ -396,7 +403,7 @@
 <button class="btn" id="wms-a-remove">Remove</button>
 <button class="btn" id="wms-a-copy">Copy GetMap URL</button>
 </div>
-<div class="date-label" style="font-size: 11px; color: #94a3b8; line-height: 1.4;">NASA 遥感图层（地表温度 LST、植被 NDVI 等）具备完整历史时序。已联动主时间轴滑块与历史事件定位。</div>
+<div class="date-label" data-i18n="layers.gibs_hint" style="font-size: 11px; color: #94a3b8; line-height: 1.4;">NASA GIBS Remote Sensing Layers (LST, NDVI, True Color, etc.) are indexed daily from real satellite archives.</div>
 </div>
 <!-- Map B controls (revealed only when compare is enabled) -->
 <div class="compare-b hidden" id="layer-controls-b">
@@ -450,7 +457,7 @@
 </div>
 <div class="two">
 <button class="btn" id="opg-b-copy">Copy Tile URL</button>
-<span class="hint" style="color: #94a3b8; font-size: 11px;">GFS 数值预报 (0h~72h 为未来时效，无历史归档，不随历史日期变动)</span>
+<span class="hint" data-i18n="layers.opg_hint" style="color: #94a3b8; font-size: 11px;">GFS Numerical Forecast (0h~72h forward steps; forecast data does not change with historical date)</span>
 </div>
 </div>
 <!-- Map B · NASA GIBS — WMS -->
@@ -490,7 +497,7 @@
 <button class="btn" id="wms-b-remove">Remove</button>
 <button class="btn" id="wms-b-copy">Copy GetMap URL</button>
 </div>
-<div class="date-label" style="font-size: 11px; color: #94a3b8; line-height: 1.4;">NASA 遥感图层（地表温度 LST、植被 NDVI 等）具备完整历史时序。已联动主时间轴滑块与历史事件定位。</div>
+<div class="date-label" data-i18n="layers.gibs_hint" style="font-size: 11px; color: #94a3b8; line-height: 1.4;">NASA GIBS Remote Sensing Layers (LST, NDVI, True Color, etc.) are indexed daily from real satellite archives.</div>
 </div>
 </div>
 </div>
@@ -1025,71 +1032,71 @@
 <!-- Visual Geo-ML Panel -->
 <div class="panel" id="visualml-panel">
 <div class="panel-header">
-<h3>Visual Geo-ML (空间机器学习实验室)</h3>
+<h3 data-i18n="vml.header_title">Visual Geo-ML (Spatial Machine Learning Lab)</h3>
 <button aria-label="Close panel" class="panel-close" type="button">×</button>
 </div>
 <div class="panel-content">
 <div class="vml-tabs">
-  <button class="vml-tab active" id="vml-tab-btn-knn">1. 空间决策边界 (KNN/SVM)</button>
-  <button class="vml-tab" id="vml-tab-btn-nn">2. 神经网络流场与归因</button>
+  <button class="vml-tab active" id="vml-tab-btn-knn" data-i18n="vml.tab_knn">1. Spatial Decision Boundary (KNN/SVM)</button>
+  <button class="vml-tab" id="vml-tab-btn-nn" data-i18n="vml.tab_nn">2. Neural Network Flow & Attribution</button>
 </div>
 
 <!-- Tab 1: KNN / SVM Decision Boundaries -->
 <div class="vml-tab-pane" id="vml-tab-knn">
-  <div class="note">
-    在 3D 地球表面将生态气候因子（气温、降水、植被）投射为分类决策面。联动调节超参数可实时观察地理空间与特征空间的决策边界形变。
+  <div class="note" data-i18n="vml.knn_note">
+    Project eco-climatic factors (temperature, precipitation, vegetation) into classification decision surfaces on the 3D globe. Adjust hyperparameters to observe decision boundary warping in real time.
   </div>
   <div class="control-group">
-    <label>分类任务模式</label>
+    <label data-i18n="vml.task_label">Classification Task Mode</label>
     <select id="vml-task-mode">
-      <option value="eco">生态气候适生区判别 (Eco-Climatic Zones: T2M × Precip)</option>
-      <option value="species">周边代表性物种空间生态位 (Flora Species Spatial Niches)</option>
-      <option value="synthetic">双模态非线性螺旋流形测试 (Synthetic Nonlinear Manifold)</option>
+      <option value="eco" data-i18n="vml.opt_eco">Eco-Climatic Zones: T2M × Precip</option>
+      <option value="species" data-i18n="vml.opt_species">Flora Species Spatial Niches</option>
+      <option value="synthetic" data-i18n="vml.opt_synthetic">Synthetic Nonlinear Manifold</option>
     </select>
   </div>
   <div class="two">
     <div class="control-group">
-      <label>算法模型</label>
+      <label data-i18n="vml.model_label">Algorithm Model</label>
       <select id="vml-model-select">
-        <option value="knn">K-Nearest Neighbors (KNN)</option>
-        <option value="svm">Kernel SVM (高斯核支持向量机)</option>
+        <option value="knn" data-i18n="vml.model_knn">K-Nearest Neighbors (KNN)</option>
+        <option value="svm" data-i18n="vml.model_svm">Kernel SVM (Gaussian RBF)</option>
       </select>
     </div>
     <div class="control-group">
-      <label>KNN K值 / 参数: <span id="vml-param-label">K = 3</span></label>
+      <label><span data-i18n="vml.param_label">KNN K-Value / Parameter:</span> <span id="vml-param-label">K = 3</span></label>
       <input id="vml-param-k" max="9" min="1" step="2" type="range" value="3"/>
     </div>
   </div>
   <div class="control-group">
-    <label>距离度量</label>
+    <label data-i18n="vml.metric_label">Distance Metric</label>
     <select id="vml-metric">
-      <option value="euclidean">欧氏距离 (Euclidean)</option>
-      <option value="spherical">球面大圆距离 (Haversine)</option>
+      <option value="euclidean" data-i18n="vml.metric_euclidean">Euclidean Distance</option>
+      <option value="spherical" data-i18n="vml.metric_spherical">Spherical Great-Circle Distance (Haversine)</option>
     </select>
   </div>
   <div class="button-group">
-    <button class="btn btn-primary" id="vml-run-btn">计算并绘制 3D 决策面</button>
-    <button class="btn" id="vml-clear-btn">清除覆盖层</button>
+    <button class="btn btn-primary" id="vml-run-btn" data-i18n="vml.btn_run">Compute & Render 3D Decision Surface</button>
+    <button class="btn" id="vml-clear-btn" data-i18n="vml.btn_clear">Clear Overlay</button>
   </div>
-  <div class="stats" id="vml-status">就绪。点击上方按钮在当前区域生成决策面与特征空间投影。</div>
+  <div class="stats" id="vml-status" data-i18n="vml.status_ready">Ready. Click button above to generate decision surface and feature space projection.</div>
   <div class="chart-container" id="vml-feature-chart" style="height: 280px; margin-top: 10px;"></div>
-  <div class="date-label">上图展示特征空间决策边界。点击散点可快速定位到 3D 地球坐标。</div>
+  <div class="date-label" data-i18n="vml.chart_hint">Chart displays feature space decision boundaries. Click scatter points to fly to 3D coordinates.</div>
 </div>
 
 <!-- Tab 2: Neural Network Topology & Saliency -->
 <div class="vml-tab-pane hidden" id="vml-tab-nn">
-  <div class="note">
-    端侧 30 天预测神经网络的架构拓扑与前向传播激活流场。基于当前位置的气候因子展示神经元动态放电与显著性特征归因。
+  <div class="note" data-i18n="vml.nn_note">
+    Architecture topology and forward propagation activation flow of on-device 30-day forecast neural network. Displays dynamic neuron firing and feature saliency attribution based on local climate.
   </div>
   <div class="button-group" style="margin-top:10px;">
-    <button class="btn btn-primary" id="vml-animate-nn">激活前向传播动画</button>
-    <button class="btn" id="vml-calc-saliency">计算特征归因权重</button>
+    <button class="btn btn-primary" id="vml-animate-nn" data-i18n="vml.btn_animate">Activate Forward Propagation Animation</button>
+    <button class="btn" id="vml-calc-saliency" data-i18n="vml.btn_saliency">Compute Feature Attribution Weights</button>
   </div>
   <div id="vml-nn-canvas-wrap" style="position:relative; width:100%; height:230px; background:#1e293b; border-radius:10px; margin-top:10px; overflow:hidden; border:1px solid rgba(148,163,184,0.2);">
     <canvas id="vml-nn-canvas" style="width:100%; height:100%; display:block;"></canvas>
   </div>
   <div class="chart-container" id="vml-saliency-chart" style="height: 220px; margin-top: 10px;"></div>
-  <div class="date-label">特征归因柱状图反映当前预测受气温、降水、季节节律与植被历史记忆的敏感度分布。</div>
+  <div class="date-label" data-i18n="vml.saliency_hint">Feature attribution bar chart reflects forecast sensitivity to temperature, precipitation, seasonality, and vegetation memory.</div>
 </div>
 </div>
 </div>
@@ -1097,72 +1104,72 @@
 <!-- Research Multi-Agent Panel -->
 <div class="panel" id="research-panel">
 <div class="panel-header">
-<h3>科研 Agent 协作 (openJiuwen + DeepSeek)</h3>
+<h3 data-i18n="ra.header_title">Research Multi-Agent (openJiuwen + DeepSeek)</h3>
 <button aria-label="Close panel" class="panel-close" type="button">×</button>
 </div>
 <div class="panel-content">
-<div class="note">
-  依托华为 openJiuwen 8 阶段确定性工作流与 DeepSeek (deepseek-flash) 长思维链模型，输入科研主题即可自动调度多智能体完成协议确立、文献挖掘、空间质控与学术报告撰写。
+<div class="note" data-i18n="ra.note">
+  Powered by Huawei openJiuwen 8-stage deterministic workflow and DeepSeek (deepseek-flash) long-context reasoning. Enter a topic to autonomously coordinate agents for protocol definition, literature mining, spatial QA, and academic report writing.
 </div>
 <div class="control-group">
-  <label>研究问题 / 科学假设</label>
-  <textarea id="agent-question" placeholder="例如：分析该区域近五年春季气温升高对典型木本植物始花期的驱动效应与不确定性..." rows="3">预测成都2026雾霾情况研究：基于气象逆温层、盆地地形阻滞与多源数据的生消演变规律及趋势预测</textarea>
+  <label data-i18n="ra.q_label">Research Question / Scientific Hypothesis</label>
+  <textarea id="agent-question" data-i18n-placeholder="ra.q_placeholder" placeholder="e.g. Analyze driving effects and uncertainty of spring temperature rise on woody plant first flowering date over the past 5 years..." rows="3">Study on Chengdu 2026 Haze Trends: Formation, evolution and prediction based on thermal inversion, basin topography barrier and multi-source remote sensing</textarea>
 </div>
 <div class="two">
   <div class="control-group">
-    <label>开始年份</label>
+    <label data-i18n="ra.start_year">Start Year</label>
     <input id="agent-start-year" max="2026" min="1981" type="number" value="2020"/>
   </div>
   <div class="control-group">
-    <label>结束年份</label>
+    <label data-i18n="ra.end_year">End Year</label>
     <input id="agent-end-year" max="2026" min="1981" type="number" value="2024"/>
   </div>
 </div>
 <div class="two">
   <div class="control-group">
-    <label>研究区半径 (km)</label>
+    <label data-i18n="ra.radius">Study Radius (km)</label>
     <input id="agent-radius" max="25" min="1" type="number" value="25"/>
   </div>
   <div class="control-group">
-    <label>数据模式</label>
+    <label data-i18n="ra.mode_label">Data Mode</label>
     <select id="agent-mode">
-      <option value="live">实时公开数据 (NASA + MODIS)</option>
-      <option value="demo">固定测试基准数据</option>
+      <option value="live" data-i18n="ra.mode_live">Live Public Data (NASA + MODIS)</option>
+      <option value="demo" data-i18n="ra.mode_demo">Fixed Test Benchmark Data</option>
     </select>
   </div>
 </div>
 <div class="button-group">
-  <button class="btn btn-primary" id="agent-run-btn">启动科研 Agent 推演</button>
-  <a class="btn" href="research.html" style="text-align:center; text-decoration:none; line-height:28px;" target="_blank">打开独立工作台 ↗</a>
+  <button class="btn btn-primary" id="agent-run-btn" data-i18n="ra.btn_run">Launch Research Multi-Agent Workflow</button>
+  <a class="btn" href="research.html" style="text-align:center; text-decoration:none; line-height:28px;" target="_blank" data-i18n="ra.btn_workbench">Open Dedicated Workbench ↗</a>
 </div>
-<div class="stats" id="agent-status">就绪。配置科学问题后启动多智能体协作。</div>
+<div class="stats" id="agent-status" data-i18n="ra.status_ready">Ready. Configure question above to launch multi-agent collaboration.</div>
 
 <!-- Stage Progress Stepper -->
 <div class="agent-stepper" id="agent-stepper">
-  <div class="step" data-stage="protocol"><span class="step-num">01</span><span class="step-label">协议确立</span></div>
-  <div class="step" data-stage="literature"><span class="step-num">02</span><span class="step-label">文献检索</span></div>
-  <div class="step" data-stage="data"><span class="step-num">03</span><span class="step-label">数据登记</span></div>
-  <div class="step" data-stage="geo"><span class="step-num">04</span><span class="step-label">空间分析</span></div>
-  <div class="step" data-stage="statistics"><span class="step-num">05</span><span class="step-label">统计验证</span></div>
-  <div class="step" data-stage="evidence"><span class="step-num">06</span><span class="step-label">证据审查</span></div>
-  <div class="step" data-stage="reproduce"><span class="step-num">07</span><span class="step-label">独立复现</span></div>
-  <div class="step" data-stage="report"><span class="step-num">08</span><span class="step-label">学术报告</span></div>
+  <div class="step" data-stage="protocol"><span class="step-num">01</span><span class="step-label" data-i18n="ra.stage_1">Protocol Definition</span></div>
+  <div class="step" data-stage="literature"><span class="step-num">02</span><span class="step-label" data-i18n="ra.stage_2">Literature Search</span></div>
+  <div class="step" data-stage="data"><span class="step-num">03</span><span class="step-label" data-i18n="ra.stage_3">Data Registry</span></div>
+  <div class="step" data-stage="geo"><span class="step-num">04</span><span class="step-label" data-i18n="ra.stage_4">Spatial Analysis</span></div>
+  <div class="step" data-stage="statistics"><span class="step-num">05</span><span class="step-label" data-i18n="ra.stage_5">Statistical Verification</span></div>
+  <div class="step" data-stage="evidence"><span class="step-num">06</span><span class="step-label" data-i18n="ra.stage_6">Evidence Review</span></div>
+  <div class="step" data-stage="reproduce"><span class="step-num">07</span><span class="step-label" data-i18n="ra.stage_7">Independent Reproduction</span></div>
+  <div class="step" data-stage="report"><span class="step-num">08</span><span class="step-label" data-i18n="ra.stage_8">Academic Report</span></div>
 </div>
 
 <!-- Deep Thinking Box -->
 <div class="deep-thinking-box hidden" id="agent-thinking-wrap">
   <div class="thinking-header">
     <span class="pulse-icon"></span>
-    <strong>DeepSeek 思考推理流 (Reasoning Stream)</strong>
+    <strong data-i18n="ra.thinking_title">DeepSeek Reasoning Stream</strong>
   </div>
-  <div class="thinking-content" id="agent-thinking-content">思考中...</div>
+  <div class="thinking-content" id="agent-thinking-content" data-i18n="ra.thinking_default">Thinking...</div>
 </div>
 
 <!-- Academic Report Output -->
 <div class="agent-report-wrap hidden" id="agent-report-wrap">
   <div class="report-header">
-    <h4>最终学术研究报告</h4>
-    <button class="btn btn-sm" id="agent-copy-report">复制报告</button>
+    <h4 data-i18n="ra.report_title">Final Academic Research Report</h4>
+    <button class="btn btn-sm" id="agent-copy-report" data-i18n="ra.copy_report">Copy Report</button>
   </div>
   <div class="report-content" id="agent-report-content"></div>
 </div>
@@ -1179,8 +1186,8 @@
 <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
 <!-- Plotly (one copy only; used by charts in Vegetation/Forecast) -->
 <script src="https://cdn.jsdelivr.net/npm/plotly.js-dist-min@2.35.2/plotly.min.js"></script>
-<!-- App scripts (keep order: app.js first, then overlays/extensions) -->
-
+<!-- App scripts (keep order: i18n first, app.js, then overlays/extensions) -->
+<script src="i18n.js"></script>
 
 <!-- (Optional) Forecast ML helpers -->
 <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@4.18.0/dist/tf.min.js"></script>

@@ -1480,7 +1480,7 @@ const PhenologyManager = {
                 daysCell.textContent = result.days;
                 predCell.className = 'pred ok';
             } else {
-                predCell.textContent = 'Not Reached';
+                predCell.textContent = window.I18n ? window.I18n.t('pheno.not_reached', 'Not Reached') : 'Not Reached';
                 daysCell.textContent = '—';
                 predCell.className = 'pred bad';
             }
@@ -3920,7 +3920,10 @@ window.addEventListener('DOMContentLoaded', () => {
       const d2 = `${endYear}-12-31`;
 
       const tbody = document.querySelector('#vi-inv-table tbody');
-      if (tbody) tbody.innerHTML = `<tr><td colspan="5">Analyzing…</td></tr>`;
+      if (tbody) {
+        const txt = window.I18n ? window.I18n.t('common.analyzing', 'Analyzing…') : 'Analyzing…';
+        tbody.innerHTML = `<tr><td colspan="5">${txt}</td></tr>`;
+      }
 
       try {
         // Step 1: trust iNat "introduced" label if available
@@ -3992,13 +3995,17 @@ window.addEventListener('DOMContentLoaded', () => {
             tbody.appendChild(tr);
           }
           if (!list.length) {
-            tbody.innerHTML = `<tr><td colspan="5">No invasive candidates found.</td></tr>`;
+            const noMsg = window.I18n ? window.I18n.t('veg.no_invasives', 'No invasive candidates found.') : 'No invasive candidates found.';
+            tbody.innerHTML = `<tr><td colspan="5">${noMsg}</td></tr>`;
           }
         }
         console.log(`[VIAddon] invasive analyzed: ${list.length}`);
       } catch (e) {
         console.error(e);
-        if (tbody) tbody.innerHTML = `<tr><td colspan="5">Analyze failed.</td></tr>`;
+        if (tbody) {
+          const failMsg = window.I18n ? window.I18n.t('common.analyze_failed', 'Analyze failed.') : 'Analyze failed.';
+          tbody.innerHTML = `<tr><td colspan="5">${failMsg}</td></tr>`;
+        }
       }
     },
 

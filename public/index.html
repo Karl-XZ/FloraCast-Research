@@ -26,7 +26,7 @@
       <img alt="FloraCast logo" class="logo-img" src="logo.png"/>
       <div class="brand-text">
         <h1 class="brand-name">FloraCast</h1>
-        <div class="brand-tag">3D Phenology Monitor</div>
+        <div class="brand-tag" data-i18n="brand.tag">3D Phenology Monitor</div>
       </div>
     </div>
   </div>
@@ -275,7 +275,7 @@
 <!-- Layers panel -->
 <div class="panel" id="layers-panel">
 <div class="panel-header">
-<h3>Layers</h3>
+<h3 data-i18n="layers.title">Layers & Base Maps</h3>
 <button aria-label="Close panel" class="panel-close" type="button">×</button>
 </div>
 <div class="panel-content">
@@ -295,60 +295,58 @@
 </div>
 <!-- Compare toggle -->
 <div class="control-group">
-<label>Dual-map Compare</label>
+<label data-i18n="layers.compare_label">Dual-map Compare</label>
 <div class="button-group">
-<button class="btn" id="compare-on">Enable Compare</button>
-<button class="btn" id="compare-off">Disable Compare</button>
+<button class="btn" id="compare-on" data-i18n="layers.compare_enable">Enable Compare</button>
+<button class="btn" id="compare-off" data-i18n="layers.compare_disable">Disable Compare</button>
 </div>
-<div class="date-label">
-          When enabled, the globe is split left/right for comparison. Each side can be configured independently.
-        </div>
+<div class="date-label" data-i18n="layers.compare_desc">When enabled, the globe is split left/right for comparison. Each side can be configured independently.</div>
 </div>
 <!-- Compare split slider (single globe) -->
 <div class="control-group hidden" id="compare-split-group">
-<label>Compare · Split Position</label>
+<label data-i18n="layers.split_pos_label">Compare · Split Position</label>
 <input id="compare-split" type="range" min="5" max="95" value="50"/>
-<div class="date-label">Divider: <span id="compare-split-label">50%</span></div>
+<div class="date-label"><span data-i18n="layers.divider_label">Divider:</span> <span id="compare-split-label">50%</span></div>
 </div>
 <!-- Map A controls -->
 <div class="control-group">
-<label>Map A · Remote Sensing Overlay</label>
+<label data-i18n="layers.mapa_rs_overlay">Map A · Remote Sensing Overlay</label>
 <select id="main-layer">
-<option value="NO_OVERLAY|base|1">Gaode/Amap Base Map (no satellite overlay)</option>
-<option value="VIIRS_SNPP_CorrectedReflectance_TrueColor|jpg|1">VIIRS SNPP True Color (Daily, from 2015.11.24)</option>
-<option value="VIIRS_NOAA20_CorrectedReflectance_TrueColor|jpg|1">VIIRS NOAA-20 True Color (Daily, from 2018.01.05)</option>
-<option value="MODIS_Terra_CorrectedReflectance_TrueColor|jpg|1">MODIS Terra True Color (Daily, from 2000.02.24)</option>
-<option value="MODIS_Aqua_CorrectedReflectance_TrueColor|jpg|1">MODIS Aqua True Color (Daily, from 2002.07.03)</option>
+<option value="NO_OVERLAY|base|1" data-i18n="layers.opt_no_sat">Gaode/Amap Base Map (no satellite overlay)</option>
+<option value="VIIRS_SNPP_CorrectedReflectance_TrueColor|jpg|1" data-i18n="layers.opt_viirs_snpp">VIIRS SNPP True Color (Daily, from 2015.11.24)</option>
+<option value="VIIRS_NOAA20_CorrectedReflectance_TrueColor|jpg|1" data-i18n="layers.opt_viirs_noaa20">VIIRS NOAA-20 True Color (Daily, from 2018.01.05)</option>
+<option value="MODIS_Terra_CorrectedReflectance_TrueColor|jpg|1" data-i18n="layers.opt_modis_terra">MODIS Terra True Color (Daily, from 2000.02.24)</option>
+<option value="MODIS_Aqua_CorrectedReflectance_TrueColor|jpg|1" data-i18n="layers.opt_modis_aqua">MODIS Aqua True Color (Daily, from 2002.07.03)</option>
 </select>
 </div>
 <div class="control-group">
-<label>Map A · Year</label>
+<label data-i18n="layers.mapa_year">Map A · Year</label>
 <input id="layer-year" max="2100" min="2000" type="number" value="2024"/>
 </div>
 <div class="control-group">
-<label>Map A · Date</label>
+<label data-i18n="layers.mapa_date">Map A · Date</label>
 <input id="layer-date" max="10" min="0" type="range" value="0"/>
 <div class="date-label" id="layer-date-label">2024-01-01</div>
 </div>
 <div class="control-group">
-<label>Map A · Overlay Opacity</label>
+<label data-i18n="layers.mapa_opacity">Map A · Overlay Opacity</label>
 <input id="layer-opacity" max="1" min="0" step="0.05" type="range" value="0.8"/>
 </div>
 <!-- Map A · OpenPortGuide overlay -->
 <div class="control-group group-opg">
-<label>Map A · OpenPortGuide (overlay)</label>
+<label data-i18n="layers.mapa_opg">Map A · OpenPortGuide (overlay)</label>
 <div class="two">
 <select class="inline" id="opg-a-var">
-<option value="wind_stream">wind_stream</option>
-<option value="wind_barb">wind_barb</option>
-<option value="gust">gust</option>
-<option value="surface_pressure">surface_pressure</option>
-<option value="air_temperature">air_temperature</option>
-<option value="precipitation">precipitation</option>
-<option value="precipitation_shaded">precipitation_shaded</option>
-<option value="significant_wave_height">significant_wave_height</option>
-<option value="primary_wave_height_direction">primary_wave_height_direction</option>
-<option value="primary_wave_period">primary_wave_period</option>
+<option value="wind_stream" data-i18n="opg.wind_stream">wind_stream</option>
+<option value="wind_barb" data-i18n="opg.wind_barb">wind_barb</option>
+<option value="gust" data-i18n="opg.gust">gust</option>
+<option value="surface_pressure" data-i18n="opg.surface_pressure">surface_pressure</option>
+<option value="air_temperature" data-i18n="opg.air_temperature">air_temperature</option>
+<option value="precipitation" data-i18n="opg.precipitation">precipitation</option>
+<option value="precipitation_shaded" data-i18n="opg.precipitation_shaded">precipitation_shaded</option>
+<option value="significant_wave_height" data-i18n="opg.significant_wave_height">significant_wave_height</option>
+<option value="primary_wave_height_direction" data-i18n="opg.primary_wave_height_direction">primary_wave_height_direction</option>
+<option value="primary_wave_period" data-i18n="opg.primary_wave_period">primary_wave_period</option>
 </select>
 <select class="inline" id="opg-a-step">
 <option>0h</option><option>6h</option><option>12h</option><option>24h</option>
@@ -356,17 +354,17 @@
 </select>
 </div>
 <div class="two">
-<button class="btn btn-primary" id="opg-a-add">Add to Map A</button>
-<button class="btn" id="opg-a-remove">Remove</button>
+<button class="btn btn-primary" id="opg-a-add" data-i18n="layers.btn_add_mapa">Add to Map A</button>
+<button class="btn" id="opg-a-remove" data-i18n="layers.btn_remove">Remove</button>
 </div>
 <div class="two">
-<button class="btn" id="opg-a-copy">Copy Tile URL</button>
+<button class="btn" id="opg-a-copy" data-i18n="layers.btn_copy_tile_url">Copy Tile URL</button>
 <span class="hint" data-i18n="layers.opg_hint" style="color: #94a3b8; font-size: 11px;">GFS Numerical Forecast (0h~72h forward steps; forecast data does not change with historical date)</span>
 </div>
 </div>
 <!-- Map A · NASA GIBS — WMS overlay -->
 <div class="control-group group-gibs">
-<label>Map A · NASA GIBS — WMS (overlay)</label>
+<label data-i18n="layers.mapa_gibs">Map A · NASA GIBS — WMS (overlay)</label>
 <div class="two">
 <select class="inline" id="wms-a-proj">
 <option value="3857">EPSG:3857</option>
@@ -379,70 +377,70 @@
 </div>
 <div class="control-group">
 <select id="wms-a-layer">
-<option value="MODIS_Terra_L3_NDVI_16Day">MODIS Terra NDVI 16Day (from 2000.03.05)</option>
-<option value="MODIS_Terra_L3_EVI_16Day">MODIS Terra EVI 16Day (from 2000.03.05)</option>
-<option value="MODIS_Aqua_L3_NDVI_16Day">MODIS Aqua NDVI 16Day (from 2002.07.04)</option>
-<option value="MODIS_Aqua_L3_EVI_16Day">MODIS Aqua EVI 16Day (from 2002.07.04)</option>
-<option value="Landsat_WELD_NDVI_Global_Monthly">Landsat WELD NDVI Monthly (from 1984.03.01)</option>
-<option value="MODIS_Aqua_Land_Surface_Temp_Day">MODIS Aqua LST Day (from 2002.07.03)</option>
-<option value="MODIS_Terra_Land_Surface_Temp_Night">MODIS Terra LST Night (from 2000.02.24)</option>
-<option value="VIIRS_SNPP_Land_Surface_Temp_Day">VIIRS SNPP Land Surface Temp Day (from 2012.01.19)</option>
-<option value="VIIRS_SNPP_Land_Surface_Temp_Night">VIIRS SNPP Land Surface Temp Night (from 2012.01.19)</option>
-<option value="VIIRS_SNPP_NDVI_8Day">VIIRS SNPP NDVI 8Day (from 2025.07.01)</option>
-<option value="VIIRS_SNPP_EVI_8Day">VIIRS SNPP EVI 8Day (from 2025.07.01)</option>
-<option value="Convective_Rainwater_Source">Convective Rainwater Source (from 1980.01.01)</option>
+<option value="MODIS_Terra_L3_NDVI_16Day" data-i18n="layers.gibs_modis_terra_ndvi">MODIS Terra NDVI 16Day (from 2000.03.05)</option>
+<option value="MODIS_Terra_L3_EVI_16Day" data-i18n="layers.gibs_modis_terra_evi">MODIS Terra EVI 16Day (from 2000.03.05)</option>
+<option value="MODIS_Aqua_L3_NDVI_16Day" data-i18n="layers.gibs_modis_aqua_ndvi">MODIS Aqua NDVI 16Day (from 2002.07.04)</option>
+<option value="MODIS_Aqua_L3_EVI_16Day" data-i18n="layers.gibs_modis_aqua_evi">MODIS Aqua EVI 16Day (from 2002.07.04)</option>
+<option value="Landsat_WELD_NDVI_Global_Monthly" data-i18n="layers.gibs_landsat_ndvi">Landsat WELD NDVI Monthly (from 1984.03.01)</option>
+<option value="MODIS_Aqua_Land_Surface_Temp_Day" data-i18n="layers.gibs_modis_aqua_lst_day">MODIS Aqua LST Day (from 2002.07.03)</option>
+<option value="MODIS_Terra_Land_Surface_Temp_Night" data-i18n="layers.gibs_modis_terra_lst_night">MODIS Terra LST Night (from 2000.02.24)</option>
+<option value="VIIRS_SNPP_Land_Surface_Temp_Day" data-i18n="layers.gibs_viirs_lst_day">VIIRS SNPP Land Surface Temp Day (from 2012.01.19)</option>
+<option value="VIIRS_SNPP_Land_Surface_Temp_Night" data-i18n="layers.gibs_viirs_lst_night">VIIRS SNPP Land Surface Temp Night (from 2012.01.19)</option>
+<option value="VIIRS_SNPP_NDVI_8Day" data-i18n="layers.gibs_viirs_ndvi">VIIRS SNPP NDVI 8Day (from 2025.07.01)</option>
+<option value="VIIRS_SNPP_EVI_8Day" data-i18n="layers.gibs_viirs_evi">VIIRS SNPP EVI 8Day (from 2025.07.01)</option>
+<option value="Convective_Rainwater_Source" data-i18n="layers.gibs_rainwater">Convective Rainwater Source (from 1980.01.01)</option>
 </select>
 </div>
 <div class="two">
 <input class="inline" id="wms-a-time" placeholder="TIME (optional, YYYY-MM-DD)" type="text"/>
-<button class="btn btn-primary" id="wms-a-add">Add to Map A</button>
+<button class="btn btn-primary" id="wms-a-add" data-i18n="layers.btn_add_mapa">Add to Map A</button>
 </div>
 <div class="two">
-<button class="btn" id="wms-a-remove">Remove</button>
-<button class="btn" id="wms-a-copy">Copy GetMap URL</button>
+<button class="btn" id="wms-a-remove" data-i18n="layers.btn_remove">Remove</button>
+<button class="btn" id="wms-a-copy" data-i18n="layers.btn_copy_getmap">Copy GetMap URL</button>
 </div>
 <div class="date-label" data-i18n="layers.gibs_hint" style="font-size: 11px; color: #94a3b8; line-height: 1.4;">NASA GIBS Remote Sensing Layers (LST, NDVI, True Color, etc.) are indexed daily from real satellite archives.</div>
 </div>
 <!-- Map B controls (revealed only when compare is enabled) -->
 <div class="compare-b hidden" id="layer-controls-b">
 <div class="control-group">
-<label>Map B · Remote Sensing Overlay</label>
+<label data-i18n="layers.mapb_rs_overlay">Map B · Remote Sensing Overlay</label>
 <select id="main-layer-b">
-<option value="NO_OVERLAY|base|1">Gaode/Amap Base Map (no satellite overlay)</option>
-<option value="VIIRS_SNPP_CorrectedReflectance_TrueColor|jpg|1">VIIRS SNPP True Color (Daily, from 2015.11.24)</option>
-<option value="VIIRS_NOAA20_CorrectedReflectance_TrueColor|jpg|1">VIIRS NOAA-20 True Color (Daily, from 2018.01.05)</option>
-<option value="MODIS_Terra_CorrectedReflectance_TrueColor|jpg|1">MODIS Terra True Color (Daily, from 2000.02.24)</option>
-<option value="MODIS_Aqua_CorrectedReflectance_TrueColor|jpg|1">MODIS Aqua True Color (Daily, from 2002.07.03)</option>
+<option value="NO_OVERLAY|base|1" data-i18n="layers.opt_no_sat">Gaode/Amap Base Map (no satellite overlay)</option>
+<option value="VIIRS_SNPP_CorrectedReflectance_TrueColor|jpg|1" data-i18n="layers.opt_viirs_snpp">VIIRS SNPP True Color (Daily, from 2015.11.24)</option>
+<option value="VIIRS_NOAA20_CorrectedReflectance_TrueColor|jpg|1" data-i18n="layers.opt_viirs_noaa20">VIIRS NOAA-20 True Color (Daily, from 2018.01.05)</option>
+<option value="MODIS_Terra_CorrectedReflectance_TrueColor|jpg|1" data-i18n="layers.opt_modis_terra">MODIS Terra True Color (Daily, from 2000.02.24)</option>
+<option value="MODIS_Aqua_CorrectedReflectance_TrueColor|jpg|1" data-i18n="layers.opt_modis_aqua">MODIS Aqua True Color (Daily, from 2002.07.03)</option>
 </select>
 </div>
 <div class="control-group">
-<label>Map B · Year</label>
+<label data-i18n="layers.mapb_year">Map B · Year</label>
 <input id="layer-year-b" max="2100" min="2000" type="number" value="2024"/>
 </div>
 <div class="control-group">
-<label>Map B · Date</label>
+<label data-i18n="layers.mapb_date">Map B · Date</label>
 <input id="layer-date-b" max="10" min="0" type="range" value="0"/>
 <div class="date-label" id="layer-date-label-b">2024-01-01</div>
 </div>
 <div class="control-group">
-<label>Map B · Overlay Opacity</label>
+<label data-i18n="layers.mapb_opacity">Map B · Overlay Opacity</label>
 <input id="layer-opacity-b" max="1" min="0" step="0.05" type="range" value="0.8"/>
 </div>
 <!-- Map B · OpenPortGuide -->
 <div class="control-group group-opg">
-<label>Map B · OpenPortGuide (overlay)</label>
+<label data-i18n="layers.mapb_opg">Map B · OpenPortGuide (overlay)</label>
 <div class="two">
 <select class="inline" id="opg-b-var">
-<option value="wind_stream">wind_stream</option>
-<option value="wind_barb">wind_barb</option>
-<option value="gust">gust</option>
-<option value="surface_pressure">surface_pressure</option>
-<option value="air_temperature">air_temperature</option>
-<option value="precipitation">precipitation</option>
-<option value="precipitation_shaded">precipitation_shaded</option>
-<option value="significant_wave_height">significant_wave_height</option>
-<option value="primary_wave_height_direction">primary_wave_height_direction</option>
-<option value="primary_wave_period">primary_wave_period</option>
+<option value="wind_stream" data-i18n="opg.wind_stream">wind_stream</option>
+<option value="wind_barb" data-i18n="opg.wind_barb">wind_barb</option>
+<option value="gust" data-i18n="opg.gust">gust</option>
+<option value="surface_pressure" data-i18n="opg.surface_pressure">surface_pressure</option>
+<option value="air_temperature" data-i18n="opg.air_temperature">air_temperature</option>
+<option value="precipitation" data-i18n="opg.precipitation">precipitation</option>
+<option value="precipitation_shaded" data-i18n="opg.precipitation_shaded">precipitation_shaded</option>
+<option value="significant_wave_height" data-i18n="opg.significant_wave_height">significant_wave_height</option>
+<option value="primary_wave_height_direction" data-i18n="opg.primary_wave_height_direction">primary_wave_height_direction</option>
+<option value="primary_wave_period" data-i18n="opg.primary_wave_period">primary_wave_period</option>
 </select>
 <select class="inline" id="opg-b-step">
 <option>0h</option><option>6h</option><option>12h</option><option>24h</option>
@@ -450,17 +448,17 @@
 </select>
 </div>
 <div class="two">
-<button class="btn btn-primary" id="opg-b-add">Add to Map B</button>
-<button class="btn" id="opg-b-remove">Remove</button>
+<button class="btn btn-primary" id="opg-b-add" data-i18n="layers.btn_add_mapb">Add to Map B</button>
+<button class="btn" id="opg-b-remove" data-i18n="layers.btn_remove">Remove</button>
 </div>
 <div class="two">
-<button class="btn" id="opg-b-copy">Copy Tile URL</button>
+<button class="btn" id="opg-b-copy" data-i18n="layers.btn_copy_tile_url">Copy Tile URL</button>
 <span class="hint" data-i18n="layers.opg_hint" style="color: #94a3b8; font-size: 11px;">GFS Numerical Forecast (0h~72h forward steps; forecast data does not change with historical date)</span>
 </div>
 </div>
 <!-- Map B · NASA GIBS — WMS -->
 <div class="control-group group-gibs">
-<label>Map B · NASA GIBS — WMS (overlay)</label>
+<label data-i18n="layers.mapb_gibs">Map B · NASA GIBS — WMS (overlay)</label>
 <div class="two">
 <select class="inline" id="wms-b-proj">
 <option value="3857">EPSG:3857</option>
@@ -473,27 +471,27 @@
 </div>
 <div class="control-group">
 <select id="wms-b-layer">
-<option value="MODIS_Terra_L3_NDVI_16Day">MODIS Terra NDVI 16Day (from 2000.03.05)</option>
-<option value="MODIS_Terra_L3_EVI_16Day">MODIS Terra EVI 16Day (from 2000.03.05)</option>
-<option value="MODIS_Aqua_L3_NDVI_16Day">MODIS Aqua NDVI 16Day (from 2002.07.04)</option>
-<option value="MODIS_Aqua_L3_EVI_16Day">MODIS Aqua EVI 16Day (from 2002.07.04)</option>
-<option value="Landsat_WELD_NDVI_Global_Monthly">Landsat WELD NDVI Monthly (from 1984.03.01)</option>
-<option value="MODIS_Aqua_Land_Surface_Temp_Day">MODIS Aqua LST Day (from 2002.07.03)</option>
-<option value="MODIS_Terra_Land_Surface_Temp_Night">MODIS Terra LST Night (from 2000.02.24)</option>
-<option value="VIIRS_SNPP_Land_Surface_Temp_Day">VIIRS SNPP Land Surface Temp Day (from 2012.01.19)</option>
-<option value="VIIRS_SNPP_Land_Surface_Temp_Night">VIIRS SNPP Land Surface Temp Night (from 2012.01.19)</option>
-<option value="VIIRS_SNPP_NDVI_8Day">VIIRS SNPP NDVI 8Day (from 2025.07.01)</option>
-<option value="VIIRS_SNPP_EVI_8Day">VIIRS SNPP EVI 8Day (from 2025.07.01)</option>
-<option value="Convective_Rainwater_Source">Convective Rainwater Source (from 1980.01.01)</option>
+<option value="MODIS_Terra_L3_NDVI_16Day" data-i18n="layers.gibs_modis_terra_ndvi">MODIS Terra NDVI 16Day (from 2000.03.05)</option>
+<option value="MODIS_Terra_L3_EVI_16Day" data-i18n="layers.gibs_modis_terra_evi">MODIS Terra EVI 16Day (from 2000.03.05)</option>
+<option value="MODIS_Aqua_L3_NDVI_16Day" data-i18n="layers.gibs_modis_aqua_ndvi">MODIS Aqua NDVI 16Day (from 2002.07.04)</option>
+<option value="MODIS_Aqua_L3_EVI_16Day" data-i18n="layers.gibs_modis_aqua_evi">MODIS Aqua EVI 16Day (from 2002.07.04)</option>
+<option value="Landsat_WELD_NDVI_Global_Monthly" data-i18n="layers.gibs_landsat_ndvi">Landsat WELD NDVI Monthly (from 1984.03.01)</option>
+<option value="MODIS_Aqua_Land_Surface_Temp_Day" data-i18n="layers.gibs_modis_aqua_lst_day">MODIS Aqua LST Day (from 2002.07.03)</option>
+<option value="MODIS_Terra_Land_Surface_Temp_Night" data-i18n="layers.gibs_modis_terra_lst_night">MODIS Terra LST Night (from 2000.02.24)</option>
+<option value="VIIRS_SNPP_Land_Surface_Temp_Day" data-i18n="layers.gibs_viirs_lst_day">VIIRS SNPP Land Surface Temp Day (from 2012.01.19)</option>
+<option value="VIIRS_SNPP_Land_Surface_Temp_Night" data-i18n="layers.gibs_viirs_lst_night">VIIRS SNPP Land Surface Temp Night (from 2012.01.19)</option>
+<option value="VIIRS_SNPP_NDVI_8Day" data-i18n="layers.gibs_viirs_ndvi">VIIRS SNPP NDVI 8Day (from 2025.07.01)</option>
+<option value="VIIRS_SNPP_EVI_8Day" data-i18n="layers.gibs_viirs_evi">VIIRS SNPP EVI 8Day (from 2025.07.01)</option>
+<option value="Convective_Rainwater_Source" data-i18n="layers.gibs_rainwater">Convective Rainwater Source (from 1980.01.01)</option>
 </select>
 </div>
 <div class="two">
 <input class="inline" id="wms-b-time" placeholder="TIME (optional, YYYY-MM-DD)" type="text"/>
-<button class="btn btn-primary" id="wms-b-add">Add to Map B</button>
+<button class="btn btn-primary" id="wms-b-add" data-i18n="layers.btn_add_mapb">Add to Map B</button>
 </div>
 <div class="two">
-<button class="btn" id="wms-b-remove">Remove</button>
-<button class="btn" id="wms-b-copy">Copy GetMap URL</button>
+<button class="btn" id="wms-b-remove" data-i18n="layers.btn_remove">Remove</button>
+<button class="btn" id="wms-b-copy" data-i18n="layers.btn_copy_getmap">Copy GetMap URL</button>
 </div>
 <div class="date-label" data-i18n="layers.gibs_hint" style="font-size: 11px; color: #94a3b8; line-height: 1.4;">NASA GIBS Remote Sensing Layers (LST, NDVI, True Color, etc.) are indexed daily from real satellite archives.</div>
 </div>
@@ -503,40 +501,38 @@
 <!-- Photos panel -->
 <div class="panel" id="photos-panel">
 <div class="panel-header">
-<h3>Flower Photos (iNaturalist)</h3>
+<h3 data-i18n="photos.title">Flower Photos (iNaturalist)</h3>
 <button aria-label="Close panel" class="panel-close" type="button">×</button>
 </div>
 <div class="panel-content">
 <div class="control-group">
 <div class="button-group">
-<button class="btn btn-primary" id="photos-on">Enable</button>
-<button class="btn" id="photos-off">Disable</button>
+<button class="btn btn-primary" id="photos-on" data-i18n="photos.enable">Enable</button>
+<button class="btn" id="photos-off" data-i18n="photos.disable">Disable</button>
 </div>
-<label class="checkbox-label">
-<input id="photos-heatmap" type="checkbox"/> Heatmap mode
-        </label>
+<label class="checkbox-label"><input id="photos-heatmap" type="checkbox"/> <span data-i18n="photos.heatmap_mode">Heatmap mode</span></label>
 </div>
 <div class="control-group">
-<label>Date range</label>
+<label data-i18n="photos.date_range">Date range</label>
 <div class="date-range">
 <input id="photos-start" type="date"/>
-<span>to</span>
+<span data-i18n="photos.to">to</span>
 <input id="photos-end" type="date"/>
 </div>
 </div>
 <div class="control-group">
-<label>Taxon</label>
+<label data-i18n="photos.taxon">Taxon</label>
 <select id="photos-taxon">
-<option value="47125">Angiosperms (default)</option>
-<option value="47126">Plantae (all plants)</option>
+<option value="47125" data-i18n="photos.taxon_angio">Angiosperms (default)</option>
+<option value="47126" data-i18n="photos.taxon_all">Plantae (all plants)</option>
 </select>
 </div>
 <div class="control-group">
-<label>Max pages</label>
+<label data-i18n="photos.max_pages">Max pages</label>
 <input id="photos-max-pages" max="20" min="1" type="number" value="5"/>
 </div>
 <div class="control-group">
-<label>Search radius (km, from selected point)</label>
+<label data-i18n="photos.search_radius">Search radius (km, from selected point)</label>
 <input id="photos-radius" max="200" min="1" type="number" value="25"/>
 </div>
 <div class="stats" id="photos-stats">—</div>
@@ -545,94 +541,94 @@
 <!-- Vegetation panel (ENHANCED with wildflower-test features) -->
 <div class="panel" id="vegetation-panel">
 <div class="panel-header">
-<h3>Vegetation Index (NDVI/EVI) · Nearby Species · Invasives</h3>
+<h3 data-i18n="veg.title">Vegetation Index (NDVI/EVI) · Nearby Species · Invasives</h3>
 <button aria-label="Close panel" class="panel-close" type="button">×</button>
 </div>
 <div class="panel-content">
 <!-- A) VI at selected point -->
 <div class="control-group">
-<label>Product</label>
+<label data-i18n="veg.product">Product</label>
 <div class="button-group">
 <select id="vi-product">
-<option value="MOD13Q1">MOD13Q1 · MODIS Terra · 16-day (250m)</option>
-<option value="VNP13A1">VNP13A1 · VIIRS SNPP · 16-day (500m)</option>
+<option value="MOD13Q1" data-i18n="veg.opt_mod13q1">MOD13Q1 · MODIS Terra · 16-day (250m)</option>
+<option value="VNP13A1" data-i18n="veg.opt_vnp13a1">VNP13A1 · VIIRS SNPP · 16-day (500m)</option>
 </select>
-<button class="btn btn-primary" id="vi-query">Query Latest Composite</button>
+<button class="btn btn-primary" id="vi-query" data-i18n="veg.query_btn">Query Latest Composite</button>
 </div>
-<div class="hint">Queries NDVI/EVI at the selected point (latest available date).</div>
+<div class="hint" data-i18n="veg.query_hint">Queries NDVI/EVI at the selected point (latest available date).</div>
 <table class="vi-table">
-<thead><tr><th>Variable</th><th>Value</th><th>Note</th></tr></thead>
+<thead><tr><th data-i18n="veg.th_variable">Variable</th><th data-i18n="veg.th_value">Value</th><th data-i18n="veg.th_note">Note</th></tr></thead>
 <tbody>
 <tr><td>NDVI</td><td id="vi-ndvi">—</td><td>[−1, 1]</td></tr>
 <tr><td>EVI</td><td id="vi-evi">—</td><td>[−1, ~1]</td></tr>
-<tr><td>Date</td><td id="vi-date">—</td><td>Composite date</td></tr>
+<tr><td data-i18n="common.date">Date</td><td id="vi-date">—</td><td data-i18n="veg.composite_date">Composite date</td></tr>
 </tbody>
 </table>
 </div>
 <hr class="hr"/>
 <!-- B) Nearby species list, monthly counts & show selected species on map -->
 <div class="control-group">
-<label>Nearby species (iNaturalist)</label>
+<label data-i18n="veg.nearby_species">Nearby species (iNaturalist)</label>
 <div class="button-group">
 <input id="vi-year" max="2100" min="2008" type="number" value="2024">
 <input id="vi-radius" max="200" min="1" type="number" value="25">
-<button class="btn btn-primary" id="vi-load-species">Load species (year &amp; radius)</button>
+<button class="btn btn-primary" id="vi-load-species" data-i18n="veg.load_species">Load species (year &amp; radius)</button>
 </input></input></div>
 <div class="button-group">
-<input id="vi-species-filter" placeholder="Filter by common/scientific name…" type="search">
+<input id="vi-species-filter" data-i18n-placeholder="veg.filter_placeholder" placeholder="Filter by common/scientific name…" type="search">
 </input></div>
 <select class="list" id="vi-species-list" size="6"></select>
 <div class="button-group">
-<button class="btn btn-primary" id="vi-plot-monthly">Plot monthly counts</button>
-<button class="btn" id="vi-show-species">Show selected species on map</button>
-<button class="btn" id="vi-clear-species">Clear species markers</button>
+<button class="btn btn-primary" id="vi-plot-monthly" data-i18n="veg.plot_counts">Plot monthly counts</button>
+<button class="btn" id="vi-show-species" data-i18n="veg.show_map">Show selected species on map</button>
+<button class="btn" id="vi-clear-species" data-i18n="veg.clear_markers">Clear species markers</button>
 </div>
 <div class="chart" id="vi-flower-chart"></div>
-<div class="hint small">Counts are iNaturalist monthly observations near the selected point for the chosen year.</div>
+<div class="hint small" data-i18n="veg.counts_note">Counts are iNaturalist monthly observations near the selected point for the chosen year.</div>
 </div>
 <hr class="hr"/>
 <!-- C) Rainfall / Aridity / Superbloom (rainfall-only) -->
 <div class="control-group">
-<label>Rainfall · Aridity · “Superbloom”</label>
+<label data-i18n="veg.rain_label">Rainfall · Aridity · “Superbloom”</label>
 <div class="button-group">
-<button class="btn btn-primary" id="vi-load-rain">Load last 365 days (POWER)</button>
+<button class="btn btn-primary" id="vi-load-rain" data-i18n="veg.load_power_365">Load last 365 days (POWER)</button>
 </div>
 <div class="bar"><i id="vi-arid-bar" style="width:0%"></i></div>
-<div class="small" id="vi-arid-label">Aridity index: —</div>
+<div class="small" id="vi-arid-label" data-i18n="veg.aridity_init">Aridity index: —</div>
 <div class="chart" id="vi-rain-chart"></div>
-<div class="small" id="vi-superbloom">Superbloom prediction: — (rainfall-based)</div>
+<div class="small" id="vi-superbloom" data-i18n="veg.superbloom_init">Superbloom prediction: — (rainfall-based)</div>
 </div>
 <hr class="hr"/>
 <!-- D) Pollinator dynamics -->
 <div class="control-group">
-<label>Pollinator dynamics (iNat taxa IDs, comma separated)</label>
+<label data-i18n="veg.pollinator_label">Pollinator dynamics (iNat taxa IDs, comma separated)</label>
 <div class="button-group">
 <input id="vi-pollinator-taxa" type="text" value="47157,630955">
-<button class="btn btn-primary" id="vi-plot-pollinators">Plot pollinator counts</button>
+<button class="btn btn-primary" id="vi-plot-pollinators" data-i18n="veg.plot_pollinators">Plot pollinator counts</button>
 </input></div>
-<div class="hint small">Default taxa: Lepidoptera (47157), Apoidea (630955). Edit if needed.</div>
+<div class="hint small" data-i18n="veg.pollinator_hint">Default taxa: Lepidoptera (47157), Apoidea (630955). Edit if needed.</div>
 <div class="chart" id="vi-poll-chart"></div>
 </div>
 <hr class="hr"/>
 <!-- E) Invasives (Auto analysis over last 5 years) -->
 <div class="control-group">
-<label>Invasives (Auto, last 5 years near point)</label>
+<label data-i18n="veg.invasives_label">Invasives (Auto, last 5 years near point)</label>
 <div class="button-group">
 <input id="vi-inv-topN" max="50" min="1" type="number" value="10">
-<button class="btn btn-primary" id="vi-inv-analyze">Analyze top-N species</button>
-<button class="btn" id="vi-inv-show">Show on map</button>
-<button class="btn" id="vi-inv-clear">Clear</button>
+<button class="btn btn-primary" id="vi-inv-analyze" data-i18n="veg.btn_analyze_topn">Analyze top-N species</button>
+<button class="btn" id="vi-inv-show" data-i18n="veg.btn_show_map">Show on map</button>
+<button class="btn" id="vi-inv-clear" data-i18n="veg.btn_clear">Clear</button>
 </input></div>
-<div class="hint small">Ranks species by 5-year observation counts near the point, flags potential invasives (heuristic or curated list if present).</div>
+<div class="hint small" data-i18n="veg.invasives_note">Ranks species by 5-year observation counts near the point, flags potential invasives (heuristic or curated list if present).</div>
 <div class="flowers-table-container">
 <table class="flowers-table" id="vi-inv-table">
 <thead>
 <tr>
-<th>Rank</th>
-<th>Common name</th>
-<th>Scientific</th>
-<th>5y Count</th>
-<th>Flag</th>
+<th data-i18n="veg.th_rank">Rank</th>
+<th data-i18n="veg.th_common_name">Common name</th>
+<th data-i18n="veg.th_scientific">Scientific</th>
+<th data-i18n="veg.th_5y_count">5y Count</th>
+<th data-i18n="veg.th_flag">Flag</th>
 </tr>
 </thead>
 <tbody><!-- filled by JS --></tbody>
@@ -644,94 +640,94 @@
 <!-- Phenology panel -->
 <div class="panel" id="phenology-panel">
 <div class="panel-header">
-<h3>Phenology &amp; Prediction</h3>
+<h3 data-i18n="pheno.title">Phenology &amp; Prediction</h3>
 <button aria-label="Close panel" class="panel-close" type="button">×</button>
 </div>
 <div class="panel-content">
 <div class="control-group">
 <div class="current-location">
-<span class="label">Current location</span>
+<span class="label" data-i18n="pheno.curr_loc">Current location</span>
 <span class="coords" id="current-coords">—</span>
 </div>
 
 <div style="margin-top:10px;">
-<span class="label">Year (POWER daily)</span>
+<span class="label" data-i18n="pheno.year_label">Year (POWER daily)</span>
 <input id="phenology-year" type="number" min="1981" step="1" />
 <div class="note" id="phenology-note" style="margin-top:6px;"></div>
 </div>
 
-<button class="btn primary" id="phenology-calc" style="margin-top:10px;">Compute Bloom Prediction</button>
+<button class="btn primary" id="phenology-calc" style="margin-top:10px;" data-i18n="pheno.compute_btn">Compute Bloom Prediction</button>
 </div>
 <div class="flowers-table-container">
 <table class="flowers-table" id="flowers-table">
 <thead>
 <tr>
-<th>Flower</th>
-<th>Base Temp (°C)</th>
-<th>GDD Threshold</th>
-<th>Predicted Date</th>
-<th>Accumulated Days</th>
+<th data-i18n="pheno.th_flower">Flower</th>
+<th data-i18n="pheno.th_base_temp">Base Temp (°C)</th>
+<th data-i18n="pheno.th_gdd">GDD Threshold</th>
+<th data-i18n="pheno.th_pred_date">Predicted Date</th>
+<th data-i18n="pheno.th_days">Accumulated Days</th>
 </tr>
 </thead>
 <tbody>
 <tr data-name="Custom">
-<td>Custom</td>
+<td data-i18n="pheno.flower_custom">Custom</td>
 <td><input placeholder="" type="number"/></td>
 <td><input placeholder="" type="number"/></td>
 <td class="pred">—</td>
 <td class="days">—</td>
 </tr>
 <tr data-name="Cherry Blossom">
-<td>Cherry Blossom</td>
+<td data-i18n="pheno.flower_cherry">Cherry Blossom</td>
 <td><input type="number" value="5"/></td>
 <td><input type="number" value="220"/></td>
 <td class="pred">—</td>
 <td class="days">—</td>
 </tr>
 <tr data-name="Tulip">
-<td>Tulip</td>
+<td data-i18n="pheno.flower_tulip">Tulip</td>
 <td><input type="number" value="0"/></td>
 <td><input type="number" value="120"/></td>
 <td class="pred">—</td>
 <td class="days">—</td>
 </tr>
 <tr data-name="Winter Jasmine">
-<td>Winter Jasmine</td>
+<td data-i18n="pheno.flower_jasmine">Winter Jasmine</td>
 <td><input type="number" value="5"/></td>
 <td><input type="number" value="100"/></td>
 <td class="pred">—</td>
 <td class="days">—</td>
 </tr>
 <tr data-name="Plum Blossom">
-<td>Plum Blossom</td>
+<td data-i18n="pheno.flower_plum">Plum Blossom</td>
 <td><input type="number" value="4"/></td>
 <td><input type="number" value="180"/></td>
 <td class="pred">—</td>
 <td class="days">—</td>
 </tr>
 <tr data-name="Peach Blossom">
-<td>Peach Blossom</td>
+<td data-i18n="pheno.flower_peach">Peach Blossom</td>
 <td><input type="number" value="4"/></td>
 <td><input type="number" value="250"/></td>
 <td class="pred">—</td>
 <td class="days">—</td>
 </tr>
 <tr data-name="Rapeseed">
-<td>Rapeseed</td>
+<td data-i18n="pheno.flower_rapeseed">Rapeseed</td>
 <td><input type="number" value="5"/></td>
 <td><input type="number" value="300"/></td>
 <td class="pred">—</td>
 <td class="days">—</td>
 </tr>
 <tr data-name="Wisteria">
-<td>Wisteria</td>
+<td data-i18n="pheno.flower_wisteria">Wisteria</td>
 <td><input type="number" value="5"/></td>
 <td><input type="number" value="350"/></td>
 <td class="pred">—</td>
 <td class="days">—</td>
 </tr>
 <tr data-name="Rose">
-<td>Rose</td>
+<td data-i18n="pheno.flower_rose">Rose</td>
 <td><input type="number" value="10"/></td>
 <td><input type="number" value="450"/></td>
 <td class="pred">—</td>
@@ -745,124 +741,124 @@
 <!-- Weather panel -->
 <div class="panel" id="weather-panel">
 <div class="panel-header">
-<h3>Weather (NASA POWER)</h3>
+<h3 data-i18n="weather.title">Weather (NASA POWER)</h3>
 <button aria-label="Close panel" class="panel-close" type="button">×</button>
 </div>
 <div class="panel-content">
 <div class="control-group">
-<label>Query date</label>
+<label data-i18n="weather.query_date">Query date</label>
 <div class="date-query">
 <input id="weather-date" type="date"/>
-<button class="btn" id="weather-query">Query</button>
+<button class="btn" id="weather-query" data-i18n="weather.query_btn">Query</button>
 </div>
 </div>
 <div class="weather-info" id="weather-current">Temp: — °C, Precip: — mm</div>
-<div class="weather-note">POWER data lags by 1–2 days; try querying yesterday or the day before.</div>
+<div class="weather-note" data-i18n="weather.lag_note">POWER data lags by 1–2 days; try querying yesterday or the day before.</div>
 <div class="chart-container" id="weather-chart"></div>
 </div>
 </div>
 <!-- GeoAI workflow panel -->
 <div class="panel" id="workflow-panel">
 <div class="panel-header">
-<h3>GeoAI Workflow</h3>
+<h3 data-i18n="workflow.title">GeoAI Workflow</h3>
 <button aria-label="Close panel" class="panel-close" type="button">×</button>
 </div>
 <div class="panel-content">
 <div class="workflow-location">
-<span class="label">Current patch center</span>
+<span class="label" data-i18n="workflow.curr_center">Current patch center</span>
 <span class="coords" id="workflow-coords">—</span>
 </div>
 <div class="workflow-steps">
 <div class="workflow-step">
 <div class="step-index">01</div>
 <div>
-<h4>Data Sources</h4>
-<p>Gaode base map, ORNL MODIS/VIIRS vegetation composites, NASA POWER weather, iNaturalist observations.</p>
+<h4 data-i18n="workflow.stage1_title">Data Sources</h4>
+<p data-i18n="workflow.stage1_desc">Gaode base map, ORNL MODIS/VIIRS vegetation composites, NASA POWER weather, iNaturalist observations.</p>
 </div>
 </div>
 <div class="workflow-arrow">→</div>
 <div class="workflow-step">
 <div class="step-index">02</div>
 <div>
-<h4>Spatial Location</h4>
-<p>Map marker coordinate plus radius-defined patch sampling around the selected location.</p>
+<h4 data-i18n="workflow.stage2_title">Spatial Location</h4>
+<p data-i18n="workflow.stage2_desc">Map marker coordinate plus radius-defined patch sampling around the selected location.</p>
 </div>
 </div>
 <div class="workflow-arrow">→</div>
 <div class="workflow-step">
 <div class="step-index">03</div>
 <div>
-<h4>Remote-Sensing Metrics</h4>
-<p>NDVI/EVI time series, recent patch mean, trend, quality-aware latest composite date.</p>
+<h4 data-i18n="workflow.stage3_title">Remote-Sensing Metrics</h4>
+<p data-i18n="workflow.stage3_desc">NDVI/EVI time series, recent patch mean, trend, quality-aware latest composite date.</p>
 </div>
 </div>
 <div class="workflow-arrow">→</div>
 <div class="workflow-step">
 <div class="step-index">04</div>
 <div>
-<h4>AI/ML Analysis</h4>
-<p>Phenology GDD, seasonal trend heuristics, Qwen-compatible assistant, forecast-ready features.</p>
+<h4 data-i18n="workflow.stage4_title">AI/ML Analysis</h4>
+<p data-i18n="workflow.stage4_desc">Phenology GDD, seasonal trend heuristics, Qwen-compatible assistant, forecast-ready features.</p>
 </div>
 </div>
 <div class="workflow-arrow">→</div>
 <div class="workflow-step">
 <div class="step-index">05</div>
 <div>
-<h4>Visual Explanation</h4>
-<p>Patch time series, health/risk labels, bloom window, map-linked observations and reports.</p>
+<h4 data-i18n="workflow.stage5_title">Visual Explanation</h4>
+<p data-i18n="workflow.stage5_desc">Patch time series, health/risk labels, bloom window, map-linked observations and reports.</p>
 </div>
 </div>
 </div>
 <div class="workflow-status-grid">
-<div><span>Spatial engine</span><strong>Cesium + Gaode</strong></div>
-<div><span>Remote sensing</span><strong>MODIS/VIIRS</strong></div>
-<div><span>Climate driver</span><strong>POWER Daily</strong></div>
-<div><span>Deployment</span><strong>ModelScope Space ready</strong></div>
+<div><span data-i18n="workflow.meta_spatial">Spatial engine</span><strong>Cesium + Gaode</strong></div>
+<div><span data-i18n="workflow.meta_rs">Remote sensing</span><strong>MODIS/VIIRS</strong></div>
+<div><span data-i18n="workflow.meta_climate">Climate driver</span><strong>POWER Daily</strong></div>
+<div><span data-i18n="workflow.meta_deploy">Deployment</span><strong data-i18n="workflow.meta_ready">ModelScope Space ready</strong></div>
 </div>
 <div class="workflow-runner">
 <div class="workflow-runner-head">
 <div>
-<h4>Run GeoAI Workflow</h4>
-<p>Use the current map marker and radius to execute the full chain: spatial patch → remote-sensing metrics → POWER phenology → health/risk/bloom interpretation.</p>
+<h4 data-i18n="workflow.action_title">Run GeoAI Workflow</h4>
+<p data-i18n="workflow.action_desc">Use the current map marker and radius to execute the full chain: spatial patch → remote-sensing metrics → POWER phenology → health/risk/bloom interpretation.</p>
 </div>
 </div>
 <div class="workflow-controls">
 <div class="control-group">
-<label>Patch radius (km)</label>
+<label data-i18n="workflow.radius_label">Patch radius (km)</label>
 <input id="workflow-radius" max="200" min="1" step="1" type="number" value="25"/>
 </div>
 <div class="control-group">
-<label>Vegetation product</label>
+<label data-i18n="workflow.product_label">Vegetation product</label>
 <select id="workflow-product">
-<option value="MOD13Q1">MOD13Q1 · MODIS Terra · 16-day (250m)</option>
-<option value="VNP13A1">VNP13A1 · VIIRS SNPP · 16-day (500m)</option>
+<option value="MOD13Q1" data-i18n="veg.opt_mod13q1">MOD13Q1 · MODIS Terra · 16-day (250m)</option>
+<option value="VNP13A1" data-i18n="veg.opt_vnp13a1">VNP13A1 · VIIRS SNPP · 16-day (500m)</option>
 </select>
 </div>
 <div class="control-group">
-<label>History length (years)</label>
+<label data-i18n="workflow.history_label">History length (years)</label>
 <input id="workflow-years" max="5" min="1" step="1" type="number" value="2"/>
 </div>
 </div>
 <div class="button-group">
-<button class="btn btn-primary" id="workflow-run">Run Full Workflow</button>
-<button class="btn" id="workflow-use-center">Use Current Map Center</button>
+<button class="btn btn-primary" id="workflow-run" data-i18n="workflow.run_btn">Run Full Workflow</button>
+<button class="btn" id="workflow-use-center" data-i18n="workflow.center_btn">Use Current Map Center</button>
 </div>
-<div class="note" id="workflow-status">Ready. Select a map point or use the current map center, then run the workflow.</div>
+<div class="note" id="workflow-status" data-i18n="workflow.status_ready">Ready. Select a map point or use the current map center, then run the workflow.</div>
 <div class="patch-kpi-grid workflow-kpis">
 <div class="patch-kpi">
-<span>Vegetation health</span>
+<span data-i18n="workflow.res_health">Vegetation health</span>
 <strong id="workflow-health">—</strong>
 </div>
 <div class="patch-kpi">
-<span>Phenology risk</span>
+<span data-i18n="workflow.res_risk">Phenology risk</span>
 <strong id="workflow-risk">—</strong>
 </div>
 <div class="patch-kpi">
-<span>Bloom window</span>
+<span data-i18n="workflow.res_window">Bloom window</span>
 <strong id="workflow-bloom">—</strong>
 </div>
 </div>
-<div class="patch-summary" id="workflow-summary">Run the workflow to generate evidence-backed patch interpretation.</div>
+<div class="patch-summary" id="workflow-summary" data-i18n="workflow.res_hint">Run the workflow to generate evidence-backed patch interpretation.</div>
 <div class="chart-container patch-chart" id="workflow-chart"></div>
 </div>
 </div>
@@ -870,67 +866,67 @@
 <!-- Patch analysis panel -->
 <div class="panel" id="patch-panel">
 <div class="panel-header">
-<h3>GeoAI Patch Analysis</h3>
+<h3 data-i18n="patch.title">GeoAI Patch Analysis</h3>
 <button aria-label="Close panel" class="panel-close" type="button">×</button>
 </div>
 <div class="panel-content">
 <div class="workflow-location">
-<span class="label">Map location</span>
+<span class="label" data-i18n="patch.loc_label">Map location</span>
 <span class="coords" id="patch-coords">—</span>
 </div>
 <div class="control-group">
-<label>Patch radius (km)</label>
+<label data-i18n="patch.radius_label">Patch radius (km)</label>
 <input id="patch-radius" max="200" min="1" step="1" type="number" value="25"/>
 </div>
 <div class="control-group">
-<label>Vegetation product</label>
+<label data-i18n="patch.product_label">Vegetation product</label>
 <select id="patch-product">
-<option value="MOD13Q1">MOD13Q1 · MODIS Terra · 16-day (250m)</option>
-<option value="VNP13A1">VNP13A1 · VIIRS SNPP · 16-day (500m)</option>
+<option value="MOD13Q1" data-i18n="veg.opt_mod13q1">MOD13Q1 · MODIS Terra · 16-day (250m)</option>
+<option value="VNP13A1" data-i18n="veg.opt_vnp13a1">VNP13A1 · VIIRS SNPP · 16-day (500m)</option>
 </select>
 </div>
 <div class="control-group">
-<label>History length (years)</label>
+<label data-i18n="patch.history_label">History length (years)</label>
 <input id="patch-years" max="5" min="1" step="1" type="number" value="2"/>
 </div>
 <div class="button-group">
-<button class="btn btn-primary" id="patch-run">Run Patch Analysis</button>
-<button class="btn" id="patch-use-center">Use Current Map Center</button>
+<button class="btn btn-primary" id="patch-run" data-i18n="patch.run_btn">Run Patch Analysis</button>
+<button class="btn" id="patch-use-center" data-i18n="patch.center_btn">Use Current Map Center</button>
 </div>
 <div class="note" id="patch-status">—</div>
 <div class="patch-kpi-grid">
 <div class="patch-kpi">
-<span>Vegetation health</span>
+<span data-i18n="patch.res_health">Vegetation health</span>
 <strong id="patch-health">—</strong>
 </div>
 <div class="patch-kpi">
-<span>Phenology risk</span>
+<span data-i18n="patch.res_risk">Phenology risk</span>
 <strong id="patch-risk">—</strong>
 </div>
 <div class="patch-kpi">
-<span>Bloom window</span>
+<span data-i18n="patch.res_window">Bloom window</span>
 <strong id="patch-bloom">—</strong>
 </div>
 </div>
-<div class="patch-summary" id="patch-summary">Run analysis to generate a patch-level interpretation.</div>
+<div class="patch-summary" id="patch-summary" data-i18n="patch.hint">Run analysis to generate a patch-level interpretation.</div>
 <div class="chart-container patch-chart" id="patch-chart"></div>
 </div>
 </div>
 <!-- AI panel -->
 <div class="panel" id="ai-panel">
 <div class="panel-header">
-<h3>AI Assistant</h3>
+<h3 data-i18n="ai.title">AI Assistant</h3>
 <button aria-label="Close panel" class="panel-close" type="button">×</button>
 </div>
 <div class="panel-content">
 <div class="control-group">
 <div class="button-group">
-<button class="btn btn-primary" id="ai-analyze">Analyze: What to plant here?</button>
-<button class="btn" id="ai-ask">Ask / Follow up</button>
+<button class="btn btn-primary" id="ai-analyze" data-i18n="ai.btn_what_to_plant">Analyze: What to plant here?</button>
+<button class="btn" id="ai-ask" data-i18n="ai.btn_ask_followup">Ask / Follow up</button>
 </div>
 </div>
 <div class="control-group">
-<textarea id="ai-question" placeholder="Type your question (optional)…" rows="3"></textarea>
+<textarea id="ai-question" data-i18n-placeholder="ai.placeholder" placeholder="Type your question (optional)…" rows="3"></textarea>
 </div>
 <div class="ai-report" id="ai-report"></div>
 </div>
@@ -938,42 +934,39 @@
 <!-- Plant ID panel -->
 <div class="panel" id="plantid-panel">
 <div class="panel-header">
-<h3>Plant ID (Remote Image Recognition)</h3>
+<h3 data-i18n="plantid.title">Plant ID (Remote Image Recognition)</h3>
 <button aria-label="Close panel" class="panel-close" type="button">×</button>
 </div>
 <div class="panel-content">
-<div class="note">
-        Upload a flower/plant photo and get species suggestions through the server-side Qwen-VL compatible proxy.
-        For conservation projects, use this as a first pass and verify with experts or field guides.
-      </div>
+<div class="note" data-i18n="plantid.desc">Upload a flower/plant photo and get species suggestions through the server-side Qwen-VL compatible proxy. For conservation projects, use this as a first pass and verify with experts or field guides.</div>
 <div class="control-group">
-<label>Provider</label>
+<label data-i18n="plantid.provider_label">Provider</label>
 <select id="plantid-provider">
-<option value="qwen-vl">Qwen-VL compatible open model endpoint</option>
+<option value="qwen-vl" data-i18n="plantid.provider_opt">Qwen-VL compatible open model endpoint</option>
 </select>
 </div>
 <div class="control-group">
-<label>Region / habitat hint</label>
-<input id="plantid-project" placeholder="China, East Asia, wetland, alpine meadow, urban park, ..." type="text" value="China"/>
+<label data-i18n="plantid.region_hint_label">Region / habitat hint</label>
+<input id="plantid-project" data-i18n-placeholder="plantid.region_hint_placeholder" placeholder="China, East Asia, wetland, alpine meadow, urban park, ..." type="text" value="China"/>
 </div>
 <div class="control-group">
-<label>Organ</label>
+<label data-i18n="plantid.organ_label">Organ</label>
 <select id="plantid-organ">
-<option value="auto">Auto</option>
-<option selected="" value="flower">Flower</option>
-<option value="leaf">Leaf</option>
-<option value="fruit">Fruit</option>
-<option value="bark">Bark</option>
+<option value="auto" data-i18n="plantid.organ_auto">Auto</option>
+<option selected="" value="flower" data-i18n="plantid.organ_flower">Flower</option>
+<option value="leaf" data-i18n="plantid.organ_leaf">Leaf</option>
+<option value="fruit" data-i18n="plantid.organ_fruit">Fruit</option>
+<option value="bark" data-i18n="plantid.organ_bark">Bark</option>
 </select>
 </div>
 <div class="control-group">
-<label>Image</label>
+<label data-i18n="plantid.image_label">Image</label>
 <input accept="image/*" id="plantid-file" type="file"/>
 <div class="plantid-preview hidden" id="plantid-preview-wrap"><img id="plantid-preview" alt="Selected image preview"/></div>
 </div>
 <div class="button-group">
-<button class="btn primary" id="plantid-run">Identify</button>
-<button class="btn" id="plantid-export">Export result (JSON)</button>
+<button class="btn primary" id="plantid-run" data-i18n="plantid.identify_btn">Identify</button>
+<button class="btn" id="plantid-export" data-i18n="plantid.export_btn">Export result (JSON)</button>
 </div>
 <div class="note" id="plantid-status" style="margin-top:10px;"></div>
 <div id="plantid-results"></div>
@@ -983,48 +976,48 @@
 <!-- Forecast panel -->
 <div class="panel" id="forecast-panel">
 <div class="panel-header">
-<h3>NDVI/EVI Forecast (30 days)</h3>
+<h3 data-i18n="forecast.title">NDVI/EVI Forecast (30 days)</h3>
 <button aria-label="Close panel" class="panel-close" type="button">×</button>
 </div>
 <div class="panel-content">
 <div class="control-group">
-<label>Product</label>
+<label data-i18n="forecast.product_label">Product</label>
 <select id="fc-product">
-<option value="MOD13Q1">MOD13Q1 · MODIS Terra · 16-day (250m)</option>
-<option value="VNP13A1">VNP13A1 · VIIRS SNPP · 16-day (500m)</option>
+<option value="MOD13Q1" data-i18n="veg.opt_mod13q1">MOD13Q1 · MODIS Terra · 16-day (250m)</option>
+<option value="VNP13A1" data-i18n="veg.opt_vnp13a1">VNP13A1 · VIIRS SNPP · 16-day (500m)</option>
 </select>
 </div>
 <div class="control-group">
-<label>Target Index</label>
+<label data-i18n="forecast.target_index">Target Index</label>
 <select id="fc-target">
-<option value="ndvi">NDVI</option>
-<option value="evi">EVI</option>
+<option value="ndvi" data-i18n="forecast.opt_ndvi">NDVI</option>
+<option value="evi" data-i18n="forecast.opt_evi">EVI</option>
 </select>
 </div>
 <div class="control-group">
-<label>History length (years)</label>
+<label data-i18n="forecast.history_len">History length (years)</label>
 <input id="fc-years" max="8" min="1" type="number" value="3">
-<div class="date-label">We’ll pull ~16-day composites over N years and align with daily POWER weather.</div>
+<div class="date-label" data-i18n="forecast.pull_note">We’ll pull ~16-day composites over N years and align with daily POWER weather.</div>
 </input></div>
 <div class="control-group">
-<label>Training options</label>
+<label data-i18n="forecast.train_opts">Training options</label>
 <div class="date-range">
 <input id="fc-epochs" max="1000" min="20" type="number" value="120">
-<span>epochs</span>
+<span data-i18n="forecast.epochs">epochs</span>
 <input id="fc-lr" max="0.1" min="0.001" step="0.005" type="number" value="0.01">
-<span>learning rate</span>
+<span data-i18n="forecast.lr">learning rate</span>
 </input></input></div>
-<div class="date-label">If TensorFlow.js is unavailable, a linear baseline fallback will be used.</div>
+<div class="date-label" data-i18n="forecast.tfjs_note">If TensorFlow.js is unavailable, a linear baseline fallback will be used.</div>
 </div>
 <div class="control-group">
 <div class="button-group">
-<button class="btn btn-primary" id="fc-train">Train + Forecast</button>
-<button class="btn" id="fc-clear">Clear</button>
+<button class="btn btn-primary" id="fc-train" data-i18n="forecast.btn_train">Train + Forecast</button>
+<button class="btn" id="fc-clear" data-i18n="forecast.btn_clear">Clear</button>
 </div>
 </div>
 <div class="stats" id="fc-stats">—</div>
 <div id="fc-chart" style="height: 320px; margin-top: 1rem;"></div>
-<div class="weather-note">Inputs: historical NDVI/EVI (MODIS/VIIRS) + daily POWER T2M &amp; Precip; engineered features include lag values &amp; seasonal encodings.</div>
+<div class="weather-note" data-i18n="forecast.inputs_desc">Inputs: historical NDVI/EVI (MODIS/VIIRS) + daily POWER T2M &amp; Precip; engineered features include lag values &amp; seasonal encodings.</div>
 </div>
 </div>
 <!-- Visual Geo-ML Panel -->

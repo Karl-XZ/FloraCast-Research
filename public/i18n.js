@@ -127,6 +127,14 @@ const I18n = {
       'ws.agent_col_recov': 'Recovery Period',
       'ws.agent_report_title': 'DeepSeek Meteorological Attribution & Ecological Response Report',
       'ws.agent_copy_report': 'Copy Report',
+      'ws.agent_export_md': 'Export .MD',
+      'ws.agent_col_action': 'Action',
+      'ws.agent_matrix_hint': 'Click row to fly to 3D Globe & inspect NDVI trajectory',
+      'ws.agent_chart_title': 'Event NDVI Resilience Trajectory',
+      'ws.agent_btn_locate': 'Locate',
+      'ws.agent_btn_chart': 'NDVI Curve',
+      'ws.agent_exported': 'Markdown report downloaded!',
+      'ws.agent_running': 'Agent Inferring...',
 
       // Visual Geo-ML
       'vml.header_title': 'Visual Geo-ML (Spatial Machine Learning Lab)',
@@ -613,6 +621,14 @@ const I18n = {
       'ws.agent_col_recov': '恢复期',
       'ws.agent_report_title': 'DeepSeek 气象归因与生态响应学术报告',
       'ws.agent_copy_report': '复制全文',
+      'ws.agent_export_md': '导出 .MD',
+      'ws.agent_col_action': '操作',
+      'ws.agent_matrix_hint': '点击行可在三维地球上定位并查看植被轨迹',
+      'ws.agent_chart_title': '事件前后植被指数(NDVI)弹性轨迹',
+      'ws.agent_btn_locate': '定位',
+      'ws.agent_btn_chart': '植被曲线',
+      'ws.agent_exported': 'Markdown 研究报告已下载！',
+      'ws.agent_running': '智能体深度推演中...',
 
       // Visual Geo-ML
       'vml.header_title': 'Visual Geo-ML (空间机器学习实验室)',

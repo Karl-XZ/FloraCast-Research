@@ -1,5 +1,5 @@
 import { executeWeatherSearch } from './weather-search.js';
-import { runClimateResearchAgent } from './climate-agent.js';
+import { runClimateResearchAgent, runClimateResearchAgentStream } from './climate-agent.js';
 import express from 'express';
 import multer from 'multer';
 import dotenv from 'dotenv';
@@ -648,12 +648,44 @@ app.post('/api/weather/search', async (req, res) => {
 });
 
 app.post('/api/weather/agent/run', async (req, res) => {
-  try {
-    const { question, aoi } = req.body || {};
-    if (!question || typeof question !== 'string') {
-      return res.status(400).json({ error: 'Research question is required' });
+  const { question, aoi, lang } = req.body || {};
+  if (!question || typeof question !== 'string') {
+    return res.status(400).json({ error: 'Research question is required' });
+  }
+
+  const isStream = req.query?.stream === 'true' || req.headers?.accept?.includes('text/event-stream');
+  const resolvedLang = lang || req.query?.lang || 'en';
+
+  if (isStream) {
+    res.setHeader('Content-Type', 'text/event-stream');
+    res.setHeader('Cache-Control', 'no-cache, no-transform');
+    res.setHeader('Connection', 'keep-alive');
+    res.setHeader('X-Accel-Buffering', 'no');
+    if (typeof res.flushHeaders === 'function') res.flushHeaders();
+
+    const sendEvent = (event, data) => {
+      try {
+        res.write(`event: ${event}\ndata: ${JSON.stringify(data)}\n\n`);
+        if (typeof res.flush === 'function') res.flush();
+      } catch (_) {}
+    };
+
+    try {
+      await runClimateResearchAgentStream(question, {
+        currentAoi: aoi,
+        lang: resolvedLang
+      }, sendEvent);
+      res.end();
+    } catch (err) {
+      console.error('[climate-agent-stream] error:', err);
+      sendEvent('error', { message: err.message || 'Climate research agent failed' });
+      res.end();
     }
-    const result = await runClimateResearchAgent(question, { currentAoi: aoi });
+    return;
+  }
+
+  try {
+    const result = await runClimateResearchAgent(question, { currentAoi: aoi, lang: resolvedLang });
     return res.json(result);
   } catch (err) {
     console.error('[climate-agent] error:', err);
@@ -735,22 +767,22 @@ app.get('/api/weather/vegetation-diff', async (req, res) => {
       const curDate = new Date(sDate.getTime() + d * 86400000);
       const dateStr = curDate.toISOString().slice(0, 10);
       let phase = 'pre';
-      let ndviVal = baseNdvi + (Math.random() * 0.016 - 0.008);
+      let ndviVal = baseNdvi + Math.sin(d * 0.2) * 0.004;
 
       if (d >= 0 && d < durationDays) {
         phase = 'during';
         const progress = (d + 0.5) / durationDays;
         const curveShape = Math.sin(progress * Math.PI);
-        ndviVal = baseNdvi + (targetDelta * curveShape) + (Math.random() * 0.014 - 0.007);
+        ndviVal = baseNdvi + (targetDelta * curveShape);
       } else if (d >= durationDays) {
         phase = 'post';
-        const recov = (d - durationDays) / postDays;
+        const recov = Math.min(1.0, (d - durationDays) / postDays);
         if (targetDelta >= 0) {
           // Positive greening persists and gradually normalizes
-          ndviVal = baseNdvi + (targetDelta * Math.max(0, 1 - recov * 0.6)) + (Math.random() * 0.014 - 0.007);
+          ndviVal = baseNdvi + (targetDelta * Math.max(0, 1 - Math.pow(recov, 0.7)));
         } else {
           // Negative stress gradually recovers
-          ndviVal = (baseNdvi + targetDelta) + (Math.abs(targetDelta) * Math.min(1, recov * 1.1)) + (Math.random() * 0.014 - 0.007);
+          ndviVal = (baseNdvi + targetDelta) + (Math.abs(targetDelta) * Math.min(1, Math.pow(recov, 0.7)));
         }
       }
 

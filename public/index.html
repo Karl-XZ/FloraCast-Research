@@ -212,7 +212,10 @@
 
     <!-- Comparison Matrix Table -->
     <div id="ws-agent-matrix-wrapper" class="ws-matrix-section" style="display: none;">
-      <h4 style="font-size: 13px; color: #93c5fd; margin-bottom: 8px;" data-i18n="ws.agent_matrix_title">Cross-Event Extreme Meteorology & Vegetation Loss Matrix</h4>
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+        <h4 style="font-size: 13px; color: #93c5fd; margin: 0;" data-i18n="ws.agent_matrix_title">Cross-Event Extreme Meteorology & Vegetation Loss Matrix</h4>
+        <span style="font-size: 10px; color: #64748b;" data-i18n="ws.agent_matrix_hint">Click row to fly to 3D Globe & inspect NDVI trajectory</span>
+      </div>
       <div style="overflow-x: auto;">
         <table class="ws-matrix-table" id="ws-agent-matrix-table">
           <thead>
@@ -225,6 +228,7 @@
               <th data-i18n="ws.agent_col_delta">ΔNDVI</th>
               <th data-i18n="ws.agent_col_loss">Vegetation Change</th>
               <th data-i18n="ws.agent_col_recov">Recovery Period</th>
+              <th data-i18n="ws.agent_col_action">Action</th>
             </tr>
           </thead>
           <tbody id="ws-matrix-tbody"></tbody>
@@ -232,11 +236,23 @@
       </div>
     </div>
 
+    <!-- Interactive NDVI Trajectory Chart (Expanded on row click) -->
+    <div id="ws-agent-chart-wrapper" class="ws-chart-section" style="display: none; margin-top: 10px; background: rgba(15, 23, 42, 0.7); border: 1px solid rgba(56, 189, 248, 0.25); border-radius: 6px; padding: 10px;">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+        <span id="ws-agent-chart-title" style="font-size: 12px; font-weight: 600; color: #38bdf8;" data-i18n="ws.agent_chart_title">Event NDVI Resilience Trajectory</span>
+        <button type="button" class="panel-close" style="font-size: 16px; cursor: pointer; color: #94a3b8; background: none; border: none;" onclick="WeatherSearchManager.closeAgentChart()">×</button>
+      </div>
+      <div id="ws-agent-plotly-chart" style="width: 100%; height: 210px;"></div>
+    </div>
+
     <!-- Agent Final Report -->
     <div id="ws-agent-report-wrapper" class="ws-report-section" style="display: none;">
       <div class="ws-report-header">
         <h4 data-i18n="ws.agent_report_title">DeepSeek Meteorological Attribution & Ecological Response Report</h4>
-        <button type="button" class="ws-mini-btn" data-i18n="ws.agent_copy_report" onclick="WeatherSearchManager.copyReport()">Copy Report</button>
+        <div style="display: flex; gap: 6px;">
+          <button type="button" class="ws-mini-btn" data-i18n="ws.agent_copy_report" onclick="WeatherSearchManager.copyReport()">Copy Report</button>
+          <button type="button" class="ws-mini-btn" data-i18n="ws.agent_export_md" onclick="WeatherSearchManager.exportReportMarkdown()">Export .MD</button>
+        </div>
       </div>
       <div id="ws-agent-report-content" class="ws-report-body markdown-body"></div>
     </div>

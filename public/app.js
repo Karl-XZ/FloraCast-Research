@@ -3537,6 +3537,131 @@ const WeatherSearchManager = {
         if (wrapper) wrapper.style.display = 'none';
     },
 
+    closeAgentChart() {
+        const wrapper = document.getElementById('ws-agent-chart-wrapper');
+        if (wrapper) wrapper.style.display = 'none';
+    },
+
+    flyToAgentEvent(idx) {
+        const impacts = this._lastAgentData?.vegetationImpacts || this._lastAgentMatrix?.vegetationImpacts;
+        const loc = this._lastAgentData?.location || this._lastAgentMatrix?.location;
+        if (!impacts || !impacts[idx]) return;
+
+        const row = impacts[idx];
+        const lat = Number(loc?.lat ?? 36.0671);
+        const lng = Number(loc?.lng ?? 120.3826);
+
+        if (typeof MapManager?.setMarker === 'function') {
+            MapManager.setMarker(lat, lng);
+        }
+        if (typeof MapManager?.flyTo === 'function') {
+            MapManager.flyTo(lat, lng, 8);
+        } else if (AppState?.map && typeof AppState.map.setView === 'function') {
+            AppState.map.setView([lat, lng], 8);
+        }
+
+        const rawDate = String(row.startDate || row.dates?.slice(0, 10) || '');
+        let dateISO = '';
+        let year = row.year || 2024;
+        if (rawDate.length === 8) {
+            dateISO = `${rawDate.slice(0, 4)}-${rawDate.slice(4, 6)}-${rawDate.slice(6, 8)}`;
+        } else if (rawDate.includes('-')) {
+            dateISO = rawDate.slice(0, 10);
+        }
+
+        if (dateISO) {
+            AppState.currentEventDate = dateISO;
+            AppState.currentEventYear = year;
+            const weatherDate = document.getElementById('weather-date');
+            if (weatherDate) weatherDate.value = dateISO;
+            const viYear = document.getElementById('vi-year');
+            if (viYear) viYear.value = year;
+            const phenoYear = document.getElementById('phenology-year');
+            if (phenoYear) phenoYear.value = year;
+        }
+    },
+
+    plotAgentNDVI(idx) {
+        const impacts = this._lastAgentData?.vegetationImpacts || this._lastAgentMatrix?.vegetationImpacts;
+        if (!impacts || !impacts[idx]) return;
+
+        const row = impacts[idx];
+        const chartWrapper = document.getElementById('ws-agent-chart-wrapper');
+        const chartTitle = document.getElementById('ws-agent-chart-title');
+        const plotlyDiv = document.getElementById('ws-agent-plotly-chart');
+
+        if (!chartWrapper || !plotlyDiv) return;
+
+        chartWrapper.style.display = 'block';
+        const isZh = window.I18n?.currentLang === 'zh';
+        const yearText = isZh ? `${row.year}年` : `${row.year}`;
+        if (chartTitle) {
+            chartTitle.textContent = isZh 
+                ? `${yearText} 植被响应与生态恢复轨迹 (ΔNDVI: ${row.deltaNDVI})`
+                : `${yearText} Vegetation Response & Recovery Trajectory (ΔNDVI: ${row.deltaNDVI})`;
+        }
+
+        const timeline = row.timeline || [];
+        if (!timeline.length) return;
+
+        const dates = timeline.map(t => t.date || `Day ${t.dayOffset}`);
+        const ndviValues = timeline.map(t => t.ndvi);
+        const baselineValues = timeline.map(t => t.baselineNdvi);
+
+        const isPositive = (row.deltaNDVI ?? 0) >= 0;
+        const lineColor = isPositive ? '#10b981' : '#f43f5e';
+
+        const traces = [
+            {
+                x: dates,
+                y: baselineValues,
+                mode: 'lines',
+                name: isZh ? '常态物候基线' : 'Seasonal Baseline',
+                line: { color: '#94a3b8', width: 1.5, dash: 'dash' }
+            },
+            {
+                x: dates,
+                y: ndviValues,
+                mode: 'lines+markers',
+                name: isZh ? '反演 NDVI 轨迹' : 'Inverted NDVI Trajectory',
+                line: { color: lineColor, width: 2.5 },
+                marker: { size: 4, color: lineColor }
+            }
+        ];
+
+        const layout = {
+            margin: { t: 25, r: 15, b: 35, l: 40 },
+            paper_bgcolor: 'transparent',
+            plot_bgcolor: 'transparent',
+            legend: {
+                orientation: 'h',
+                y: 1.18,
+                x: 0,
+                font: { color: '#cbd5e1', size: 10 }
+            },
+            yaxis: {
+                title: 'NDVI',
+                titlefont: { color: '#94a3b8', size: 10 },
+                showgrid: true,
+                gridcolor: 'rgba(255,255,255,0.06)',
+                tickfont: { color: '#94a3b8', size: 9 },
+                range: [
+                    Math.max(0, Math.min(...ndviValues, ...baselineValues) - 0.05),
+                    Math.min(1.0, Math.max(...ndviValues, ...baselineValues) + 0.05)
+                ]
+            },
+            xaxis: {
+                showgrid: false,
+                tickfont: { color: '#94a3b8', size: 9 },
+                nticks: 6
+            }
+        };
+
+        if (window.Plotly) {
+            Plotly.newPlot(plotlyDiv, traces, layout, { responsive: true, displayModeBar: false });
+        }
+    },
+
     async executeAgent() {
         const questionInput = document.getElementById('ws-agent-question');
         const runBtn = document.getElementById('ws-run-agent-btn');
@@ -3545,6 +3670,7 @@ const WeatherSearchManager = {
         const thinkingLog = document.getElementById('ws-agent-thinking-log');
         const matrixWrapper = document.getElementById('ws-agent-matrix-wrapper');
         const matrixTbody = document.getElementById('ws-matrix-tbody');
+        const chartWrapper = document.getElementById('ws-agent-chart-wrapper');
         const reportWrapper = document.getElementById('ws-agent-report-wrapper');
         const reportContent = document.getElementById('ws-agent-report-content');
 
@@ -3558,116 +3684,181 @@ const WeatherSearchManager = {
             ? MapManager.getCurrentLocation()
             : { lat: 30.6586, lng: 104.0648 };
 
-        if (runBtn) runBtn.disabled = true;
+        const currentLang = window.I18n?.currentLang || 'en';
+        const isZh = currentLang === 'zh';
+
+        if (runBtn) {
+            runBtn.disabled = true;
+            runBtn.innerHTML = `<span>${window.I18n ? window.I18n.t('ws.agent_running') : 'Agent Inferring...'}</span>`;
+        }
         if (stepperBox) stepperBox.style.display = 'block';
         if (thinkingWrapper) thinkingWrapper.style.display = 'block';
-        if (thinkingLog) thinkingLog.textContent = window.I18n ? window.I18n.t('ws.agent_init_plan') : '[Climate Agent] Initializing multi-step autonomous research plan...\n';
+        if (thinkingLog) thinkingLog.textContent = '';
+        if (matrixWrapper) matrixWrapper.style.display = 'none';
+        if (chartWrapper) chartWrapper.style.display = 'none';
+        if (reportWrapper) reportWrapper.style.display = 'none';
+        if (reportContent) reportContent.innerHTML = '';
 
-        // Stage updater helper
+        // Helper to update stage status in UI
         const setStep = (stepId, status) => {
             const el = document.getElementById('ws-step-' + stepId);
             if (!el) return;
             el.classList.remove('active', 'done');
-            if (status === 'active') el.classList.add('active');
-            if (status === 'done') el.classList.add('done');
+            if (status === 'active' || status === 'running') el.classList.add('active');
+            if (status === 'done' || status === 'completed') el.classList.add('done');
         };
 
-        setStep('plan', 'active');
-        if (thinkingLog) thinkingLog.textContent += window.I18n ? window.I18n.t('ws.agent_stage1_log') : '• [Stage 1: Planning] Parse spatiotemporal constraints, similarity space & vegetation inversion chain\n';
+        ['plan', 'search', 'compare', 'vegetation', 'report'].forEach(s => setStep(s, 'pending'));
 
-        // Stagger visual progress
-        const t1 = setTimeout(() => {
-            setStep('plan', 'done');
-            setStep('search', 'active');
-            if (thinkingLog) thinkingLog.textContent += window.I18n ? window.I18n.t('ws.agent_stage2_log') : '• [Stage 2: Weather Search] Query 40-year NASA POWER series, sliding window & Z-score\n';
-        }, 1200);
+        const renderMatrix = (matrixData) => {
+            this._lastAgentMatrix = matrixData;
+            if (!matrixWrapper || !matrixTbody || !matrixData.vegetationImpacts) return;
+            matrixWrapper.style.display = 'block';
+            matrixTbody.innerHTML = '';
 
-        const t2 = setTimeout(() => {
-            setStep('search', 'done');
-            setStep('compare', 'active');
-            if (thinkingLog) thinkingLog.textContent += window.I18n ? window.I18n.t('ws.agent_stage3_log') : '• [Stage 3: Temporal Compare] Attribute temperature extremes, heat accumulation & CDD\n';
-        }, 3000);
+            const yearSuffix = isZh ? '年' : '';
+            const daysSuffix = window.I18n ? window.I18n.t('ws.days') : 'days';
+            const locateText = window.I18n ? window.I18n.t('ws.agent_btn_locate') : 'Locate';
+            const chartText = window.I18n ? window.I18n.t('ws.agent_btn_chart') : 'NDVI';
 
-        const t3 = setTimeout(() => {
-            setStep('compare', 'done');
-            setStep('vegetation', 'active');
-            if (thinkingLog) thinkingLog.textContent += window.I18n ? window.I18n.t('ws.agent_stage4_log') : '• [Stage 4: Vegetation] Invert ±15-day MODIS NDVI anomaly & damage proportion for candidate events\n';
-        }, 5500);
+            matrixData.vegetationImpacts.forEach((row, idx) => {
+                const tr = document.createElement('tr');
+                tr.style.cursor = 'pointer';
+                tr.title = isZh ? '点击查看该事件植被响应曲线' : 'Click to inspect NDVI trajectory';
+                tr.onclick = (e) => {
+                    if (e.target.tagName === 'BUTTON') return;
+                    this.plotAgentNDVI(idx);
+                };
 
-        const t4 = setTimeout(() => {
-            setStep('vegetation', 'done');
-            setStep('report', 'active');
-            if (thinkingLog) thinkingLog.textContent += window.I18n ? window.I18n.t('ws.agent_stage5_log') : '• [Stage 5: Synthesis] Call DeepSeek for academic reasoning synthesis & report generation...\n';
-        }, 8000);
-
-        try {
-            const resp = await fetch('/api/weather/agent/run', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ question, aoi: loc })
+                const isPos = (row.deltaNDVI ?? 0) >= 0;
+                const deltaColor = isPos ? '#10b981' : '#ef4444';
+                const badgeBg = isPos ? 'rgba(16,185,129,0.2)' : 'rgba(239,68,68,0.2)';
+                const badgeColor = isPos ? '#6ee7b7' : '#fca5a5';
+                const sign = isPos ? '+' : '';
+                tr.innerHTML = `
+                    <td><b style="color:#38bdf8;">${row.year}${yearSuffix}</b></td>
+                    <td style="font-size:10px; color:#cbd5e1;">${row.dates || row.period || '--'}</td>
+                    <td>${row.meanTemp ?? row.meanT ?? '--'}°C</td>
+                    <td><span style="color:#f87171; font-weight:600;">${row.maxTemp ?? row.maxT ?? '--'}°C</span></td>
+                    <td><span style="color:#fbbf24;">${row.consecutiveDryDays ?? row.cdd ?? 0} ${daysSuffix}</span></td>
+                    <td><span style="color:${deltaColor}; font-weight:600;">${sign}${row.deltaNDVI}</span></td>
+                    <td><span style="background:${badgeBg}; color:${badgeColor}; padding:2px 6px; border-radius:3px; font-weight:600;">${sign}${row.lossPercentage}%</span></td>
+                    <td>${row.recoveryDays} ${daysSuffix}</td>
+                    <td>
+                        <div style="display:flex; gap:4px;">
+                            <button type="button" class="ws-mini-btn" style="padding:2px 6px; font-size:10px;" onclick="WeatherSearchManager.flyToAgentEvent(${idx})">${locateText}</button>
+                            <button type="button" class="ws-mini-btn" style="padding:2px 6px; font-size:10px;" onclick="WeatherSearchManager.plotAgentNDVI(${idx})">${chartText}</button>
+                        </div>
+                    </td>
+                `;
+                matrixTbody.appendChild(tr);
             });
 
-            clearTimeout(t1); clearTimeout(t2); clearTimeout(t3); clearTimeout(t4);
+            // Automatically plot first event NDVI curve
+            if (matrixData.vegetationImpacts.length > 0) {
+                this.plotAgentNDVI(0);
+            }
+        };
+
+        let accumulatedReport = '';
+
+        try {
+            const resp = await fetch('/api/weather/agent/run?stream=true', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Accept': 'text/event-stream'
+                },
+                body: JSON.stringify({ question, aoi: loc, lang: currentLang })
+            });
 
             if (!resp.ok) {
                 const errJson = await resp.json().catch(() => ({}));
-                throw new Error(errJson.error || 'Agent execution failed');
+                throw new Error(errJson.error || `Agent execution failed (${resp.status})`);
             }
 
-            const data = await resp.json();
-            this._lastAgentData = data;
+            const reader = resp.body.getReader();
+            const decoder = new TextDecoder('utf-8');
+            let buffer = '';
 
-            // Mark all steps done
-            ['plan', 'search', 'compare', 'vegetation', 'report'].forEach(s => setStep(s, 'done'));
+            while (true) {
+                const { done, value } = await reader.read();
+                if (done) break;
 
-            if (thinkingLog) {
-                thinkingLog.textContent = data.thinkingStream || (window.I18n ? window.I18n.t('ws.agent_done_stream') : 'Inference workflow completed.');
-            }
+                buffer += decoder.decode(value, { stream: true });
+                const parts = buffer.split('\n\n');
+                buffer = parts.pop() || '';
 
-            // Populate comparison matrix
-            if (matrixWrapper && matrixTbody && data.vegetationImpacts) {
-                matrixWrapper.style.display = 'block';
-                matrixTbody.innerHTML = '';
-                const yearSuffix = window.I18n?.currentLang === 'zh' ? '年' : '';
-                const daysSuffix = window.I18n ? window.I18n.t('ws.days') : 'days';
-                data.vegetationImpacts.forEach(row => {
-                    const tr = document.createElement('tr');
-                    const isPos = (row.deltaNDVI ?? 0) >= 0;
-                    const deltaColor = isPos ? '#10b981' : '#ef4444';
-                    const badgeBg = isPos ? 'rgba(16,185,129,0.2)' : 'rgba(239,68,68,0.2)';
-                    const badgeColor = isPos ? '#6ee7b7' : '#fca5a5';
-                    const sign = isPos ? '+' : '';
-                    tr.innerHTML = `
-                        <td><b style="color:#38bdf8;">${row.year}${yearSuffix}</b></td>
-                        <td style="font-size:10px; color:#cbd5e1;">${row.dates || row.period || '--'}</td>
-                        <td>${row.meanTemp ?? row.meanT ?? '--'}°C</td>
-                        <td><span style="color:#f87171; font-weight:600;">${row.maxTemp ?? row.maxT ?? '--'}°C</span></td>
-                        <td><span style="color:#fbbf24;">${row.consecutiveDryDays ?? row.cdd ?? 0} ${daysSuffix}</span></td>
-                        <td><span style="color:${deltaColor}; font-weight:600;">${sign}${row.deltaNDVI}</span></td>
-                        <td><span style="background:${badgeBg}; color:${badgeColor}; padding:2px 6px; border-radius:3px; font-weight:600;">${sign}${row.lossPercentage}%</span></td>
-                        <td>${row.recoveryDays} ${daysSuffix}</td>
-                    `;
-                    matrixTbody.appendChild(tr);
-                });
-            }
+                for (const chunk of parts) {
+                    if (!chunk.trim()) continue;
+                    let eventType = 'message';
+                    let dataStr = '';
 
-            // Render academic report
-            if (reportWrapper && reportContent) {
-                reportWrapper.style.display = 'block';
-                const markdown = data.report || (window.I18n ? window.I18n.t('ws.agent_report_done') : 'Academic research report generated.');
-                if (window.marked) {
-                    reportContent.innerHTML = marked.parse(markdown);
-                } else {
-                    reportContent.textContent = markdown;
+                    const lines = chunk.split('\n');
+                    for (const line of lines) {
+                        if (line.startsWith('event: ')) {
+                            eventType = line.slice(7).trim();
+                        } else if (line.startsWith('data: ')) {
+                            dataStr = line.slice(6).trim();
+                        }
+                    }
+
+                    if (!dataStr) continue;
+
+                    let payload = {};
+                    try { payload = JSON.parse(dataStr); } catch (_) { continue; }
+
+                    if (eventType === 'stage') {
+                        const { stageId, status, stages } = payload;
+                        if (stages) {
+                            stages.forEach(s => setStep(s.id, s.status));
+                        } else if (stageId) {
+                            setStep(stageId, status);
+                        }
+                    } else if (eventType === 'thinking') {
+                        if (thinkingLog && payload.delta) {
+                            thinkingLog.textContent += payload.delta;
+                            thinkingLog.scrollTop = thinkingLog.scrollHeight;
+                        }
+                    } else if (eventType === 'matrix') {
+                        renderMatrix(payload);
+                    } else if (eventType === 'report_chunk') {
+                        if (reportWrapper && reportContent && payload.delta) {
+                            reportWrapper.style.display = 'block';
+                            accumulatedReport += payload.delta;
+                            if (window.marked) {
+                                reportContent.innerHTML = marked.parse(accumulatedReport);
+                            } else {
+                                reportContent.textContent = accumulatedReport;
+                            }
+                        }
+                    } else if (eventType === 'complete') {
+                        this._lastAgentData = payload;
+                        if (payload.report && reportWrapper && reportContent) {
+                            reportWrapper.style.display = 'block';
+                            accumulatedReport = payload.report;
+                            if (window.marked) {
+                                reportContent.innerHTML = marked.parse(accumulatedReport);
+                            } else {
+                                reportContent.textContent = accumulatedReport;
+                            }
+                        }
+                        ['plan', 'search', 'compare', 'vegetation', 'report'].forEach(s => setStep(s, 'done'));
+                    } else if (eventType === 'error') {
+                        throw new Error(payload.message || 'Server-side agent error');
+                    }
                 }
             }
 
         } catch (err) {
             console.error('[ClimateAgent] failed:', err);
-            alert((window.I18n ? window.I18n.t('ws.agent_error_prefix') : 'Agent inference failed: ') + err.message);
             if (thinkingLog) thinkingLog.textContent += `\n[Error] ${err.message}`;
+            alert((window.I18n ? window.I18n.t('ws.agent_error_prefix') : 'Agent inference failed: ') + err.message);
         } finally {
-            if (runBtn) runBtn.disabled = false;
+            if (runBtn) {
+                runBtn.disabled = false;
+                runBtn.innerHTML = `<span data-i18n="ws.agent_run_btn">${window.I18n ? window.I18n.t('ws.agent_run_btn') : 'Run Climate Agent Deep Inference'}</span>`;
+            }
         }
     },
 
@@ -3679,6 +3870,27 @@ const WeatherSearchManager = {
             }).catch(() => {
                 alert(window.I18n ? window.I18n.t('ws.agent_copy_fail') : 'Failed to copy, please copy manually.');
             });
+        }
+    },
+
+    exportReportMarkdown() {
+        const text = this._lastAgentData?.report;
+        if (!text) {
+            alert(window.I18n ? window.I18n.t('ws.agent_report_done') : 'No report to export.');
+            return;
+        }
+        const question = this._lastAgentData?.question || 'climate_research';
+        const filename = `FloraCast_${question.replace(/[^a-zA-Z0-9_\u4e00-\u9fa5]/g, '_').slice(0, 30)}.md`;
+        const blob = new Blob([text], { type: 'text/markdown;charset=utf-8' });
+        const a = document.createElement('a');
+        a.href = URL.createObjectURL(blob);
+        a.download = filename;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(a.href);
+        if (window.I18n) {
+            alert(window.I18n.t('ws.agent_exported'));
         }
     }
 };

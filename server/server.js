@@ -56,6 +56,17 @@ process.on('unhandledRejection', (reason, promise) => {
 
 const app = express();
 app.disable('x-powered-by');
+
+// Subpath normalization for reverse proxy deployment
+app.use((req, res, next) => {
+  if (req.url.startsWith('/FloraCast/')) {
+    req.url = req.url.slice('/FloraCast'.length);
+  } else if (req.url === '/FloraCast') {
+    return res.redirect(301, '/FloraCast/');
+  }
+  next();
+});
+
 app.use(express.json({ limit: '8mb' }));
 app.use((err, req, res, next) => {
   if (err instanceof SyntaxError && err.status === 400 && 'body' in err) {

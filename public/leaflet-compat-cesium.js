@@ -726,8 +726,8 @@
       if (!provider) {
         // High-reliability direct tile fallback
         const url = isSat
-          ? 'http://shangetu{s}.map.bdimg.com/it/u=x={bx};y={by};z={z};v=009;type=sate&fm=46'
-          : 'http://online{s}.map.bdimg.com/tile/?qt=tile&x={bx}&y={by}&z={z}&styles=sl&v=020';
+          ? '//shangetu{s}.map.bdimg.com/it/u=x={bx};y={by};z={z};v=009;type=sate&fm=46'
+          : '//online{s}.map.bdimg.com/tile/?qt=tile&x={bx}&y={by}&z={z}&styles=sl&v=020';
         provider = new C.UrlTemplateImageryProvider({
           url: url,
           subdomains: ['0', '1', '2', '3'],

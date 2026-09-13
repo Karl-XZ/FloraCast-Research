@@ -89,8 +89,8 @@ function renderDetail() {
   $('#cancel-run').hidden = !['running', 'queued', 'paused'].includes(current.status);
   $('#reproduce-run').disabled = !result;
   $('#compare-run').disabled = !result;
-  $('#export-run').href = `/api/research/runs/${current.id}/export`;
-  $('#export-notebook').href = `/api/research/runs/${current.id}/export?format=notebook`;
+  $('#export-run').href = `${window.APP_BASE_PATH || ''}/api/research/runs/${current.id}/export`;
+  $('#export-notebook').href = `${window.APP_BASE_PATH || ''}/api/research/runs/${current.id}/export?format=notebook`;
   let html = '';
   if (view === 'runs') {
     html = result?.planning ? `<article class="claim"><span class="badge context">研究计划</span><p>${esc(result.planning.objective)}</p><p class="helper">估计目标：${esc(result.planning.estimand)}</p></article>` : '';

@@ -75,6 +75,64 @@ app.use((err, req, res, next) => {
   next(err);
 });
 
+// Strict CORS: Only allow https://openl.work and local dev
+const ALLOWED_ORIGINS = new Set([
+  'https://openl.work',
+  'http://localhost:5174',
+  'http://127.0.0.1:5174',
+  'http://localhost:8088',
+  'http://127.0.0.1:8088'
+]);
+
+app.use((req, res, next) => {
+  const origin = req.headers.origin;
+  if (origin && ALLOWED_ORIGINS.has(origin)) {
+    res.setHeader('Access-Control-Allow-Origin', origin);
+    res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
+    res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Requested-With');
+    res.setHeader('Access-Control-Max-Age', '86400');
+  }
+  if (req.method === 'OPTIONS') {
+    return res.sendStatus(204);
+  }
+  next();
+});
+
+// Referer Check / Anti-crawler middleware: Reject requests without valid Referer
+app.use('/api', (req, res, next) => {
+  const referer = req.headers.referer || req.headers.referrer;
+  const origin = req.headers.origin;
+  const clientIp = req.ip || req.connection?.remoteAddress || '';
+  const isLocalDirect = clientIp.includes('127.0.0.1') || clientIp === '::1' || req.hostname === 'localhost';
+
+  // Allow local health check without referer for system monitoring
+  if (!referer && !origin) {
+    if (isLocalDirect && req.path === '/health') {
+      return next();
+    }
+    return res.status(403).json({
+      error: 'Access Denied: Missing Referer header. Direct script calls and automated crawlers are blocked.'
+    });
+  }
+
+  const targetHeader = referer || origin;
+  try {
+    const parsed = new URL(targetHeader);
+    const allowedHosts = new Set(['openl.work', 'www.openl.work', 'localhost', '127.0.0.1']);
+    if (!allowedHosts.has(parsed.hostname)) {
+      return res.status(403).json({
+        error: `Access Denied: Unauthorized Referer '${parsed.hostname}'. Only https://openl.work is permitted.`
+      });
+    }
+  } catch (e) {
+    return res.status(403).json({
+      error: 'Access Denied: Malformed Referer header.'
+    });
+  }
+
+  next();
+});
+
 // Research workflow setup
 const localPython = path.join(__dirname, '..', '.venv', process.platform === 'win32' ? 'Scripts/python.exe' : 'bin/python');
 const researchPython = process.env.RESEARCH_PYTHON || (fs.existsSync(localPython) ? localPython : '');

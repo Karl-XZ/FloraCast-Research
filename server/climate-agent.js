@@ -288,7 +288,10 @@ export async function runClimateResearchAgentStream(userResearchQuestion, option
 
   let reportText = '';
   const deepseekBase = (process.env.DEEPSEEK_API_BASE || 'https://api.deepseek.com').replace(/\/+$/, '');
-  const apiKey = process.env.DEEPSEEK_API_KEY || 'sk-8a47480a00f94621bb274c3a13ad2f32';
+  const apiKey = process.env.DEEPSEEK_API_KEY;
+  if (!apiKey) {
+    throw new Error('DEEPSEEK_API_KEY is not configured on the server.');
+  }
   const model = process.env.DEEPSEEK_MODEL || 'deepseek-flash';
 
   try {

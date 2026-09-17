@@ -62,9 +62,15 @@ ${currentAoi ? JSON.stringify(currentAoi) : '经纬度: 36.0671, 120.3826 (青�
   "semantic_summary": "一句话结构化解读该查询"
 }`;
 
+  const apiKey = process.env.DEEPSEEK_API_KEY;
+  if (!apiKey) {
+    throw new Error('DEEPSEEK_API_KEY is not configured on the server.');
+  }
+  const apiBase = (process.env.DEEPSEEK_API_BASE || 'https://api.deepseek.com').replace(/\/+$/, '');
+
   try {
-    const res = await axios.post('https://api.deepseek.com/chat/completions', {
-      model: 'deepseek-chat',
+    const res = await axios.post(`${apiBase}/chat/completions`, {
+      model: process.env.DEEPSEEK_MODEL || 'deepseek-chat',
       temperature: 0.1,
       max_tokens: 1500,
       messages: [
@@ -74,7 +80,7 @@ ${currentAoi ? JSON.stringify(currentAoi) : '经纬度: 36.0671, 120.3826 (青�
     }, {
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': 'Bearer ' + (process.env.DEEPSEEK_API_KEY || 'sk-8a47480a00f94621bb274c3a13ad2f32')
+        'Authorization': `Bearer ${apiKey}`
       },
       httpsAgent: ipv4Agent,
       timeout: 30000

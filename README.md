@@ -1,109 +1,259 @@
----
-domain:
-- cv
-- multi-modal
-tags:
-- geoai
-- remote-sensing
-- phenology
-- vegetation
-- qwen
-- cesium
-datasets:
-  evaluation:
-  test:
-  train:
-models:
-license: MIT
+# FloraCast: 面向地球系统与生态韧性科研的深度研究智能体系统
+
+FloraCast 是一个面向陆地生态学、物候遥感监测与极端气候韧性评估的开源地球科研智能体系统。系统融合 Cesium 三维数字孪生地球交互、MODIS/Landsat 多源遥感时序反演、40 年高分辨率气象再分析数据挖掘，以及严谨规范的八阶段全自主深度科研智能体工作流（兼容 openJiuwen 规范），实现从开放科学问题提炼、时空多源数据对齐、确定性生物物理响应建模到可复现学术报告生成的完整科研闭环。
+
+在线演示平台: https://openl.work/FloraCast/  
+独立科研工作台: https://openl.work/FloraCast/research.html  
+开源代码仓库: https://gitee.com/karl-zhou/FloraCast-Research
+
 ---
 
-# FloraCast 3D GeoAI China Edition
+## 目录
 
-FloraCast 3D is an open-source GeoAI web application for phenology monitoring, vegetation condition exploration, biodiversity observations, and plant-image assisted identification on a 3D globe.
+- [一、核心特性与科学价值](#一核心特性与科学价值)
+- [二、八阶段深度科研智能体流水线](#二八阶段深度科研智能体流水线)
+- [三、核心功能与使用图解](#三核心功能与使用图解)
+  - [3.1 三维数字孪生地球交互与多源底图](#31-三维数字孪生地球交互与多源底图)
+  - [3.2 深度研究智能体协同控制台](#32-深度研究智能体协同控制台)
+  - [3.3 气象语义检索与多年代极值窗口扫描](#33-气象语义检索与多年代极值窗口扫描)
+  - [3.4 确定性生物物理响应模型与物候反演](#34-确定性生物物理响应模型与物候反演)
+  - [3.5 空间机器学习地理要素推断 (Visual Geo-ML)](#35-空间机器学习地理要素推断-visual-geo-ml)
+  - [3.6 独立科研协议工作台与全要素学术报告](#36-独立科研协议工作台与全要素学术报告)
+- [四、系统生产环境安全加固架构](#四系统生产环境安全加固架构)
+- [五、技术栈与系统构成](#五技术栈与系统构成)
+- [六、快速上手与本地部署](#六快速上手与本地部署)
+- [七、环境变量配置规范](#七环境变量配置规范)
+- [八、数据源与开放许可](#八数据源与开放许可)
 
-This China-oriented edition is prepared for the Open Source GeoAI Practice Challenge. It keeps the interactive Studio-style experience while replacing browser-side closed API usage with a server-side Qwen-compatible proxy and a China-friendly base map.
+---
 
-## What Changed
+## 一、核心特性与科学价值
 
-- Default base map: Gaode/Amap vector tiles.
-- Default location: Qingdao, China, the AP-GARSS 2026 host city.
-- AI Assistant: browser no longer contains API keys; requests go through `/api/ai/chat`.
-- Plant ID: Plant.id and Pl@ntNet paths were removed; image identification goes through `/api/plant/identify` and a Qwen-VL compatible endpoint.
-- Geocoding: reverse lookup uses `/api/geocode/reverse` with optional `AMAP_WEB_KEY`, falling back to coordinates if no key is configured.
-- Environment handling: `.env.example` is only a template and is no longer loaded as a fallback secret source.
-- Repository hygiene: `node_modules` is ignored and should not be committed.
+传统地球数据分析高度依赖研究人员在 GIS 工具、脚本编程与遥感数据库之间进行繁杂的切换与手工对齐。FloraCast 构建了面向真实科学场景的端到端智能体闭环，具备以下核心特性：
 
-## Core Features
+1. **三维数字孪生地球时空沉浸底座**：基于 Cesium 引擎构建全球大椭球体时空框架，支持高德矢量、百度卫星、MODIS 全球遥感图层与多源历史切片毫秒级加载，提供多时相分屏对比与地理物候空间感知。
+2. **八阶段学术规范推演工作流**：从科学假设确立、文献交叉检验、时空范围冻结、物理指标测算、统计检验到双重审查，每一步骤均记录完整数据链条与哈希指纹，杜绝大语言模型幻觉。
+3. **确定性生物物理学模型驱动**：坚决摒弃虚构数据推演，植被响应量化基于经典地表能量平衡方程、积温阈值模型（GDD）、VPD 水汽压亏缺指数以及 MODIS 真实像元可靠性掩膜。
+4. **40 年历史气象极值滑动窗口挖掘**：集成 NASA POWER 全球气象数据库（1985–2024），支持自然语言语义检索，可在数秒内完成连续 40 年气象序列的动态标准化（Z-score）与极值事件横向比对。
+5. **空间机器学习多要素聚类 (Visual Geo-ML)**：内置轻量级空间聚类与距离衰减推断算法，在浏览器本地执行地理要素聚类、空间邻域加权与土地覆盖演化推演。
 
-- 3D globe visualization through CesiumJS.
-- Gaode/Amap domestic base map with optional NASA GIBS remote-sensing overlays.
-- Dual-map split comparison for different satellite layers or dates.
-- NDVI/EVI charts from MODIS/VIIRS data.
-- Phenology estimation from NASA POWER daily weather data.
-- Weather charts from NASA POWER.
-- iNaturalist observation overlays for biodiversity context.
-- Browser-side NDVI/EVI forecasting using TensorFlow.js, with a linear fallback.
-- Qwen-powered agronomy and phenology assistant.
-- Qwen-VL compatible plant image identification.
+---
 
-## Quick Start
+## 二、八阶段深度科研智能体流水线
 
-Install Node.js 18 or later.
+系统遵循学术科研规范，将长周期、开放式科学探究任务拆解为八个严密的推演阶段：
 
+```
+[阶段01: 协议冻结 (Protocol Definition)]
+       │
+       ▼
+[阶段02: 文献检索与比对 (Literature Search)]
+       │
+       ▼
+[阶段03: 数据资产审计 (Data Registry & Checksum)]
+       │
+       ▼
+[阶段04: 空间格局分析 (Spatial Analysis)]
+       │
+       ▼
+[阶段05: 统计验证与物候拟合 (Statistical Verification)]
+       │
+       ▼
+[阶段06: 证据链条双重审查 (Evidence Review)]
+       │
+       ▼
+[阶段07: 独立快照复现与审计 (Independent Reproduction)]
+       │
+       ▼
+[阶段08: 学术研究报告合成 (Academic Report Synthesis)]
+```
+
+每个阶段输出结构化的中间产物（Artifacts），阶段间由哈希校验码保证证据不可篡改，确保整份科研报告具备完备的数据可溯源性与同行评审标准。
+
+---
+
+## 三、核心功能与使用图解
+
+### 3.1 三维数字孪生地球交互与多源底图
+
+系统以三维高动态地球作为主交互界面，支持任意经纬度漫游、空间测距、坐标点选逆地理编码以及卫星遥感图层叠加。
+
+![三维数字孪生地球概览](docs/images/doc_01_globe_overview_zh.png)
+*图 1: 三维数字孪生地球概览（以青岛沿海研究区为例，展示全球高动态光照、地理经纬度网格与高德高精度矢量底图）*
+
+![系统功能导航菜单](docs/images/doc_02_menu_system_zh.png)
+*图 2: 系统功能导航抽屉（提供科研智能体、自然语言气象搜索、空间机器学习、遥感图层管理等模块入口）*
+
+---
+
+### 3.2 深度研究智能体协同控制台
+
+用户可通过自然语言提出开放性科学假设，例如探讨特定年份极端干旱对植被绿度的滞后冲击机制。智能体根据问题自动提取时空约束条件，并启动协同推演流程。
+
+![深度研究智能体控制台](docs/images/doc_03_agent_console_zh.png)
+*图 3: 深度研究智能体交互界面（支持自定义科学问题、设置研究区中心经纬度、半径及推演基准）*
+
+![八阶段推演与实时深度思考流](docs/images/doc_04_agent_pipeline_reasoning_zh.png)
+*图 4: 智能体流水线步进与实时思考流（八个阶段状态可视化步进，右侧实时流式呈现深度推理链）*
+
+---
+
+### 3.3 气象语义检索与多年代极值窗口扫描
+
+系统支持自然语言气象查询。大模型将用户输入的非结构化语句解析为结构化过滤条件，在后台并行扫描 40 年气象时间序列，自动匹配出排名居前的高温、干旱或暴雨滑动窗口。
+
+![自然语言气象语义检索结果](docs/images/doc_06_weather_search_results_zh.png)
+*图 5: 自然语言气象检索结果面板（自动定位目标年份最符合条件的极端气象窗口，并呈现多维气象指标）*
+
+![多候选事件量化对比矩阵](docs/images/doc_05_agent_matrix_chart_zh.png)
+*图 6: 候选极端事件量化对比矩阵（横向对比不同年份的气温异常 Z-score、降水距平与连续干旱天数）*
+
+---
+
+### 3.4 确定性生物物理响应模型与物候反演
+
+系统基于真实的 MODIS 250 米地表反射率与 NDVI/EVI 时序数据，结合积温模型计算植被始花期、生长峰值与衰退期。面对干旱强迫，模型计算出植被受挫幅度与生态恢复所需天数。
+
+![MODIS 植被指数反演与响应分析](docs/images/doc_08_vegetation_index_zh.png)
+*图 7: MODIS 植被指数反演与生态响应曲线（展示事件前后绿度变化幅度与定量水热驱动归因）*
+
+![生态恢复轨迹图与核心量化摘要](docs/images/doc_09_agent_chart_and_report_zh.png)
+*图 8: 生态韧性恢复轨迹图与执行摘要（动态呈现植被受胁迫过程与恢复滞后周期）*
+
+---
+
+### 3.5 空间机器学习地理要素推断 (Visual Geo-ML)
+
+集成客户端空间机器学习模块，用户在三维地球上选定区域后，系统对网格化地理单元执行 K-Means 聚类、空间自相关分析及反距离加权推算。
+
+![空间机器学习分析界面](docs/images/doc_07_visual_geoml_zh.png)
+*图 9: Visual Geo-ML 空间机器学习推演界面（展示多维地理要素聚类分布与空间相关性分析图表）*
+
+---
+
+### 3.6 独立科研协议工作台与全要素学术报告
+
+针对严谨的学术发表与跨团队复现需求，系统提供专门的独立科研工作台。支持冻结科研协议元数据、检索学术文献关联、核查数据清单，并一键生成包含公式、推导与局限性声明的完整报告。
+
+![独立开放科研协议工作台](docs/images/doc_10_research_workbench_zh.png)
+*图 10: 独立科研协议工作台界面（支持协议参数冻结、文献引用比对与无幻觉数据审计）*
+
+![全要素结构化学术科研报告输出](docs/images/doc_11_academic_report_zh.png)
+*图 11: 结构化学术报告输出（包含研究背景、方法验证、量化对比、证据审查与学术局限性声明）*
+
+---
+
+## 四、系统生产环境安全加固架构
+
+为防止大模型 API 凭据泄露及恶意脚本盗刷，生产环境部署了全方位的安全防护网关：
+
+```
+客户端请求 (Browser)
+       │
+       ▼ [Nginx 网关层]
+       ├── 防盗链核验 (Referer Check: 仅放行 openl.work 域名来源)
+       ├── 速率限制 (Rate Limiting: limit_req 2次/秒，突发上限 5次)
+       └── 跨域保护 (CORS: 仅允许 https://openl.work 访问)
+       │
+       ▼ [Node.js 应用层]
+       ├── 双重 Referer 域名白名单二次校验
+       ├── 凭证严格隔离 (禁止任何硬编码兜底 Key，仅从系统安全环境变量加载)
+       └── 自动化超时与异常截断保护
+       │
+       ▼ [大模型与遥感计算后端]
+       └── DeepSeek 官方接口 / 本地生物物理确定性模型
+```
+
+- **Nginx 速率限制 (Rate Limiting)**：配置 `limit_req_zone $binary_remote_addr zone=floracast_limit:10m rate=2r/s;`，对单 IP 突发高频调用自动拦截并返回 `429 Too Many Requests`。
+- **防盗链与防爬虫 (Referer Check)**：网关强制校验 `valid_referers server_names *.openl.work;`，未携带合法来源头的直接调用一律拒绝并返回 `403 Forbidden`。
+- **跨域源收紧 (Strict CORS)**：彻底取消防御薄弱的全局通配跨域，严格限制仅允许官方域名调用。
+- **源码脱敏**：源码中不存在任何默认凭证字符，所有生产密钥均通过环境变量管理并实施权限隔离。
+
+---
+
+## 五、技术栈与系统构成
+
+| 层级 | 核心技术 / 依赖组件 | 功能定位与用途 |
+| :--- | :--- | :--- |
+| **前端展现层** | CesiumJS (1.136.0) | 跨平台三维数字孪生地球交互渲染引擎 |
+| | Plotly.js (2.35.2) | 交互式科学图表、雷达图与恢复曲线绘制 |
+| | TensorFlow.js | 浏览器端本地空间机器学习与线性趋势回归 |
+| | Marked.js | 科学报告结构化 Markdown 渲染与公式排版 |
+| **后端服务层** | Node.js (v18+) & Express | 高性能 API 网关、流式 SSE 协议推送与缓存服务 |
+| | Axios & Multer | 大文件切片上传、外部遥感数据流式管道代理 |
+| | openJiuwen 协议兼容层 | 8 阶段深度科研流程调度与状态机管理 |
+| **算法与模型** | DeepSeek 官方 API (V3/R1) | 自然语言气象意图解析与学术报告综合推理 |
+| | 通义千问视觉大模型 (Qwen-VL) | 植物多模态图像器官识别与种属置信度推断 |
+| | 地表能量平衡与物候模型 | 积温阈值、地温辐射驱动的确定性物理反演 |
+| **网关与运维** | Nginx (1.24+) | SSL 证书终结、IP 频次限制、防盗链网关与反向代理 |
+| | Systemd | 生产服务守护进程与故障自动热重启 |
+
+---
+
+## 六、快速上手与本地部署
+
+### 1. 环境准备
+- Node.js 18.0 或更高版本
+- Git
+- 现代主流浏览器（推荐 Google Chrome、Edge 或 Firefox，需支持 WebGL 2.0）
+
+### 2. 克隆仓库与依赖安装
 ```bash
+git clone https://gitee.com/karl-zhou/FloraCast-Research.git
+cd FloraCast-Research
+
+# 进入服务端目录安装依赖
 cd server
 npm install
+```
+
+### 3. 配置环境变量
+在项目根目录创建 `.env` 文件，内容参考如下：
+
+```ini
+# DeepSeek 官方 API 配置（用于气象语义解析与科研报告主笔）
+DEEPSEEK_API_KEY=your_deepseek_api_key
+DEEPSEEK_API_BASE=https://api.deepseek.com
+DEEPSEEK_MODEL=deepseek-flash
+
+# 可选：阿里云通义千问视觉大模型（用于植物图像识别）
+QWEN_API_KEY=your_qwen_api_key
+QWEN_API_BASE=https://dashscope.aliyuncs.com/compatible-mode/v1
+QWEN_TEXT_MODEL=qwen-plus
+QWEN_VISION_MODEL=qwen-vl-plus
+
+# 可选：高德 Web 服务 Key（用于点选逆地理编码）
+AMAP_WEB_KEY=your_amap_web_key
+
+# 服务端口
+PORT=5174
+```
+
+### 4. 启动服务
+```bash
+# 在 server 目录下执行
 npm start
 ```
 
-Open:
+服务启动后，在浏览器访问：
+- 前台数字孪生地球：`http://localhost:5174/`
+- 独立科研协议工作台：`http://localhost:5174/research.html`
 
-```text
-http://localhost:5173
-```
+---
 
-## Environment Variables
+## 七、环境变量配置规范
 
-Copy `.env.example` to `.env` and fill in your deployment values.
+为保障系统安全与稳健运行，系统严格遵守以下凭证规范：
 
-```bash
-QWEN_API_KEY=your-key
-QWEN_API_BASE=https://llm-eln0cv2uifxjokf2.cn-beijing.maas.aliyuncs.com/compatible-mode/v1
-QWEN_TEXT_MODEL=qwen-plus
-QWEN_VISION_MODEL=qwen-vl-plus
-AMAP_WEB_KEY=
-PORT=5173
-```
+1. **禁止代码内嵌凭证**：服务端所有大模型与第三方数据调用强制读取 `process.env.*`，在缺失凭证时显式抛出异常，杜绝明文硬编码风险。
+2. **Git 仓库防护**：`.env` 及各类敏感文件已被纳入 `.gitignore` 保护范围，切勿提交至代码仓库。
+3. **额度预警建议**：建议开发者在 DeepSeek 平台设置单日调用限额与余额提醒，降低自动化探测造成的资源消耗风险。
 
-Do not commit `.env`.
+---
 
-## API Endpoints
+## 八、数据源与开放许可
 
-```text
-GET  /api/health
-POST /api/ai/chat
-GET  /api/geocode/reverse
-POST /api/plant/identify
-POST /api/plant/identify_url
-```
-
-The server keeps API keys out of the browser and normalizes Qwen/Qwen-VL responses for the frontend.
-
-## Data and Resource Credits
-
-- Gaode/Amap map tiles for domestic base map display.
-- NASA GIBS for satellite imagery layers.
-- NASA POWER for weather and phenology-related variables.
-- iNaturalist for public biodiversity observation context.
-- CesiumJS for 3D globe rendering.
-- Plotly.js for charts.
-- TensorFlow.js for browser-side forecasting.
-- Qwen-compatible API endpoint for language and vision model inference.
-
-## Open-Source Notes
-
-This project is intended as a reproducible interactive GeoAI artifact. Keep code, deployment configuration, data sources, model names, and license information public wherever possible. Avoid relying on resources that reviewers cannot inspect or reproduce.
-
-## License
-
-MIT. See [LICENSE](LICENSE).
+- **卫星遥感时序**：美国航空航天局 NASA GIBS、MODIS Terra/Aqua 卫星观测数据。
+- **气象再分析数据库**：NASA POWER 全球日尺度农业气象数据集（1985–2024）。
+- **底图瓦片图层**：高德地图矢量图层、百度地图卫星图层。
+- **开源许可证**：本项目基于 MIT License 协议开源，供学术科研、生态监测与教学研究免费使用。

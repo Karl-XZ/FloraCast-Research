@@ -2396,7 +2396,7 @@ Using the local data above, address the user's question with concrete, location-
 
     removeOverlay(side, 'opg');
     const layer = L.tileLayer(opgUrl(variant, step), {
-      maxZoom: 18, opacity: 0.9, crossOrigin: true, attribution: 'OpenPortGuide'
+      maxZoom: 18, opacity: 0.9, crossOrigin: true, attribution: '© <a href="https://weather.openportguide.de/" target="_blank" rel="noopener noreferrer">OpenPortGuide</a>'
     }).addTo(map);
     setOverlay(side, 'opg', layer);
     console.log('[Overlays] OPG added on', side, variant, step);

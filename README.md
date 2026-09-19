@@ -255,5 +255,6 @@ npm start
 
 - **卫星遥感时序**：美国航空航天局 NASA GIBS、MODIS Terra/Aqua 卫星观测数据。
 - **气象再分析数据库**：NASA POWER 全球日尺度农业气象数据集（1985–2024）。
+- **海洋与大气预报瓦片**：[OpenPortGuide](https://weather.openportguide.de/)（遵循 [Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International (CC BY-NC-SA 4.0)](https://creativecommons.org/licenses/by-nc-sa/4.0/) 许可协议）。
 - **底图瓦片图层**：高德地图矢量图层、百度地图卫星图层。
 - **开源许可证**：本项目基于 MIT License 协议开源，供学术科研、生态监测与教学研究免费使用。

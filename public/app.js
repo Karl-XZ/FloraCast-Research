@@ -397,7 +397,22 @@ const MapManager = {
             zoomControl: true
         });
         AppState.baseLayerKey = 'amap';
-        AppState.baseLayerA = L.tileLayer(CONFIG.AMAP_VECTOR, { attribution: '© Amap' }).addTo(AppState.map);
+        AppState.baseLayerA = L.tileLayer(CONFIG.AMAP_VECTOR, { attribution: '© Amap', isBase: true }).addTo(AppState.map);
+        this.ensureBaseLayerFullSplit();
+    },
+
+    ensureBaseLayerFullSplit() {
+        try {
+            const Ces = window.Cesium || {};
+            const Split = Ces.ImagerySplitDirection || Ces.SplitDirection || { NONE: 0, LEFT: 1, RIGHT: 2 };
+            if (AppState.baseLayerA?._imageryLayer) {
+                AppState.baseLayerA._imageryLayer.splitDirection = Split.NONE;
+            }
+            if (AppState.baseLayerA?._baseLayer) {
+                AppState.baseLayerA._baseLayer.splitDirection = Split.NONE;
+            }
+            AppState.map?._v?.scene?.requestRender?.();
+        } catch (_) {}
     },
 
     switchBaseMap(providerKey) {
@@ -414,21 +429,27 @@ const MapManager = {
         }
 
         AppState.baseLayerKey = providerKey;
+        const baseOpts = { isBase: true };
         if (providerKey === 'baidu_vec') {
-            AppState.baseLayerA = L.baiduTileLayer('vec', { attribution: '© 百度地图 (Baidu Map)' }).addTo(AppState.map);
+            AppState.baseLayerA = L.baiduTileLayer('vec', { attribution: '© 百度地图 (Baidu Map)', ...baseOpts }).addTo(AppState.map);
         } else if (providerKey === 'baidu_sat') {
-            AppState.baseLayerA = L.baiduTileLayer('sat', { attribution: '© 百度卫星 (Baidu Satellite)' }).addTo(AppState.map);
+            AppState.baseLayerA = L.baiduTileLayer('sat', { attribution: '© 百度卫星 (Baidu Satellite)', ...baseOpts }).addTo(AppState.map);
         } else if (providerKey === 'tianditu_sat') {
             const url = 'https://t{s}.tianditu.gov.cn/img_w/wmts?SERVICE=WMTS&REQUEST=GetTile&VERSION=1.0.0&LAYER=img&STYLE=default&TILEMATRIXSET=w&FORMAT=tiles&TILEMATRIX={z}&TILEROW={y}&TILECOL={x}&tk=7c233da7e82b3507aa5d706e90c55db2';
-            AppState.baseLayerA = L.tileLayer(url, { attribution: '© 天地图 (Tianditu)' }).addTo(AppState.map);
+            AppState.baseLayerA = L.tileLayer(url, { attribution: '© 天地图 (Tianditu)', ...baseOpts }).addTo(AppState.map);
         } else if (providerKey === 'osm') {
-            AppState.baseLayerA = L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', { attribution: '© OpenStreetMap' }).addTo(AppState.map);
+            AppState.baseLayerA = L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', { attribution: '© OpenStreetMap', ...baseOpts }).addTo(AppState.map);
         } else {
-            AppState.baseLayerA = L.tileLayer(CONFIG.AMAP_VECTOR, { attribution: '© Amap' }).addTo(AppState.map);
+            AppState.baseLayerA = L.tileLayer(CONFIG.AMAP_VECTOR, { attribution: '© Amap', ...baseOpts }).addTo(AppState.map);
         }
+
+        this.ensureBaseLayerFullSplit();
 
         if (AppState.gibsLayerA) {
             LayerManager.updateLayer('A');
+        }
+        if (AppState.mapB) {
+            LayerManager.updateLayer('B');
         }
     },
 
@@ -449,6 +470,8 @@ const MapManager = {
             AppState.mapB = null;
         }
 
+        this.ensureBaseLayerFullSplit();
+
         this.setCompareUI(true);
 
         // Rebuild overlays/heatmaps so they inherit the correct split directions.
@@ -467,6 +490,7 @@ const MapManager = {
         if (!AppState.mapB) {
             this.setCompareUI(false);
             try { AppState.map?.setSplitDirection?.('none'); } catch (_) {}
+            this.ensureBaseLayerFullSplit();
             this._forceOptionalOverlaySplit('none');
             LayerManager.updateLayer('A');
             LayerManager.refreshHeatmap('A');
@@ -502,6 +526,7 @@ const MapManager = {
         // Reset split mode on base map
         try { AppState.map?.setSplitDirection?.('none'); } catch (_) {}
         try { AppState.map?._v?.scene && (AppState.map._v.scene.splitPosition = 0.5); } catch (_) {}
+        this.ensureBaseLayerFullSplit();
 
         // Ensure any remaining optional overlays become full-screen again
         this._forceOptionalOverlaySplit('none');
@@ -796,7 +821,17 @@ const LayerManager = {
 
         // Parse layer selection
         const layerInfo = layerSelect.value.split('|');
-        if (layerInfo[0] === 'NO_OVERLAY' || layerInfo[0] === 'STD_OSM') return; // no satellite overlay
+        if (layerInfo[0] === 'NO_OVERLAY' || layerInfo[0] === 'STD_OSM') {
+            MapManager.ensureBaseLayerFullSplit?.();
+            if (isB && AppState.baseLayerKey !== 'amap') {
+                const overlay = L.tileLayer(CONFIG.AMAP_VECTOR, {
+                    attribution: '© Amap',
+                    crossOrigin: true
+                }).addTo(map);
+                AppState.gibsLayerB = overlay;
+            }
+            return; // no satellite overlay
+        }
 
         const year = parseInt(yearInput.value) || CONFIG.YEAR;
         const dates = Utils.genDates(year, 1);

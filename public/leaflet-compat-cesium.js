@@ -546,7 +546,7 @@
       this._container = baseMap._container;
       this._events = baseMap._events; // share event bus
       this._layers = new Set();
-      this._baseUrl = baseMap._baseUrl;
+      this._baseUrl = null;
       this._splitDirection = SplitDir.NONE;
       this.setSplitDirection(direction);
     }
@@ -647,8 +647,9 @@
 
       const layer = map._v.imageryLayers.addImageryProvider(provider);
       layer.alpha = (typeof this._opts.opacity === 'number') ? this._opts.opacity : 1.0;
+      const isBase = !!(this._opts.isBase || this._isBase);
       try {
-        layer.splitDirection = map._splitDirection ?? SplitDir.NONE;
+        layer.splitDirection = isBase ? SplitDir.NONE : (map._splitDirection ?? SplitDir.NONE);
       } catch (_) {}
 
       this._imageryLayer = layer;
@@ -689,6 +690,7 @@
 
       const isSat = (this._baiduType === 'sat' || this._baiduType === 'img');
 
+      const isBase = !!(this._opts.isBase || this._isBase);
       // 1. Add global base provider underneath Baidu to guarantee complete global coverage at all zoom levels
       const BaseProviderCls = window.AMapImageryProvider || (window.Cesium && window.Cesium.AMapImageryProvider);
       if (typeof BaseProviderCls === 'function') {
@@ -700,7 +702,7 @@
           this._baseLayer = map._v.imageryLayers.addImageryProvider(baseProvider);
           if (this._baseLayer) {
             try {
-              this._baseLayer.splitDirection = map._splitDirection ?? SplitDir.NONE;
+              this._baseLayer.splitDirection = SplitDir.NONE;
             } catch (_) {}
           }
         } catch (e) {
@@ -746,7 +748,7 @@
       const layer = map._v.imageryLayers.addImageryProvider(provider);
       layer.alpha = (typeof this._opts.opacity === 'number') ? this._opts.opacity : 1.0;
       try {
-        layer.splitDirection = map._splitDirection ?? SplitDir.NONE;
+        layer.splitDirection = isBase ? SplitDir.NONE : (map._splitDirection ?? SplitDir.NONE);
       } catch (_) {}
 
       this._imageryLayer = layer;

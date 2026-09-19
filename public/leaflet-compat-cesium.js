@@ -636,6 +636,52 @@
       });
       this._provider = provider;
 
+      // Filter out OpenPortGuide demo watermark tiles
+      if (url.includes('openportguide') || this._opts.filterWatermark) {
+        const origRequestImage = provider.requestImage.bind(provider);
+        let transparentCanvas = null;
+        let filterCanvas = null;
+        let filterCtx = null;
+
+        provider.requestImage = function (x, y, level, request) {
+          const res = origRequestImage(x, y, level, request);
+          if (!res) return res;
+          return Promise.resolve(res).then((img) => {
+            if (!img || !img.width || !img.height) return img;
+            try {
+              if (!filterCanvas) {
+                filterCanvas = document.createElement('canvas');
+                filterCanvas.width = 256;
+                filterCanvas.height = 256;
+                filterCtx = filterCanvas.getContext('2d', { willReadFrequently: true });
+              }
+              filterCtx.clearRect(0, 0, 256, 256);
+              filterCtx.drawImage(img, 0, 0);
+
+              const isW = (p) => p[0] > 240 && p[1] > 240 && p[2] > 240 && p[3] > 240;
+              const p1 = filterCtx.getImageData(15, 15, 1, 1).data;
+              const p2 = filterCtx.getImageData(240, 15, 1, 1).data;
+              const p3 = filterCtx.getImageData(15, 240, 1, 1).data;
+              const p4 = filterCtx.getImageData(240, 240, 1, 1).data;
+
+              if (isW(p1) && isW(p2) && isW(p3) && isW(p4)) {
+                const p5 = filterCtx.getImageData(128, 15, 1, 1).data;
+                const p6 = filterCtx.getImageData(128, 240, 1, 1).data;
+                if (isW(p5) && isW(p6)) {
+                  if (!transparentCanvas) {
+                    transparentCanvas = document.createElement('canvas');
+                    transparentCanvas.width = 256;
+                    transparentCanvas.height = 256;
+                  }
+                  return transparentCanvas;
+                }
+              }
+            } catch (_) {}
+            return img;
+          });
+        };
+      }
+
       // Forward Cesium provider errors to Leaflet-like `tileerror` listeners
       try {
         provider.errorEvent.addEventListener((err) => {

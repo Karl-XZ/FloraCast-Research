@@ -1,260 +1,260 @@
-# FloraCast: 面向地球系统与生态韧性科研的深度研究智能体系统
+# FloraCast: Autonomous Deep Research Agent System for Earth Science and Ecological Resilience
 
-FloraCast 是一个面向陆地生态学、物候遥感监测与极端气候韧性评估的开源地球科研智能体系统。系统融合 Cesium 三维数字孪生地球交互、MODIS/Landsat 多源遥感时序反演、40 年高分辨率气象再分析数据挖掘，以及严谨规范的八阶段全自主深度科研智能体工作流（兼容 openJiuwen 规范），实现从开放科学问题提炼、时空多源数据对齐、确定性生物物理响应建模到可复现学术报告生成的完整科研闭环。
+FloraCast is an open-source scientific research agent system designed for terrestrial ecology, phenological remote sensing monitoring, and extreme climate resilience assessment. Integrating Cesium 3D digital twin Earth interaction, MODIS/Landsat multi-source remote sensing time-series inversion, 40-year high-resolution meteorological reanalysis mining, and a rigorous eight-stage autonomous scientific research pipeline (compatible with the openJiuwen specification), FloraCast delivers an end-to-end scientific research loop spanning from open-ended hypothesis formulation and multi-source spatiotemporal data alignment to deterministic biophysical modeling and reproducible academic report generation.
 
-在线演示平台: https://openl.work/FloraCast/  
-独立科研工作台: https://openl.work/FloraCast/research.html  
-开源代码仓库: https://gitee.com/karl-zhou/FloraCast-Research
-
----
-
-## 目录
-
-- [一、核心特性与科学价值](#一核心特性与科学价值)
-- [二、八阶段深度科研智能体流水线](#二八阶段深度科研智能体流水线)
-- [三、核心功能与使用图解](#三核心功能与使用图解)
-  - [3.1 三维数字孪生地球交互与多源底图](#31-三维数字孪生地球交互与多源底图)
-  - [3.2 深度研究智能体协同控制台](#32-深度研究智能体协同控制台)
-  - [3.3 气象语义检索与多年代极值窗口扫描](#33-气象语义检索与多年代极值窗口扫描)
-  - [3.4 确定性生物物理响应模型与物候反演](#34-确定性生物物理响应模型与物候反演)
-  - [3.5 空间机器学习地理要素推断 (Visual Geo-ML)](#35-空间机器学习地理要素推断-visual-geo-ml)
-  - [3.6 独立科研协议工作台与全要素学术报告](#36-独立科研协议工作台与全要素学术报告)
-- [四、系统生产环境安全加固架构](#四系统生产环境安全加固架构)
-- [五、技术栈与系统构成](#五技术栈与系统构成)
-- [六、快速上手与本地部署](#六快速上手与本地部署)
-- [七、环境变量配置规范](#七环境变量配置规范)
-- [八、数据源与开放许可](#八数据源与开放许可)
+- **Live Interactive Platform**: [https://openl.work/FloraCast/](https://openl.work/FloraCast/)  
+- **Independent Research Workbench**: [https://openl.work/FloraCast/research.html](https://openl.work/FloraCast/research.html)  
+- **GitHub Repository**: [https://github.com/Karl-XZ/FloraCast-Research](https://github.com/Karl-XZ/FloraCast-Research)  
+- **Gitee Repository**: [https://gitee.com/karl-zhou/FloraCast-Research](https://gitee.com/karl-zhou/FloraCast-Research)
 
 ---
 
-## 一、核心特性与科学价值
+## Table of Contents
 
-传统地球数据分析高度依赖研究人员在 GIS 工具、脚本编程与遥感数据库之间进行繁杂的切换与手工对齐。FloraCast 构建了面向真实科学场景的端到端智能体闭环，具备以下核心特性：
-
-1. **三维数字孪生地球时空沉浸底座**：基于 Cesium 引擎构建全球大椭球体时空框架，支持高德矢量、百度卫星、MODIS 全球遥感图层与多源历史切片毫秒级加载，提供多时相分屏对比与地理物候空间感知。
-2. **八阶段学术规范推演工作流**：从科学假设确立、文献交叉检验、时空范围冻结、物理指标测算、统计检验到双重审查，每一步骤均记录完整数据链条与哈希指纹，杜绝大语言模型幻觉。
-3. **确定性生物物理学模型驱动**：坚决摒弃虚构数据推演，植被响应量化基于经典地表能量平衡方程、积温阈值模型（GDD）、VPD 水汽压亏缺指数以及 MODIS 真实像元可靠性掩膜。
-4. **40 年历史气象极值滑动窗口挖掘**：集成 NASA POWER 全球气象数据库（1985–2024），支持自然语言语义检索，可在数秒内完成连续 40 年气象序列的动态标准化（Z-score）与极值事件横向比对。
-5. **空间机器学习多要素聚类 (Visual Geo-ML)**：内置轻量级空间聚类与距离衰减推断算法，在浏览器本地执行地理要素聚类、空间邻域加权与土地覆盖演化推演。
+- [1. Core Features & Scientific Highlights](#1-core-features--scientific-highlights)
+- [2. Eight-Stage Scientific Research Agent Pipeline](#2-eight-stage-scientific-research-agent-pipeline)
+- [3. Key Features & Visual Walkthrough](#3-key-features--visual-walkthrough)
+  - [3.1 3D Digital Twin Earth & Multi-Source Basemaps](#31-3d-digital-twin-earth--multi-source-basemaps)
+  - [3.2 Collaborative Research Agent Console](#32-collaborative-research-agent-console)
+  - [3.3 Meteorological Semantic Search & Multi-Decadal Extreme Event Mining](#33-meteorological-semantic-search--multi-decadal-extreme-event-mining)
+  - [3.4 Deterministic Biophysical Modeling & Phenological Inversion](#34-deterministic-biophysical-modeling--phenological-inversion)
+  - [3.5 Client-Side Spatial Machine Learning (Visual Geo-ML)](#35-client-side-spatial-machine-learning-visual-geo-ml)
+  - [3.6 Independent Research Protocol Workbench & Academic Synthesis](#36-independent-research-protocol-workbench--academic-synthesis)
+- [4. Production Security Hardening Architecture](#4-production-security-hardening-architecture)
+- [5. Technology Stack & System Components](#5-technology-stack--system-components)
+- [6. Quick Start & Local Deployment](#6-quick-start--local-deployment)
+- [7. Environment Configuration Guidelines](#7-environment-configuration-guidelines)
+- [8. Data Sources & Open Licenses](#8-data-sources--open-licenses)
 
 ---
 
-## 二、八阶段深度科研智能体流水线
+## 1. Core Features & Scientific Highlights
 
-系统遵循学术科研规范，将长周期、开放式科学探究任务拆解为八个严密的推演阶段：
+Traditional Earth science analysis relies heavily on manual transitions and disparate data alignment across desktop GIS tools, custom Python scripts, and fragmented satellite portals. FloraCast establishes an end-to-end autonomous research workflow tailored for complex ecological challenges:
+
+1. **Immersive 3D Digital Twin Earth**: Built upon the Cesium engine on a global WGS84 ellipsoid. Supports real-time rendering of global satellite layers, dynamic day/night atmospheric illumination, coordinate crosshair navigation, and multi-temporal split-screen comparisons with sub-second tile response.
+2. **Eight-Stage Academic Pipeline**: Implements an institutional-grade research workflow from initial protocol definition and literature cross-examination through spatial data alignment, biophysical modeling, statistical verification, and dual-layer evidence auditing, backed by SHA-256 data provenance fingerprints to eliminate LLM hallucinations.
+3. **Deterministic Biophysical Inversion**: Replaces speculative generative guesses with established scientific formulations, driving vegetation dynamics through classic surface energy balance equations, Growing Degree Day (GDD) thermal thresholds, Vapor Pressure Deficit (VPD) stress indices, and MODIS pixel reliability masks.
+4. **40-Year Reanalysis Mining (1985–2024)**: Integrates the NASA POWER global agro-meteorological reanalysis database. Natural language queries automatically extract multi-decadal meteorological sequences, calculate rolling Z-score anomalies, and identify compound heat-drought episodes in seconds.
+5. **Client-Side Spatial Machine Learning (Visual Geo-ML)**: Employs in-browser spatial clustering and distance-decay algorithms (K-Means and spatial autocorrelation) directly within WebGL/Web Workers without requiring heavy GIS server backends.
+
+---
+
+## 2. Eight-Stage Scientific Research Agent Pipeline
+
+FloraCast structures complex, open-ended scientific investigations into eight sequential, verified milestones:
 
 ```
-[阶段01: 协议冻结 (Protocol Definition)]
+[Stage 01: Protocol Definition & Scope Freezing]
        │
        ▼
-[阶段02: 文献检索与比对 (Literature Search)]
+[Stage 02: Literature Search & Cross-Verification]
        │
        ▼
-[阶段03: 数据资产审计 (Data Registry & Checksum)]
+[Stage 03: Data Asset Audit & Checksum Registry]
        │
        ▼
-[阶段04: 空间格局分析 (Spatial Analysis)]
+[Stage 04: Spatiotemporal Pattern & Covariate Analysis]
        │
        ▼
-[阶段05: 统计验证与物候拟合 (Statistical Verification)]
+[Stage 05: Statistical Verification & Phenological Modeling]
        │
        ▼
-[阶段06: 证据链条双重审查 (Evidence Review)]
+[Stage 06: Evidence Chain Dual-Layer Review]
        │
        ▼
-[阶段07: 独立快照复现与审计 (Independent Reproduction)]
+[Stage 07: Independent Snapshot Reproduction & Audit]
        │
        ▼
-[阶段08: 学术研究报告合成 (Academic Report Synthesis)]
+[Stage 08: Academic Research Report Synthesis]
 ```
 
-每个阶段输出结构化的中间产物（Artifacts），阶段间由哈希校验码保证证据不可篡改，确保整份科研报告具备完备的数据可溯源性与同行评审标准。
+Each stage produces structured intermediate artifacts, cryptographically linked with checksums to enforce tamper-proof reproducibility and peer-review integrity.
 
 ---
 
-## 三、核心功能与使用图解
+## 3. Key Features & Visual Walkthrough
 
-### 3.1 三维数字孪生地球交互与多源底图
+### 3.1 3D Digital Twin Earth & Multi-Source Basemaps
 
-系统以三维高动态地球作为主交互界面，支持任意经纬度漫游、空间测距、坐标点选逆地理编码以及卫星遥感图层叠加。
+The central interactive canvas offers full globe orbital navigation, spatial distance measurement, reverse geocoding, and multi-sensor imagery overlays.
 
-![三维数字孪生地球概览](docs/images/doc_01_globe_overview_zh.png)
-*图 1: 三维数字孪生地球概览（以青岛沿海研究区为例，展示全球高动态光照、地理经纬度网格与高德高精度矢量底图）*
+![3D Digital Twin Earth Overview](docs/images/doc_01_globe_overview_zh.png)  
+*Figure 1: 3D Digital Twin Earth overview (Qingdao coastal study area with dynamic illumination, latitude-longitude grid, and high-precision vector basemap).*
 
-![系统功能导航菜单](docs/images/doc_02_menu_system_zh.png)
-*图 2: 系统功能导航抽屉（提供科研智能体、自然语言气象搜索、空间机器学习、遥感图层管理等模块入口）*
-
----
-
-### 3.2 深度研究智能体协同控制台
-
-用户可通过自然语言提出开放性科学假设，例如探讨特定年份极端干旱对植被绿度的滞后冲击机制。智能体根据问题自动提取时空约束条件，并启动协同推演流程。
-
-![深度研究智能体控制台](docs/images/doc_03_agent_console_zh.png)
-*图 3: 深度研究智能体交互界面（支持自定义科学问题、设置研究区中心经纬度、半径及推演基准）*
-
-![八阶段推演与实时深度思考流](docs/images/doc_04_agent_pipeline_reasoning_zh.png)
-*图 4: 智能体流水线步进与实时思考流（八个阶段状态可视化步进，右侧实时流式呈现深度推理链）*
+![Navigation System Drawer](docs/images/doc_02_menu_system_zh.png)  
+*Figure 2: System navigation drawer providing access to Research Agent, Natural Language Weather Search, Spatial ML, and Remote Sensing Layer managers.*
 
 ---
 
-### 3.3 气象语义检索与多年代极值窗口扫描
+### 3.2 Collaborative Research Agent Console
 
-系统支持自然语言气象查询。大模型将用户输入的非结构化语句解析为结构化过滤条件，在后台并行扫描 40 年气象时间序列，自动匹配出排名居前的高温、干旱或暴雨滑动窗口。
+Researchers can propose open-ended hypotheses in plain language (e.g., investigating the delayed greenness response of coastal vegetation following severe drought). The agent parses spatial-temporal parameters and executes the coordinated analysis pipeline.
 
-![自然语言气象语义检索结果](docs/images/doc_06_weather_search_results_zh.png)
-*图 5: 自然语言气象检索结果面板（自动定位目标年份最符合条件的极端气象窗口，并呈现多维气象指标）*
+![Deep Research Agent Console](docs/images/doc_03_agent_console_zh.png)  
+*Figure 3: Interactive Research Agent console supporting custom scientific queries, center coordinates, radius, and historical baseline configurations.*
 
-![多候选事件量化对比矩阵](docs/images/doc_05_agent_matrix_chart_zh.png)
-*图 6: 候选极端事件量化对比矩阵（横向对比不同年份的气温异常 Z-score、降水距平与连续干旱天数）*
-
----
-
-### 3.4 确定性生物物理响应模型与物候反演
-
-系统基于真实的 MODIS 250 米地表反射率与 NDVI/EVI 时序数据，结合积温模型计算植被始花期、生长峰值与衰退期。面对干旱强迫，模型计算出植被受挫幅度与生态恢复所需天数。
-
-![MODIS 植被指数反演与响应分析](docs/images/doc_08_vegetation_index_zh.png)
-*图 7: MODIS 植被指数反演与生态响应曲线（展示事件前后绿度变化幅度与定量水热驱动归因）*
-
-![生态恢复轨迹图与核心量化摘要](docs/images/doc_09_agent_chart_and_report_zh.png)
-*图 8: 生态韧性恢复轨迹图与执行摘要（动态呈现植被受胁迫过程与恢复滞后周期）*
+![Eight-Stage Pipeline & Reasoning Stream](docs/images/doc_04_agent_pipeline_reasoning_zh.png)  
+*Figure 4: Eight-stage pipeline execution with synchronized streaming of the deep reasoning chain.*
 
 ---
 
-### 3.5 空间机器学习地理要素推断 (Visual Geo-ML)
+### 3.3 Meteorological Semantic Search & Multi-Decadal Extreme Event Mining
 
-集成客户端空间机器学习模块，用户在三维地球上选定区域后，系统对网格化地理单元执行 K-Means 聚类、空间自相关分析及反距离加权推算。
+Natural language weather search automatically translates descriptive statements into structured time-series queries across 40 years of daily meteorological data, discovering candidate heatwaves and drought periods.
 
-![空间机器学习分析界面](docs/images/doc_07_visual_geoml_zh.png)
-*图 9: Visual Geo-ML 空间机器学习推演界面（展示多维地理要素聚类分布与空间相关性分析图表）*
+![Weather Semantic Search Results](docs/images/doc_06_weather_search_results_zh.png)  
+*Figure 5: Meteorological semantic query panel highlighting candidate extreme weather windows and key multi-variable meteorological indicators.*
 
----
-
-### 3.6 独立科研协议工作台与全要素学术报告
-
-针对严谨的学术发表与跨团队复现需求，系统提供专门的独立科研工作台。支持冻结科研协议元数据、检索学术文献关联、核查数据清单，并一键生成包含公式、推导与局限性声明的完整报告。
-
-![独立开放科研协议工作台](docs/images/doc_10_research_workbench_zh.png)
-*图 10: 独立科研协议工作台界面（支持协议参数冻结、文献引用比对与无幻觉数据审计）*
-
-![全要素结构化学术科研报告输出](docs/images/doc_11_academic_report_zh.png)
-*图 11: 结构化学术报告输出（包含研究背景、方法验证、量化对比、证据审查与学术局限性声明）*
+![Candidate Event Evaluation Matrix](docs/images/doc_05_agent_matrix_chart_zh.png)  
+*Figure 6: Quantitative comparison matrix benchmarking temperature Z-scores, precipitation anomalies, and consecutive dry days across candidate years.*
 
 ---
 
-## 四、系统生产环境安全加固架构
+### 3.4 Deterministic Biophysical Modeling & Phenological Inversion
 
-为防止大模型 API 凭据泄露及恶意脚本盗刷，生产环境部署了全方位的安全防护网关：
+Using MODIS 250m surface reflectance (MOD09Q1) and NDVI/EVI timeseries, the system calculates vegetation green-up, peak growth, and senescence, evaluating drop magnitudes and recovery lag times under climate stress.
+
+![MODIS Vegetation Index Inversion](docs/images/doc_08_vegetation_index_zh.png)  
+*Figure 7: MODIS vegetation index inversion and ecological response curves illustrating greenness fluctuations and hydro-thermal drivers.*
+
+![Ecological Recovery Trajectory](docs/images/doc_09_agent_chart_and_report_zh.png)  
+*Figure 8: Ecological resilience recovery trajectory and executive summary demonstrating stress response and post-disturbance recovery latency.*
+
+---
+
+### 3.5 Client-Side Spatial Machine Learning (Visual Geo-ML)
+
+The in-browser spatial machine learning module applies multivariate K-Means clustering, spatial autocorrelation, and inverse distance weighted (IDW) interpolation directly on client GPUs.
+
+![Visual Geo-ML Interface](docs/images/doc_07_visual_geoml_zh.png)  
+*Figure 9: Visual Geo-ML interface presenting spatial clustering, feature correlation scatter plots, and neighborhood distribution metrics.*
+
+---
+
+### 3.6 Independent Research Protocol Workbench & Academic Synthesis
+
+Designed for peer-reviewed research and cross-team reproduction, this standalone workbench freezes protocol parameters, verifies bibliographic citations, audits raw data streams, and exports publication-ready academic reports.
+
+![Independent Protocol Workbench](docs/images/doc_10_research_workbench_zh.png)  
+*Figure 10: Protocol definition interface showing metadata freezing, citation references, and zero-hallucination data auditing.*
+
+![Structured Academic Research Report](docs/images/doc_11_academic_report_zh.png)  
+*Figure 11: Structured academic research report including background, methodology, empirical comparisons, evidence reviews, and scientific limitations.*
+
+---
+
+## 4. Production Security Hardening Architecture
+
+To safeguard API credentials and ensure high-availability service delivery, FloraCast deploys a multi-tier security gateway:
 
 ```
-客户端请求 (Browser)
+Client Request (Browser)
        │
-       ▼ [Nginx 网关层]
-       ├── 防盗链核验 (Referer Check: 仅放行 openl.work 域名来源)
-       ├── 速率限制 (Rate Limiting: limit_req 2次/秒，突发上限 5次)
-       └── 跨域保护 (CORS: 仅允许 https://openl.work 访问)
+       ▼ [Nginx Gateway Layer]
+       ├── Referer Verification (Restricts access exclusively to authorized domains)
+       ├── Rate Limiting (limit_req: 2 requests/sec, burst cap: 5)
+       └── Strict CORS Policies
        │
-       ▼ [Node.js 应用层]
-       ├── 双重 Referer 域名白名单二次校验
-       ├── 凭证严格隔离 (禁止任何硬编码兜底 Key，仅从系统安全环境变量加载)
-       └── 自动化超时与异常截断保护
+       ▼ [Node.js Application Layer]
+       ├── Secondary Domain Whitelist Enforcement
+       ├── Zero Hardcoded Fallbacks (Loads strictly from secure environment variables)
+       └── Automated Request Timeouts & Circuit Breakers
        │
-       ▼ [大模型与遥感计算后端]
-       └── DeepSeek 官方接口 / 本地生物物理确定性模型
+       ▼ [AI & Biophysical Compute Backends]
+       └── Official DeepSeek API / Local Biophysical Inversion Engines
 ```
 
-- **Nginx 速率限制 (Rate Limiting)**：配置 `limit_req_zone $binary_remote_addr zone=floracast_limit:10m rate=2r/s;`，对单 IP 突发高频调用自动拦截并返回 `429 Too Many Requests`。
-- **防盗链与防爬虫 (Referer Check)**：网关强制校验 `valid_referers server_names *.openl.work;`，未携带合法来源头的直接调用一律拒绝并返回 `403 Forbidden`。
-- **跨域源收紧 (Strict CORS)**：彻底取消防御薄弱的全局通配跨域，严格限制仅允许官方域名调用。
-- **源码脱敏**：源码中不存在任何默认凭证字符，所有生产密钥均通过环境变量管理并实施权限隔离。
+- **Rate Limiting**: Configured with `limit_req_zone $binary_remote_addr zone=floracast_limit:10m rate=2r/s;` to block automated scraping and excessive calls.
+- **Anti-Hotlinking (Referer Inspection)**: Enforces `valid_referers server_names *.openl.work;` to reject requests lacking proper origin headers.
+- **Strict CORS**: Eliminates wildcard CORS permissions, ensuring queries originate only from designated domains.
+- **Credential Hygiene**: Source code contains zero hardcoded API keys; all production secrets are injected through managed environment variables.
 
 ---
 
-## 五、技术栈与系统构成
+## 5. Technology Stack & System Components
 
-| 层级 | 核心技术 / 依赖组件 | 功能定位与用途 |
+| Layer | Technologies & Dependencies | Purpose & Responsibilities |
 | :--- | :--- | :--- |
-| **前端展现层** | CesiumJS (1.136.0) | 跨平台三维数字孪生地球交互渲染引擎 |
-| | Plotly.js (2.35.2) | 交互式科学图表、雷达图与恢复曲线绘制 |
-| | TensorFlow.js | 浏览器端本地空间机器学习与线性趋势回归 |
-| | Marked.js | 科学报告结构化 Markdown 渲染与公式排版 |
-| **后端服务层** | Node.js (v18+) & Express | 高性能 API 网关、流式 SSE 协议推送与缓存服务 |
-| | Axios & Multer | 大文件切片上传、外部遥感数据流式管道代理 |
-| | openJiuwen 协议兼容层 | 8 阶段深度科研流程调度与状态机管理 |
-| **算法与模型** | DeepSeek 官方 API (V3/R1) | 自然语言气象意图解析与学术报告综合推理 |
-| | 通义千问视觉大模型 (Qwen-VL) | 植物多模态图像器官识别与种属置信度推断 |
-| | 地表能量平衡与物候模型 | 积温阈值、地温辐射驱动的确定性物理反演 |
-| **网关与运维** | Nginx (1.24+) | SSL 证书终结、IP 频次限制、防盗链网关与反向代理 |
-| | Systemd | 生产服务守护进程与故障自动热重启 |
+| **Presentation Layer** | CesiumJS (1.136.0) | High-performance 3D digital twin Earth interaction and satellite rendering |
+| | Plotly.js (2.35.2) | Interactive scientific scatter plots, radar charts, and recovery curves |
+| | TensorFlow.js | Client-side spatial clustering and linear trend regressions |
+| | Marked.js | Markdown report rendering with KaTeX mathematical formulas |
+| **Service Layer** | Node.js (v18+) & Express | API gateway, Server-Sent Events (SSE) streaming, and caching |
+| | Axios & Multer | Data fetching pipelines and satellite tile streaming proxies |
+| | openJiuwen Protocol Layer | Eight-stage research workflow orchestration and state management |
+| **Scientific Models** | DeepSeek Official API (V3/R1) | Natural language intent parsing and synthesis of academic research reports |
+| | Qwen-VL Vision API | Plant organ classification and species confidence identification |
+| | Biophysical Inversion Engine | Thermal thresholds (GDD) and surface energy balance equations |
+| **Gateway & Ops** | Nginx (1.24+) | SSL termination, rate limiting, and reverse proxy routing |
+| | Systemd / Docker | Process daemon management and automated container recovery |
 
 ---
 
-## 六、快速上手与本地部署
+## 6. Quick Start & Local Deployment
 
-### 1. 环境准备
-- Node.js 18.0 或更高版本
+### Prerequisites
+- Node.js 18.0 or higher
 - Git
-- 现代主流浏览器（推荐 Google Chrome、Edge 或 Firefox，需支持 WebGL 2.0）
+- Modern browser supporting WebGL 2.0 (Google Chrome, Microsoft Edge, or Firefox)
 
-### 2. 克隆仓库与依赖安装
+### Installation
+
 ```bash
-git clone https://gitee.com/karl-zhou/FloraCast-Research.git
+# Clone the repository
+git clone https://github.com/Karl-XZ/FloraCast-Research.git
 cd FloraCast-Research
 
-# 进入服务端目录安装依赖
+# Install server dependencies
 cd server
 npm install
 ```
 
-### 3. 配置环境变量
-在项目根目录创建 `.env` 文件，内容参考如下：
+### Environment Setup
+
+Create a `.env` file in the project root directory:
 
 ```ini
-# DeepSeek 官方 API 配置（用于气象语义解析与科研报告主笔）
+# DeepSeek API Configuration (Meteorological parsing and academic synthesis)
 DEEPSEEK_API_KEY=your_deepseek_api_key
 DEEPSEEK_API_BASE=https://api.deepseek.com
-DEEPSEEK_MODEL=deepseek-flash
+DEEPSEEK_MODEL=deepseek-chat
 
-# 可选：阿里云通义千问视觉大模型（用于植物图像识别）
+# Optional: Qwen-VL API (Plant multi-modal visual recognition)
 QWEN_API_KEY=your_qwen_api_key
 QWEN_API_BASE=https://dashscope.aliyuncs.com/compatible-mode/v1
 QWEN_TEXT_MODEL=qwen-plus
 QWEN_VISION_MODEL=qwen-vl-plus
 
-# 可选：高德 Web 服务 Key（用于点选逆地理编码）
-AMAP_WEB_KEY=your_amap_web_key
-
-# 服务端口
+# Server Port
 PORT=5174
 ```
 
-### 4. 启动服务
+### Run Application
+
 ```bash
-# 在 server 目录下执行
+# From within the server directory
 npm start
 ```
 
-服务启动后，在浏览器访问：
-- 前台数字孪生地球：`http://localhost:5174/`
-- 独立科研协议工作台：`http://localhost:5174/research.html`
+Access in your browser:
+- 3D Digital Twin Earth: `http://localhost:5174/`
+- Independent Research Workbench: `http://localhost:5174/research.html`
 
 ---
 
-## 七、环境变量配置规范
+## 7. Environment Configuration Guidelines
 
-为保障系统安全与稳健运行，系统严格遵守以下凭证规范：
-
-1. **禁止代码内嵌凭证**：服务端所有大模型与第三方数据调用强制读取 `process.env.*`，在缺失凭证时显式抛出异常，杜绝明文硬编码风险。
-2. **Git 仓库防护**：`.env` 及各类敏感文件已被纳入 `.gitignore` 保护范围，切勿提交至代码仓库。
-3. **额度预警建议**：建议开发者在 DeepSeek 平台设置单日调用限额与余额提醒，降低自动化探测造成的资源消耗风险。
+1. **Zero Credential Hardcoding**: Server-side modules strictly read from `process.env.*` and raise explicit exceptions when keys are missing.
+2. **Git Repository Hygiene**: All `.env` files and local caches are protected by `.gitignore` to prevent accidental commits.
+3. **Usage Monitoring**: Configure daily quota ceilings and balance alerts in your AI provider dashboard to avoid unexpected usage spikes.
 
 ---
 
-## 八、数据源与开放许可
+## 8. Data Sources & Open Licenses
 
-- **卫星遥感时序**：美国航空航天局 NASA GIBS、MODIS Terra/Aqua 卫星观测数据。
-- **气象再分析数据库**：NASA POWER 全球日尺度农业气象数据集（1985–2024）。
-- **海洋与大气预报瓦片**：[OpenPortGuide](https://weather.openportguide.de/)（遵循 [Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International (CC BY-NC-SA 4.0)](https://creativecommons.org/licenses/by-nc-sa/4.0/) 许可协议）。
-- **底图瓦片图层**：高德地图矢量图层、百度地图卫星图层。
-- **开源许可证**：本项目基于 MIT License 协议开源，供学术科研、生态监测与教学研究免费使用。
+- **Satellite Remote Sensing**: NASA GIBS, MODIS Terra/Aqua surface reflectance observations.
+- **Meteorological Reanalysis**: NASA POWER Global Agroclimatology Daily Dataset (1985–2024).
+- **Marine & Atmospheric Forecast Tiles**: [OpenPortGuide](https://weather.openportguide.de/) (Licensed under [CC BY-NC-SA 4.0](https://creativecommons.org/licenses/by-nc-sa/4.0/)).
+- **Basemap Layers**: Gaode Vector Maps, Baidu Satellite Imagery.
+- **Open Source License**: FloraCast is released under the [MIT License](LICENSE) for open academic research, ecological monitoring, and educational exploration.

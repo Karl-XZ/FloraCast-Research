@@ -3,8 +3,12 @@
   "version": "1.0.0",
   "type": "module",
   "private": true,
+  "license": "MIT",
+  "engines": { "node": ">=20" },
   "scripts": {
-    "start": "node --dns-result-order=ipv4first server.js"
+    "start": "node --dns-result-order=ipv4first server.js",
+    "test": "node scripts/run-unit-tests.mjs",
+    "verify:local": "node scripts/smoke-local.mjs"
   },
   "dependencies": {
     "axios": "^1.7.9",

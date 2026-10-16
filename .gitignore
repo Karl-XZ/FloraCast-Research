@@ -12,3 +12,8 @@ server/logs/
 *.log
 scratch_*
 *.tgz
+.env.*
+!.env.example
+/test-results/
+__pycache__/
+*.py[cod]

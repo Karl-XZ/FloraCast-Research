@@ -1,0 +1,10 @@
+.git
+.env
+.env.*
+!.env.example
+**/node_modules
+.weather-cache
+.research-data
+test-results
+**/__pycache__
+*.log

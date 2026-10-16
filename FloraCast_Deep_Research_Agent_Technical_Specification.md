@@ -215,7 +215,7 @@ FloraCast 的核心业务逻辑高度清晰、一气呵成，分为五个环环�
 
 用户亦可直接点击面板上配置的快速预设课题。智能体启动后，进入 **Stage 1 (Task Planning)**：通过语义解析器迅速抽取出**目标地点（AOI）**、**目标年份与季节**、**核心气象要素类型（高温、干旱等）**以及**研究窗口跨度**。
 
-![科研智能体控制台界面](C:\Users\Administrator\.gemini\antigravity\brain\b6416f04-de36-4be4-9215-4a10292d21fd\doc_03_agent_console_zh.png)
+![科研智能体控制台界面](docs/images/doc_03_agent_console_zh.png)
 
 *图 3-1: Climate Research Agent 交互控制台（全中文界面）。支持输入复杂科研假设或一键选取典型推荐课题，点击“启动 Climate Agent 深度推演”即可开启全流程分析。*
 
@@ -225,7 +225,7 @@ FloraCast 的核心业务逻辑高度清晰、一气呵成，分为五个环环�
 
 系统采用滑动窗口算法（7天、14天或30天），针对历史上的每一个窗口，计算气象标准化异常度（Z-Score）、连续高温日数与最长连续无雨日（CDD）。系统将各年份的数据映射至多维特征空间，计算与目标事件特征向量的余弦相似度与马氏距离，自主匹配并筛选出历史上在水热异常形态上最为相似的 **Top-K 典型事件**（例如川渝案例中匹配出的 1997 年、1992 年与 1996 年极端伏旱）。
 
-![自然语言气象相似度极值检索](C:\Users\Administrator\.gemini\antigravity\brain\b6416f04-de36-4be4-9215-4a10292d21fd\doc_06_weather_search_results_zh.png)
+![自然语言气象相似度极值检索](docs/images/doc_06_weather_search_results_zh.png)
 
 *图 3-2: 40年全要素气象序列多维相似度滑动检索结果。直观呈现各典型极值候选事件的时间跨度、均温、极温以及与检索条件的偏离度。*
 
@@ -237,7 +237,7 @@ FloraCast 的核心业务逻辑高度清晰、一气呵成，分为五个环环�
 2. **确定性生物物理响应求解**：调用内置的生物物理植被退化动力学模型，输入水热胁迫指数，确定性计算出受灾前基准值 $\text{NDVI}_{\text{pre}}$、受灾谷值 $\text{NDVI}_{\text{post}}$、植被绿度损失率 $\text{Loss}\%$、变幅 $\Delta\text{NDVI}$ 以及生态滞后恢复周期 $R_{\text{days}}$。
 3. **DeepSeek 思考链实时归因与学术综合 (Stage 5: Academic Synthesis)**：DeepSeek 模型实时输出深度推理流（`reasoning_content`），以学术论文规范对大气环流阻断机制（如副高偏强控制、下沉气流绝热增温）、水热配比失衡以及植被受损滞后响应机理进行严谨阐述。
 
-![自主五阶段管线与实时思考推演](C:\Users\Administrator\.gemini\antigravity\brain\b6416f04-de36-4be4-9215-4a10292d21fd\doc_04_agent_pipeline_reasoning_zh.png)
+![自主五阶段管线与实时思考推演](docs/images/doc_04_agent_pipeline_reasoning_zh.png)
 
 *图 3-3: 智能体实时推演与自主管线流转。顶部 5 节点流水线实时推进，中间终端以打字机形式动态流式呈现 DeepSeek 思考链 Token，下方同步输出量化的极端气象与植被破损横向矩阵。*
 
@@ -273,7 +273,7 @@ flyToAgentEvent(idx) {
 
 用户无需手动到地图上搜索地点、也无需手动在日期选择框里翻查年份，**点击一行表格，整个三维地球的镜头、时间指针与要素图层便自动穿越至该历史事件发生的现实地理现场！**
 
-![跨事件极端气象与植被破损横向矩阵](C:\Users\Administrator\.gemini\antigravity\brain\b6416f04-de36-4be4-9215-4a10292d21fd\doc_05_agent_matrix_chart_zh.png)
+![跨事件极端气象与植被破损横向矩阵](docs/images/doc_05_agent_matrix_chart_zh.png)
 
 *图 3-4: 跨事件极端气象与植被破损横向矩阵。各列包含事件年份、时间窗口、平均气温、极值最高温、连续高温天数、基准NDVI、谷值NDVI、ΔNDVI变幅、损失百分比与恢复周期，点击行即刻触发三维飞赴与轨迹展开。*
 
@@ -287,7 +287,7 @@ flyToAgentEvent(idx) {
 4. **双球分屏对比（Dual-Map Compare）**：用户可一键启用左右分屏双地球对比模式，左侧加载常态年份同期的饱满卫星图或高绿度 NDVI，右侧加载极端伏旱年份同期的真实遥感图，进行像素级的宏观空间视觉比对。
 5. **Plotly 动态双曲线恢复轨迹比对**：在界面就地展开交互式折线图，观察该事件与气候态基线偏离的“断崖下跌”与灾后“渐近回升”曲线。
 
-![三维地球联动与 Plotly 动态植被轨迹](C:\Users\Administrator\.gemini\antigravity\brain\b6416f04-de36-4be4-9215-4a10292d21fd\doc_09_agent_chart_and_report_zh.png)
+![三维地球联动与 Plotly 动态植被轨迹](docs/images/doc_09_agent_chart_and_report_zh.png)
 
 *图 3-5: 全局时空同步后的三维地球与 Plotly 植被弹性恢复轨迹。上部展示 5 阶段管线与 DeepSeek 思考流，中部展示量化对比矩阵，下部展开该事件在 8 月份的急坠谷底（Nadir）与指数渐近恢复轨迹。*
 
@@ -313,7 +313,7 @@ FloraCast 深度对接了美国国家航空航天局（NASA）的 **POWER (Predi
 
 系统将 16 日合成卫星产品与逐日气象序列建立严密的时间戳映射，精确提取出灾害发生前后最邻近的优质遥感反演值。
 
-![植被指数与生态遥感反演控制面板](C:\Users\Administrator\.gemini\antigravity\brain\b6416f04-de36-4be4-9215-4a10292d21fd\doc_08_vegetation_index_zh.png)
+![植被指数与生态遥感反演控制面板](docs/images/doc_08_vegetation_index_zh.png)
 
 *图 4-1: 植被指数（NDVI/EVI）与物候多图层控制面板（全中文界面）。支持产品源切换、时序参数调整与多图层透明度混合。*
 
@@ -400,7 +400,7 @@ $$\text{NDVI}(t) = \begin{cases}
 
 当用户在智能体推演结果中选定某一事件后，系统通过大圆航线（Great Circle Flight）算法，平滑调整相机的欧拉角（Heading、Pitch、Roll）与视高（Altitude），实现从宏观全球视角到微观区域尺度的电影级飞赴。
 
-![三维数字孪生地球全局视图](C:\Users\Administrator\.gemini\antigravity\brain\b6416f04-de36-4be4-9215-4a10292d21fd\doc_01_globe_overview_zh.png)
+![三维数字孪生地球全局视图](docs/images/doc_01_globe_overview_zh.png)
 
 *图 6-1: FloraCast 三维数字孪生地球全中文操作主视窗。支持全球无死角缩放穿梭，左上角折叠菜单，右上角浮动智能体控制台。*
 
@@ -432,7 +432,7 @@ $$\text{NDVI}(t) = \begin{cases}
 - 英语（English，默认）与 简体中文 一键瞬间切换；
 - 页面所有 DOM 标签、输入占位符、图表悬浮标签、以及智能体向大模型组装的 Prompt 模板与输出研报语言，均随系统语言统一联动。
 
-![全中文菜单导航与功能矩阵](C:\Users\Administrator\.gemini\antigravity\brain\b6416f04-de36-4be4-9215-4a10292d21fd\doc_02_menu_system_zh.png)
+![全中文菜单导航与功能矩阵](docs/images/doc_02_menu_system_zh.png)
 
 *图 6-2: FloraCast 现代化多级功能抽屉导航。清晰呈现图层底图、物候分析、物种识别、斑块分析、Visual Geo-ML 以及 Weather Search 等完整科研矩阵。*
 
@@ -480,13 +480,13 @@ $$\text{NDVI}(t) = \begin{cases}
 
 推演结束后，系统在下方渲染由 DeepSeek 学术引擎合成的标准研报，并支持一键复制纯文本与一键导出 Markdown (`.MD`) 论文草稿：
 
-![学术研报合成呈现](C:\Users\Administrator\.gemini\antigravity\brain\b6416f04-de36-4be4-9215-4a10292d21fd\doc_11_academic_report_zh.png)
+![学术研报合成呈现](docs/images/doc_11_academic_report_zh.png)
 
 *图 7-1: 智能体最终生成的学术研究报告（全中文）。包含背景、数据源凭证、横向比对结论、生态恢复动力学机理与防灾决策启示，支持一键导出标准 Markdown 文件。*
 
 同时，系统亦内建了 **Visual Geo-ML 空间机器学习实验室**，支持将气候与生态多维特征直接投影为三维决策边界：
 
-![Visual Geo-ML 空间机器学习实验室](C:\Users\Administrator\.gemini\antigravity\brain\b6416f04-de36-4be4-9215-4a10292d21fd\doc_07_visual_geoml_zh.png)
+![Visual Geo-ML 空间机器学习实验室](docs/images/doc_07_visual_geoml_zh.png)
 
 *图 7-2: Visual Geo-ML 空间机器学习实验室。支持 KNN/SVM 超参数交互调节、空间生态位决策边界动态投影与神经网络特征归因。*
 

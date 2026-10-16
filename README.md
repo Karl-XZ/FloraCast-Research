@@ -1,11 +1,48 @@
-# FloraCast: Autonomous Deep Research Agent System for Earth Science and Ecological Resilience
+# FloraCast: An Open GeoAI Platform for Climate–Vegetation Analysis
 
-FloraCast is an open-source scientific research agent system designed for terrestrial ecology, phenological remote sensing monitoring, and extreme climate resilience assessment. Integrating Cesium 3D digital twin Earth interaction, MODIS/Landsat multi-source remote sensing time-series inversion, 40-year high-resolution meteorological reanalysis mining, and a rigorous eight-stage autonomous scientific research pipeline (compatible with the openJiuwen specification), FloraCast delivers an end-to-end scientific research loop spanning from open-ended hypothesis formulation and multi-source spatiotemporal data alignment to deterministic biophysical modeling and reproducible academic report generation.
+FloraCast brings maps, remote-sensing layers, plant observations and identification, location-aware AI assistance, and historical weather searches into one application for climate–vegetation analysis. Researchers can find historical weather periods that match selected conditions and compare their imagery, vegetation signals, and available plant observations. The existing research workbench and eight-stage workflow remain part of the project; their technical descriptions and screenshots are retained below.
 
 - **Live Interactive Platform**: [https://openl.work/FloraCast/](https://openl.work/FloraCast/)  
 - **Independent Research Workbench**: [https://openl.work/FloraCast/research.html](https://openl.work/FloraCast/research.html)  
 - **GitHub Repository**: [https://github.com/Karl-XZ/FloraCast-Research](https://github.com/Karl-XZ/FloraCast-Research)  
 - **Gitee Repository**: [https://gitee.com/karl-zhou/FloraCast-Research](https://gitee.com/karl-zhou/FloraCast-Research)
+- **ModelScope Studio**: [https://modelscope.cn/studios/Karlzhy/FLORACAST](https://modelscope.cn/studios/Karlzhy/FLORACAST)
+- **Demo Video**: [https://www.bilibili.com/video/BV1UyJt6yETe/](https://www.bilibili.com/video/BV1UyJt6yETe/)
+
+## FloraCast 气候与植被分析平台
+
+研究一个地点的植被，往往需要同时查阅天气记录、遥感影像和地面植物观测。FloraCast 将这些信息放在同一张地图上，支持从空间浏览、植物观察到天气与植被关系分析的连续操作。
+
+| 核心功能 | 可以完成的操作 | 具体用途 |
+|---|---|---|
+| 地图与遥感对比 | 打开图层、设置日期和透明度、分屏比较 | 查看同一地点不同时期的地表与植被变化 |
+| 植物照片与识别 | 按地点和日期查找 iNaturalist 记录，查看照片并调用识别 | 将区域遥感信息联系到具体物种与地面观察 |
+| 地点感知 AI 助手 | 结合气温、降水、植被指数和物候信息问答 | 整理当地环境状况，解释天气与植物生长之间的联系 |
+| 历史气象搜索 | 用自然语言选择条件，检索并比较历史天气窗口 | 快速找到历史参照，再查阅同期影像和植物观测 |
+
+平台还提供植被指数、积温与花期估计、月度物种记录、斑块分析、时序预测及研究工作台。各产品、照片和问答上下文的实际日期应分别核对，操作方法见 [使用流程](docs/demo-guide.md)。
+
+### 文档与参与
+
+| 内容 | 入口 |
+|---|---|
+| 安装、环境配置和 Docker | [部署说明](docs/deployment.md) |
+| 四项核心功能及实际操作 | [使用流程](docs/demo-guide.md) |
+| 技术架构和代码定位 | [架构说明](docs/architecture.md) |
+| 测试命令、覆盖范围与执行结果 | [验证说明](docs/verification.md) |
+| 问题反馈与代码贡献 | [贡献指南](CONTRIBUTING.md) |
+| 维护负责人、决策和双平台同步 | [维护说明](GOVERNANCE.md) |
+| 后续任务与验收方式 | [路线图](ROADMAP.md) |
+| 软件、数据、图层与照片来源 | [第三方说明](THIRD_PARTY_NOTICES.md) |
+| 版本变化 | [变更记录](CHANGELOG.md) |
+
+### 已有成果
+
+- 获得 AP-GARSS 2026 关联赛事 **Open Source GeoAI Practice Challenge 三等奖**。
+- 同名论文 **FloraCast: An Open GeoAI Platform for Climate–Vegetation Analysis** 获 2026 IEEE AP-GARSS 录用。
+- 主要维护者：周昊洋（Haoyang Zhou），德国不莱梅大学计算机科学本科生。
+
+项目代码采用 MIT 许可；外部数据、照片、地图和模型服务遵循各自条件，详见 [LICENSE](LICENSE) 与 [第三方说明](THIRD_PARTY_NOTICES.md)。
 
 ---
 
@@ -32,11 +69,11 @@ FloraCast is an open-source scientific research agent system designed for terres
 
 Traditional Earth science analysis relies heavily on manual transitions and disparate data alignment across desktop GIS tools, custom Python scripts, and fragmented satellite portals. FloraCast establishes an end-to-end autonomous research workflow tailored for complex ecological challenges:
 
-1. **Immersive 3D Digital Twin Earth**: Built upon the Cesium engine on a global WGS84 ellipsoid. Supports real-time rendering of global satellite layers, dynamic day/night atmospheric illumination, coordinate crosshair navigation, and multi-temporal split-screen comparisons with sub-second tile response.
-2. **Eight-Stage Academic Pipeline**: Implements an institutional-grade research workflow from initial protocol definition and literature cross-examination through spatial data alignment, biophysical modeling, statistical verification, and dual-layer evidence auditing, backed by SHA-256 data provenance fingerprints to eliminate LLM hallucinations.
-3. **Deterministic Biophysical Inversion**: Replaces speculative generative guesses with established scientific formulations, driving vegetation dynamics through classic surface energy balance equations, Growing Degree Day (GDD) thermal thresholds, Vapor Pressure Deficit (VPD) stress indices, and MODIS pixel reliability masks.
-4. **40-Year Reanalysis Mining (1985–2024)**: Integrates the NASA POWER global agro-meteorological reanalysis database. Natural language queries automatically extract multi-decadal meteorological sequences, calculate rolling Z-score anomalies, and identify compound heat-drought episodes in seconds.
-5. **Client-Side Spatial Machine Learning (Visual Geo-ML)**: Employs in-browser spatial clustering and distance-decay algorithms (K-Means and spatial autocorrelation) directly within WebGL/Web Workers without requiring heavy GIS server backends.
+1. **3D Earth & Layer Comparison**: Uses Cesium on a WGS84 globe for satellite layers, coordinate navigation and split-screen comparisons across dates.
+2. **Eight-Stage Research Workflow**: Records protocol definition, literature, data alignment, modeling, verification and report stages. SHA-256 checksums help compare frozen inputs and outputs.
+3. **Vegetation & Phenology Analysis**: Uses vegetation time series, Growing Degree Day (GDD) thresholds and MODIS quality fields to investigate seasonal plant activity.
+4. **Historical Weather Search**: Retrieves NASA POWER daily records for the selected years, computes rolling-window metrics and anomaly scores, and ranks periods matching the query.
+5. **Visual Geo-ML**: Provides browser-side spatial exploration and classification tools, with feature plots and map-based results.
 
 ---
 
@@ -69,7 +106,7 @@ FloraCast structures complex, open-ended scientific investigations into eight se
 [Stage 08: Academic Research Report Synthesis]
 ```
 
-Each stage produces structured intermediate artifacts, cryptographically linked with checksums to enforce tamper-proof reproducibility and peer-review integrity.
+Each stage records structured intermediate artifacts. Checksums support comparison of frozen inputs and outputs; reproduction and external validation are tracked separately in the research results.
 
 ---
 
@@ -125,7 +162,7 @@ Using MODIS 250m surface reflectance (MOD09Q1) and NDVI/EVI timeseries, the syst
 
 ### 3.5 Client-Side Spatial Machine Learning (Visual Geo-ML)
 
-The in-browser spatial machine learning module applies multivariate K-Means clustering, spatial autocorrelation, and inverse distance weighted (IDW) interpolation directly on client GPUs.
+The in-browser spatial machine learning module provides spatial feature exploration, clustering and map-based visualization. Execution depends on the selected method and browser capabilities.
 
 ![Visual Geo-ML Interface](docs/images/doc_07_visual_geoml_zh.png)  
 *Figure 9: Visual Geo-ML interface presenting spatial clustering, feature correlation scatter plots, and neighborhood distribution metrics.*
@@ -137,7 +174,7 @@ The in-browser spatial machine learning module applies multivariate K-Means clus
 Designed for peer-reviewed research and cross-team reproduction, this standalone workbench freezes protocol parameters, verifies bibliographic citations, audits raw data streams, and exports publication-ready academic reports.
 
 ![Independent Protocol Workbench](docs/images/doc_10_research_workbench_zh.png)  
-*Figure 10: Protocol definition interface showing metadata freezing, citation references, and zero-hallucination data auditing.*
+*Figure 10: Protocol definition interface showing metadata freezing, citation references, and source-data auditing.*
 
 ![Structured Academic Research Report](docs/images/doc_11_academic_report_zh.png)  
 *Figure 11: Structured academic research report including background, methodology, empirical comparisons, evidence reviews, and scientific limitations.*
@@ -146,7 +183,7 @@ Designed for peer-reviewed research and cross-team reproduction, this standalone
 
 ## 4. Production Security Hardening Architecture
 
-To safeguard API credentials and ensure high-availability service delivery, FloraCast deploys a multi-tier security gateway:
+The existing deployment design uses a gateway and a Node.js service. The Nginx settings below describe a deployment configuration; local startup runs the Node.js service directly. Deployment operators configure and verify their own HTTPS and request limits.
 
 ```
 Client Request (Browser)
@@ -180,7 +217,7 @@ Client Request (Browser)
 | | Plotly.js (2.35.2) | Interactive scientific scatter plots, radar charts, and recovery curves |
 | | TensorFlow.js | Client-side spatial clustering and linear trend regressions |
 | | Marked.js | Markdown report rendering with KaTeX mathematical formulas |
-| **Service Layer** | Node.js (v18+) & Express | API gateway, Server-Sent Events (SSE) streaming, and caching |
+| **Service Layer** | Node.js (v20+) & Express | API gateway, Server-Sent Events (SSE) streaming, and caching |
 | | Axios & Multer | Data fetching pipelines and satellite tile streaming proxies |
 | | openJiuwen Protocol Layer | Eight-stage research workflow orchestration and state management |
 | **Scientific Models** | DeepSeek Official API (V3/R1) | Natural language intent parsing and synthesis of academic research reports |
@@ -194,7 +231,7 @@ Client Request (Browser)
 ## 6. Quick Start & Local Deployment
 
 ### Prerequisites
-- Node.js 18.0 or higher
+- Node.js 20.0 or higher (Node.js 22 LTS recommended)
 - Git
 - Modern browser supporting WebGL 2.0 (Google Chrome, Microsoft Edge, or Firefox)
 
@@ -207,7 +244,7 @@ cd FloraCast-Research
 
 # Install server dependencies
 cd server
-npm install
+npm ci
 ```
 
 ### Environment Setup
@@ -241,6 +278,8 @@ Access in your browser:
 - 3D Digital Twin Earth: `http://localhost:5174/`
 - Independent Research Workbench: `http://localhost:5174/research.html`
 
+From the repository root, run `npm test --prefix server` and `npm run verify:local --prefix server`. See [deployment](docs/deployment.md) for configuration dependencies and [verification](docs/verification.md) for the checks covered.
+
 ---
 
 ## 7. Environment Configuration Guidelines
@@ -257,4 +296,6 @@ Access in your browser:
 - **Meteorological Reanalysis**: NASA POWER Global Agroclimatology Daily Dataset (1985–2024).
 - **Marine & Atmospheric Forecast Tiles**: [OpenPortGuide](https://weather.openportguide.de/) (Licensed under [CC BY-NC-SA 4.0](https://creativecommons.org/licenses/by-nc-sa/4.0/)).
 - **Basemap Layers**: Gaode Vector Maps, Baidu Satellite Imagery.
-- **Open Source License**: FloraCast is released under the [MIT License](LICENSE) for open academic research, ecological monitoring, and educational exploration.
+- **Open Source License**: FloraCast code is released under the [MIT License](LICENSE).
+
+Full software, map, data, photo and model-service notices are maintained in [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md). Exact server dependency versions are recorded in the lockfile and [dependency inventory](docs/dependency-inventory.md).

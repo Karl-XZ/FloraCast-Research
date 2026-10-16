@@ -1,0 +1,22 @@
+name: Verify existing application
+on:
+  push:
+    branches: [master, main]
+  pull_request:
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  local-checks:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: server/package-lock.json
+      - run: npm ci --prefix server --ignore-scripts --no-audit --no-fund
+      - run: npm test --prefix server
+      - run: npm run verify:local --prefix server

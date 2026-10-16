@@ -2775,8 +2775,9 @@ const ForecastManager = {
       const v   = byDate.get(d);
       const l1  = byDate.get(dates[i-1]);
       const l2  = byDate.get(dates[i-2]);
-      const r3  = roll(i,3);
-      const wx  = wxByDate[d] || {};
+      // Inputs must be observable before the target composite begins.
+      const r3  = roll(i-1,3);
+      const wx  = wxByDate[dates[i-1]] || {};
       if (v==null || l1==null || l2==null || r3==null || wx.tMean==null || wx.pSum==null) continue;
 
       const doy = this._doy(d);
@@ -2854,7 +2855,9 @@ const ForecastManager = {
 
   _forecastNext30Days(viSeries, wxByDate, model) {
     const out = [];
-    const keys = Object.keys(wxByDate);
+    if (viSeries.length < 2) return out;
+    const lastDate = viSeries[viSeries.length-1].date;
+    const keys = Object.keys(wxByDate).filter(date => date <= lastDate).sort();
     const last30 = keys.slice(-Math.min(30, keys.length));
     const tArr = last30.map(d=>wxByDate[d]?.tMean).filter(v=>v!=null);
     const pArr = last30.map(d=>wxByDate[d]?.pSum ).filter(v=>v!=null);
@@ -2863,9 +2866,14 @@ const ForecastManager = {
 
     const hist = viSeries.slice();
     let d = new Date(hist[hist.length-1].date+'T00:00:00Z');
+    const gaps = hist.slice(1).map((row, i) =>
+      Math.round((Date.parse(row.date) - Date.parse(hist[i].date)) / 86400000)
+    ).filter(days => days > 0).sort((a,b) => a-b);
+    const stepDays = gaps.length ? gaps[Math.floor(gaps.length / 2)] : 16;
+    const steps = Math.ceil(30 / stepDays);
 
-    for (let i=1;i<=30;i++){
-      d.setUTCDate(d.getUTCDate()+1);
+    for (let i=1;i<=steps;i++){
+      d.setUTCDate(d.getUTCDate()+stepDays);
       const iso = d.toISOString().slice(0,10);
 
       const len = hist.length;

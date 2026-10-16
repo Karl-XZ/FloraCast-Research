@@ -35,6 +35,7 @@ function getCacheKey(lat, lng, startYear, endYear) {
   return `nasa_power_${roundLat}_${roundLng}_${startYear}_${endYear}.json`;
 }
 
+// Explicit fixture generator; live searches do not use synthetic fallback data.
 export function generateSyntheticHistory(lat, lng, startYear = 1985, endYear = 2024) {
   const rows = [];
   const baseTemp = 16.0 - Math.abs(lat - 30.0) * 0.45;
@@ -99,8 +100,8 @@ export async function getHistoricalWeather({ lat, lng, startYear = 1985, endYear
   if (!forceLive && fs.existsSync(cacheFile)) {
     try {
       const data = JSON.parse(fs.readFileSync(cacheFile, 'utf8'));
-      if (Array.isArray(data) && data.length > 500) {
-        return data;
+      if (data.source === 'NASA POWER' && data.schemaVersion === 2 && Array.isArray(data.rows) && data.rows.length) {
+        return data.rows;
       }
     } catch (_) {}
   }
@@ -144,19 +145,17 @@ export async function getHistoricalWeather({ lat, lng, startYear = 1985, endYear
         t2m: finite(parameters.T2M?.[date], null),
         t2m_max: finite(parameters.T2M_MAX?.[date], null),
         t2m_min: finite(parameters.T2M_MIN?.[date], null),
-        prectotcorr: Math.max(0, finite(parameters.PRECTOTCORR?.[date], 0)),
+        prectotcorr: finite(parameters.PRECTOTCORR?.[date], null),
         rh2m: finite(parameters.RH2M?.[date], null),
         ws10m: finite(parameters.WS10M?.[date], null),
         allsky_sfc_sw_dwn: finite(parameters.ALLSKY_SFC_SW_DWN?.[date], null)
       };
     }).filter(r => r.t2m != null && r.t2m > -900);
 
-    fs.writeFileSync(cacheFile, JSON.stringify(rows), 'utf8');
+    fs.writeFileSync(cacheFile, JSON.stringify({ source: 'NASA POWER', schemaVersion: 2, rows }), 'utf8');
     return rows;
   } catch (err) {
-    const synthetic = generateSyntheticHistory(lat, lng, startYear, endYear);
-    fs.writeFileSync(cacheFile, JSON.stringify(synthetic), 'utf8');
-    return synthetic;
+    throw new Error(`NASA POWER daily data unavailable: ${err.message}`);
   }
 }
 

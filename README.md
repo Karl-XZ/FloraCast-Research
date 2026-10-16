@@ -118,9 +118,9 @@ FloraCast 是一个面向气候与植被分析的开源平台，将地图与遥�
 
 ## 3. 功能界面与操作示例
 
-#<a id="31-3d-digital-twin-earth--multi-source-basemaps"></a>
+<a id="31-3d-digital-twin-earth--multi-source-basemaps"></a>
 
-## 3.1 三维地球与多源底图
+### 3.1 三维地球与多源底图
 
 地图界面提供地球浏览、空间测距、逆地理编码和多源影像叠加，支持按坐标定位并比较不同图层。
 
@@ -134,9 +134,9 @@ FloraCast 是一个面向气候与植被分析的开源平台，将地图与遥�
 
 ---
 
-#<a id="32-collaborative-research-agent-console"></a>
+<a id="32-collaborative-research-agent-console"></a>
 
-## 3.2 科研智能体控制台
+### 3.2 科研智能体控制台
 
 研究者可以用自然语言提出问题，例如研究天气变化后沿海植被的响应。智能体解析研究区域、时间范围和任务参数，并组织数据查询与分析。
 
@@ -150,9 +150,9 @@ FloraCast 是一个面向气候与植被分析的开源平台，将地图与遥�
 
 ---
 
-#<a id="33-meteorological-semantic-search--multi-decadal-extreme-event-mining"></a>
+<a id="33-meteorological-semantic-search--multi-decadal-extreme-event-mining"></a>
 
-## 3.3 自然语言历史气象搜索
+### 3.3 自然语言历史气象搜索
 
 历史气象搜索将自然语言描述转为地点、年份、月份、窗口长度和变量条件，从多年逐日记录中寻找相近时段。查询可围绕少雨、持续降水、高温或其他天气特征展开，结果保留候选日期、排序分数和逐日指标。
 
@@ -166,9 +166,9 @@ FloraCast 是一个面向气候与植被分析的开源平台，将地图与遥�
 
 ---
 
-#<a id="34-deterministic-biophysical-modeling--phenological-inversion"></a>
+<a id="34-deterministic-biophysical-modeling--phenological-inversion"></a>
 
-## 3.4 植被分析与物候估计
+### 3.4 植被分析与物候估计
 
 系统结合 MODIS 相关产品和 NDVI、EVI 时序，查看植被季节变化，估计返青、旺盛生长和衰退等阶段，并分析天气过程前后的变化幅度与时间差。具体结果依据所选产品、质量字段和可用日期计算。
 
@@ -182,9 +182,9 @@ FloraCast 是一个面向气候与植被分析的开源平台，将地图与遥�
 
 ---
 
-#<a id="35-client-side-spatial-machine-learning-visual-geo-ml"></a>
+<a id="35-client-side-spatial-machine-learning-visual-geo-ml"></a>
 
-## 3.5 浏览器空间机器学习
+### 3.5 浏览器空间机器学习
 
 空间机器学习模块提供特征探索、聚类和地图可视化，便于比较不同环境变量下的空间分布。计算方式随所选方法和浏览器能力而定。
 
@@ -194,9 +194,9 @@ FloraCast 是一个面向气候与植被分析的开源平台，将地图与遥�
 
 ---
 
-#<a id="36-independent-research-protocol-workbench--academic-synthesis"></a>
+<a id="36-independent-research-protocol-workbench--academic-synthesis"></a>
 
-## 3.6 独立研究工作台与报告生成
+### 3.6 独立研究工作台与报告生成
 
 独立研究工作台用于冻结研究参数、记录文献引用、检查原始数据和导出结构化报告，为结果复查与跨团队协作保留记录。
 
